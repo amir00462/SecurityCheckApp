@@ -28,10 +28,10 @@ import dev.burnoo.cokoin.get
 import dev.burnoo.cokoin.navigation.KoinNavHost
 import ir.dunijet.securitycheckapp.model.data.Log
 import ir.dunijet.securitycheckapp.service.local.LocalRepository
-import ir.dunijet.securitycheckapp.ui.features.SignUpScreen
 import ir.dunijet.securitycheckapp.ui.theme.SecureHomeSystemTheme
 import ir.dunijet.securitycheckapp.util.*
 import ir.dunijet.securitycheckapp.di.myModules
+import ir.dunijet.securitycheckapp.ui.features.*
 import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 
@@ -118,31 +118,11 @@ fun SecureHomeSystem() {
     KoinNavHost(navController = navController, startDestination = MyScreens.SignUpScreen.route) {
 
         composable(MyScreens.SignUpScreen.route) {
-
             SignUpScreen()
-
-//            if (databaseServiceMain.readFromLocal(RouteToGo) == "null") {
-//                SignUpScreen()
-//            } else {
-//                WiredZoneScreen()
-//            }
-
         }
 
         composable(MyScreens.ChangePasswordScreen.route) {
-            // ChangePasswordScreen()
-        }
-
-        composable(MyScreens.SettingZone1Screen.route) {
-            // SettingZone1Screen()
-        }
-
-        composable(MyScreens.SettingZone2Screen.route) {
-            // SettingZone2Screen()
-        }
-
-        composable(MyScreens.SettingZone3Screen.route) {
-            // SettingZone3Screen()
+            ChangePasswordScreen()
         }
 
         composable(MyScreens.MembersScreen.route) {
@@ -155,7 +135,7 @@ fun SecureHomeSystem() {
                 type = NavType.BoolType
             })
         ) {
-            // ChangePasswordInApp(it.arguments!!.getBoolean(KEY_IS_ADMIN, true))
+            ChangePasswordInApp(it.arguments!!.getBoolean(KEY_IS_ADMIN, true))
         }
 
         composable(MyScreens.RemoteScreen.route) {
@@ -163,15 +143,15 @@ fun SecureHomeSystem() {
         }
 
         composable(MyScreens.WiredZoneScreen.route) {
-            // WiredZoneScreen()
+            WiredZoneScreen()
         }
 
         composable(MyScreens.WirelessZoneScreen.route) {
-            // WirelessZonesScreen()
+            WirelessZonesScreen()
         }
 
         composable(MyScreens.AlarmScreen.route) {
-            // AlarmScreen()
+            AlarmScreen()
         }
 
     }

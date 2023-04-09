@@ -74,7 +74,7 @@ fun ChangePasswordScreen() {
                 context.unregisterReceiver(smsSent)
                 context.unregisterReceiver(smsReceived)
 
-                navigation.navigate(MyScreens.SettingZone1Screen.route)
+                navigation.navigate(MyScreens.WiredZoneScreen.route)
             } else {
                 mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms sent" + "-" + "Password_Change_Failed"))
                 context.showToast("عملیات تغییر پسورد ناموفق بود")

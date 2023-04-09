@@ -1,5 +1,6 @@
 package ir.dunijet.securitycheckapp.ui.widgets
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -59,13 +61,15 @@ fun WiredZoneList(zones: SnapshotStateList<Zone>, onVirayeshClicked: (Zone) -> U
 
                             // change selected state
                             val valueToAdd = zones[it].copy(zoneStatus = itt)
-                            zones.remove(zones[it])
-                            zones.add(valueToAdd)
+                            zones[it] = valueToAdd
+
+//                            zones.remove(zones[it])
+//                            zones.add(valueToAdd)
 
                         }, {
 
                             // virayesh
-
+                            onVirayeshClicked.invoke(it)
 
                         })
 
@@ -78,12 +82,15 @@ fun WiredZoneList(zones: SnapshotStateList<Zone>, onVirayeshClicked: (Zone) -> U
 
                             // change selected state
                             val valueToAdd = zones[it].copy(zoneStatus = itt)
-                            zones.remove(zones[it])
-                            zones.add(valueToAdd)
+                            zones[it] = valueToAdd
+
+//                            zones.remove(zones[it])
+//                            zones.add( , valueToAdd)
 
                         }, {
 
                             // virayesh
+                            onVirayeshClicked.invoke(it)
 
                         })
 
@@ -93,10 +100,13 @@ fun WiredZoneList(zones: SnapshotStateList<Zone>, onVirayeshClicked: (Zone) -> U
                     3 -> {
 
                         TwoStepZoneWire(Modifier, zones[it], { itt ->
+
                             // change selected state
                             val valueToAdd = zones[it].copy(zoneStatus = itt)
-                            zones.remove(zones[it])
-                            zones.add(valueToAdd)
+                            zones[it] = valueToAdd
+//                            zones.remove(zones[it])
+//                            zones.add(valueToAdd)
+
                         }, {
                             // virayesh
                             onVirayeshClicked.invoke(it)
@@ -705,10 +715,10 @@ fun FourStepZoneWire2(
 fun ZoneNoe(
     modifier: Modifier,
     zone: Zone,
-    onZoneValueChanged: (ZoneType) -> Unit
+    onZoneValueChanged: (ZoneNooe) -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    var selectedPart by remember { mutableStateOf(zone.zoneStatus) }
+    var selectedPart by remember { mutableStateOf(zone.zoneNooe) }
 
     Column(
         modifier = modifier
@@ -748,15 +758,19 @@ fun ZoneNoe(
                     .fillMaxHeight()
                     .clip(MaterialTheme.shapes.small)
                     .background(
-                        if (selectedPart != ZoneType.GheirFaal) Color.Transparent
-                        else appColors[1]
+                        if (selectedPart == ZoneNooe.AtashDood)
+                            appColors[1]
+                        else
+                            Color.Transparent
                     )
                     .clickable(
                         interactionSource = interactionSource,
                         indication = null
                     ) {
-                        selectedPart = ZoneType.GheirFaal
-                        onZoneValueChanged.invoke(selectedPart)
+                        selectedPart = ZoneNooe.AtashDood
+                        onZoneValueChanged.invoke(selectedPart!!)
+
+                        Log.i("tag", "dood va atash clicked")
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -764,8 +778,11 @@ fun ZoneNoe(
                     text = "سنسور دود و آتش",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
-                    color = if (selectedPart != ZoneType.GheirFaal) appColors[6]
-                    else appColors[8]
+                    color =
+                    if (selectedPart == ZoneNooe.AtashDood)
+                        appColors[8]
+                    else
+                        appColors[6]
                 )
             }
 
@@ -777,15 +794,19 @@ fun ZoneNoe(
                     .fillMaxHeight()
                     .clip(MaterialTheme.shapes.small)
                     .background(
-                        if (selectedPart == ZoneType.Faal) appColors[1]
-                        else Color.Transparent
+                        if (selectedPart == ZoneNooe.AtashDood)
+                            Color.Transparent
+                        else
+                            appColors[1]
                     )
                     .clickable(
                         interactionSource = interactionSource,
                         indication = null
                     ) {
-                        selectedPart = ZoneType.Faal
-                        onZoneValueChanged.invoke(selectedPart)
+                        selectedPart = ZoneNooe.Cheshmi
+                        onZoneValueChanged.invoke(selectedPart!!)
+
+                        Log.i("tag", "cheshmi clicked")
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -793,16 +814,14 @@ fun ZoneNoe(
                     text = "سنسور چشمی",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
-                    color = if (selectedPart == ZoneType.Faal) appColors[8]
-                    else appColors[6]
+                    color = if (selectedPart == ZoneNooe.AtashDood)
+                        appColors[6]
+                    else
+                        appColors[8]
                 )
             }
-
-
         }
-
     }
-
 }
 
 @Composable
@@ -810,10 +829,10 @@ fun ZoneDialog(
     buttonIsLoading: MutableState<Boolean>,
     zone: Zone,
     onDismiss: () -> Unit,
-    onSubmit: (String, ZoneType) -> Unit
+    onSubmit: (String, ZoneNooe) -> Unit
 ) {
 
-    val vaziatRemote = remember { mutableStateOf(zone.zoneStatus) }
+    val vaziatRemote = remember { mutableStateOf(zone.zoneNooe) }
     val context = LocalContext.current
     val nameRemoteEdt = remember { mutableStateOf(zone.title) }
 
@@ -882,22 +901,24 @@ fun ZoneDialog(
                         edtValue = nameRemoteEdt.value,
                         onValueChanges = { nameRemoteEdt.value = it })
 
-                    if (zone.zoneNooe == ZoneNooe.AtashDood) {
+                    if (zone.zoneId == "5") {
+
                         ZoneNoe(modifier = Modifier
                             .constrainAs(status) {
                                 start.linkTo(parent.start)
                                 end.linkTo(parent.end)
                                 top.linkTo(textField.bottom)
                             }
-                            .padding(top = 24.dp), zone = zone) { vaziatRemote.value = it }
+                            .padding(top = 24.dp), zone = zone) {
+                            vaziatRemote.value = it
+                        }
                     }
-
                 }
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(40.dp),
+                        .height(40.dp)
                 ) {
 
                     Box(modifier = Modifier
@@ -926,7 +947,7 @@ fun ZoneDialog(
                             if (nameRemoteEdt.value.count() > 0) {
 
                                 if (!buttonIsLoading.value) {
-                                    onSubmit.invoke(nameRemoteEdt.value, vaziatRemote.value)
+                                    onSubmit.invoke(nameRemoteEdt.value, vaziatRemote.value!!)
 
                                     buttonIsLoading.value = true
                                     Timer().schedule(object : TimerTask() {
@@ -1210,6 +1231,52 @@ fun FourStepZoneWireless(
     onDeleteClicked: (Unit) -> Unit,
     onStatusChange: (ZoneType) -> Unit,
 ) {
+
+
+}
+
+@Composable
+fun ZoneTimingButton(
+    modifier: Modifier ,
+    buttonIsLoading: MutableState<Boolean>,
+    clicked: () -> Unit
+) {
+
+    Button(
+        modifier = modifier.fillMaxWidth(),
+        shape = RectangleShape,
+        onClick = {
+
+            if (!buttonIsLoading.value) {
+
+                clicked.invoke()
+
+                buttonIsLoading.value = true
+
+                Timer().schedule(object : TimerTask() {
+                    override fun run() {
+                        buttonIsLoading.value = false
+                    }
+                }, WaitingToReceiveSms)
+
+            }
+
+        }) {
+
+        if (buttonIsLoading.value) {
+            CircularProgressIndicator(
+                color = Color.White,
+                modifier = Modifier.size(24.dp),
+                strokeWidth = 2.dp
+            )
+        } else {
+            Text(
+                text = "ذخیره و ارسال",
+                style = MaterialTheme.typography.h2,
+                color = Color.White
+            )
+        }
+    }
 
 
 }

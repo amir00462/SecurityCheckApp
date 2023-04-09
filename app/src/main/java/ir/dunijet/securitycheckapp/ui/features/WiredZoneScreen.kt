@@ -8,6 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -21,8 +22,10 @@ import ir.dunijet.securitycheckapp.model.data.Remote
 import ir.dunijet.securitycheckapp.model.data.Zone
 import ir.dunijet.securitycheckapp.service.sms.SmsRepository
 import ir.dunijet.securitycheckapp.ui.MainActivity
+import ir.dunijet.securitycheckapp.ui.TimingButton
 import ir.dunijet.securitycheckapp.ui.widgets.WiredZoneList
 import ir.dunijet.securitycheckapp.ui.widgets.ZoneDialog
+import ir.dunijet.securitycheckapp.ui.widgets.ZoneTimingButton
 import ir.dunijet.securitycheckapp.util.*
 import kotlinx.coroutines.launch
 
@@ -32,6 +35,7 @@ fun WiredZoneScreen() {
     val wiredZones = remember { mutableStateListOf<Zone>() }
     val coroutineScope = rememberCoroutineScope()
     val buttonIsLoading = remember { mutableStateOf(false) }
+    val buttonIsLoadingSaveAll = remember { mutableStateOf(false) }
 
     lateinit var smsSent: BroadcastReceiver
     lateinit var smsReceived: BroadcastReceiver
@@ -307,6 +311,15 @@ fun WiredZoneScreen() {
 
                 }
 
+                ZoneTimingButton(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    buttonIsLoading = buttonIsLoadingSaveAll
+                ) {
+
+                    // save new zone array list to database
+                    // send new data in sms and look for its response
+
+                }
 
                 if (showDialog.value) {
 
@@ -319,9 +332,10 @@ fun WiredZoneScreen() {
                             } else {
                                 context.showToast("لطفا تا پایان عملیات صبر کنید")
                             }
-                        }, { nameZone, zoneType ->
+                        }, { nameZone, zoneNoee ->
 
-                            if (zoneType == ZoneType.Faal) {
+
+                            if (zoneNoee == ZoneNooe.Cheshmi) {
 
                                 // sensor cheshmi
                                 context.showToast("این رو بکن یک سنسور چشمی")
@@ -334,18 +348,11 @@ fun WiredZoneScreen() {
                             }
 
                         }
-
                     )
-
-
                 }
 
+
             }
-
-
         }
-
     }
-
-
 }

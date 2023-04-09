@@ -3,10 +3,9 @@ package ir.dunijet.securitycheckapp.util
 import ir.dunijet.securitycheckapp.model.data.Zone
 import ir.dunijet.securitycheckapp.ui.theme.*
 import ir.dunijet.securitycheckapp.R
-import java.lang.reflect.Member
 
-const val FIRST_LOGIC_DATA = "nufjas66wed"
-const val SECOND_LOGIC_DATA = "nubtoekd"
+const val FIRST_LOGIC_DATA = "nufjas66wedd"
+const val SECOND_LOGIC_DATA = "nubtoekdd"
 const val SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED"
 const val SMS_SENT = "SMS_SENT"
 
@@ -19,7 +18,7 @@ const val KEY_IS_ADMIN = "isAdmin"
 
 const val RouteToGo = "routeToGo"
 
-const val WaitingToReceiveSms = 20000L
+const val WaitingToReceiveSms = 18000L
 
 // New ->
 enum class ZoneType {

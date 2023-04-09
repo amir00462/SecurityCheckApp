@@ -118,7 +118,13 @@ fun SecureHomeSystem() {
     KoinNavHost(navController = navController, startDestination = MyScreens.SignUpScreen.route) {
 
         composable(MyScreens.SignUpScreen.route) {
-            SignUpScreen()
+
+            if(databaseServiceMain.readFromLocal(RouteToGo) == "null") {
+                SignUpScreen()
+            } else {
+                WiredZoneScreen()
+            }
+
         }
 
         composable(MyScreens.ChangePasswordScreen.route) {

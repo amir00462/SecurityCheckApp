@@ -2,6 +2,7 @@ package ir.dunijet.securitycheckapp.ui.widgets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,9 +11,11 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
@@ -20,88 +23,56 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
+import ir.dunijet.securitycheckapp.R
 import ir.dunijet.securitycheckapp.model.data.Zone
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
 import ir.dunijet.securitycheckapp.ui.MemberId
-import ir.dunijet.securitycheckapp.util.MemberTask
-import ir.dunijet.securitycheckapp.util.WaitingToReceiveSms
-import ir.dunijet.securitycheckapp.util.ZoneNooe
-import ir.dunijet.securitycheckapp.util.showToast
+import ir.dunijet.securitycheckapp.ui.MyMenu
+import ir.dunijet.securitycheckapp.ui.theme.ColorFaal
+import ir.dunijet.securitycheckapp.ui.theme.Shapes
+import ir.dunijet.securitycheckapp.ui.theme.colorGheirFaal
+import ir.dunijet.securitycheckapp.ui.theme.colorNimeFaal
+import ir.dunijet.securitycheckapp.util.*
 import java.util.*
 
-
 @Composable
-fun WirelessZoneList(zones: SnapshotStateList<Zone>, onVirayeshClicked: (Zone) -> Unit) {
+fun WirelessZoneList(
+    zones: SnapshotStateList<Zone>,
+    onVirayeshClicked: (Zone) -> Unit,
+    onDeleteClicked: (Zone) -> Unit
+) {
 
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         items(zones.size) {
 
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
 
-                when (zones[it].zoneType) {
+                FourStepWirelessZone(
+                    Modifier,
+                    zones[it],
+                    onZoneValueChanged = { itt ->
 
-                    // four nime faal
-                    1 -> {
-
-                        FourStepZoneWire1(Modifier, zones[it], { itt ->
-
-                            // change selected state
-                            val valueToAdd = zones[it].copy(zoneStatus = itt)
-                            zones[it] = valueToAdd
+                        // change selected state
+                        val valueToAdd = zones[it].copy(zoneStatus = itt)
+                        zones[it] = valueToAdd
 
 //                            zones.remove(zones[it])
 //                            zones.add(valueToAdd)
 
-                        }, {
+                    },
+                    onVirayeshClicked = {
 
-                            // virayesh
-                            onVirayeshClicked.invoke(it)
+                        // virayesh
+                        onVirayeshClicked.invoke(it)
 
-                        })
+                    },
+                    onDeleteClicked = {
 
-                    }
+                        // delete
+                        onDeleteClicked.invoke(it)
 
-                    // four 24 hour
-                    2 -> {
-
-                        FourStepZoneWire2(Modifier, zones[it], { itt ->
-
-                            // change selected state
-                            val valueToAdd = zones[it].copy(zoneStatus = itt)
-                            zones[it] = valueToAdd
-
-//                            zones.remove(zones[it])
-//                            zones.add( , valueToAdd)
-
-                        }, {
-
-                            // virayesh
-                            onVirayeshClicked.invoke(it)
-
-                        })
-
-                    }
-
-                    // two full
-                    3 -> {
-
-                        TwoStepZoneWire(Modifier, zones[it], { itt ->
-
-                            // change selected state
-                            val valueToAdd = zones[it].copy(zoneStatus = itt)
-                            zones[it] = valueToAdd
-//                            zones.remove(zones[it])
-//                            zones.add(valueToAdd)
-
-                        }, {
-                            // virayesh
-                            onVirayeshClicked.invoke(it)
-                        })
-
-                    }
-
-                }
+                    })
 
             }
         }
@@ -110,7 +81,230 @@ fun WirelessZoneList(zones: SnapshotStateList<Zone>, onVirayeshClicked: (Zone) -
 }
 
 @Composable
-fun WirelessZoneAdd(
+fun FourStepWirelessZone(
+    modifier: Modifier,
+    zone: Zone,
+    onZoneValueChanged: (ZoneType) -> Unit,
+    onVirayeshClicked: (Zone) -> Unit,
+    onDeleteClicked: (Zone) -> Unit
+) {
+
+    val interactionSource = remember { MutableInteractionSource() }
+    var selectedPart by remember { mutableStateOf(zone.zoneStatus) }
+
+    // three dot menu
+    val items = mutableListOf<Pair<String, Int>>()
+    items.add(Pair("ویرایش", R.drawable.ic_edit))
+    items.add(Pair("حذف", R.drawable.ic_delete))
+
+    Column(
+        modifier = modifier
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp)
+            .fillMaxWidth()
+            .clip(Shapes.medium)
+            .background(MainActivity.appColors[4])
+    ) {
+
+        ConstraintLayout(
+            modifier = Modifier
+                .fillMaxSize()
+                .height(36.dp),
+        ) {
+            val (id, title, icon, menu) = createRefs()
+
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                MyMenu(
+                    Modifier
+                        .constrainAs(menu) {
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                            end.linkTo(parent.end)
+                        }
+                        .padding(top = 8.dp),
+                    items = items,
+                    itemClicked = {
+
+                        if (it == "ویرایش")
+                            onVirayeshClicked.invoke(zone)
+                        else
+                            onDeleteClicked.invoke(zone)
+
+                    }
+                )
+            }
+
+            MemberId(modifier = Modifier
+                .constrainAs(id) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    end.linkTo(menu.start)
+                }
+                .padding(top = 8.dp), id = zone.zoneId, backColor = MainActivity.appColors[5])
+
+            Icon(
+                modifier = Modifier
+                    .constrainAs(icon) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                    }
+                    .padding(start = 10.dp, top = 16.dp),
+                painter = painterResource(id = zone.icon), contentDescription = null, tint =
+                appColors[6]
+            )
+
+            Text(
+                modifier = Modifier
+                    .constrainAs(title) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(icon.end)
+                    }
+                    .padding(start = 10.dp, top = 8.dp),
+                fontWeight = FontWeight.Medium,
+                lineHeight = 24.sp,
+                color = appColors[6],
+                text = zone.title
+            )
+
+        }
+
+        Divider(
+            modifier = Modifier.padding(top = 8.dp),
+            color = MaterialTheme.colors.onSecondary.copy(0.16f),
+            thickness = 1.dp
+        )
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .height(42.dp)
+                .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+
+            // gheir faal
+            Box(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(MaterialTheme.shapes.small)
+                    .background(
+                        if (selectedPart != ZoneType.GheirFaal) Color.Transparent
+                        else appColors[1]
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        selectedPart = ZoneType.GheirFaal
+                        onZoneValueChanged.invoke(selectedPart)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "غیر فعال",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = if (selectedPart != ZoneType.GheirFaal) appColors[6]
+                    else colorGheirFaal
+                )
+            }
+
+            // nime faal
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(MaterialTheme.shapes.small)
+                    .background(
+                        if (selectedPart == ZoneType.NimeFaal) MaterialTheme.colors.secondaryVariant
+                        else Color.Transparent
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        selectedPart = ZoneType.NimeFaal
+                        onZoneValueChanged.invoke(selectedPart)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "نیمه فعال", fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = if (selectedPart == ZoneType.NimeFaal) colorNimeFaal
+                    else appColors[6]
+                )
+            }
+
+            // faal
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(MaterialTheme.shapes.small)
+                    .background(
+                        if (selectedPart == ZoneType.Faal) appColors[1]
+                        else Color.Transparent
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        selectedPart = ZoneType.Faal
+                        onZoneValueChanged.invoke(selectedPart)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "فعال",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = if (selectedPart == ZoneType.Faal) ColorFaal
+                    else appColors[6]
+                )
+            }
+
+            // ding dong
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(MaterialTheme.shapes.small)
+                    .background(
+                        if (selectedPart == ZoneType.DingDong) MaterialTheme.colors.secondaryVariant
+                        else Color.Transparent
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        selectedPart = ZoneType.DingDong
+                        onZoneValueChanged.invoke(selectedPart)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "دینگ دانگ", fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = if (selectedPart == ZoneType.DingDong) MaterialTheme.colors.onPrimary
+                    else appColors[6]
+                )
+            }
+
+        }
+
+
+    }
+
+
+}
+
+@Composable
+fun DialogWirelessZoneAdd(
     id: Int,
     buttonIsLoading: MutableState<Boolean>,
     onDismiss: () -> Unit,
@@ -261,7 +455,7 @@ fun WirelessZoneAdd(
 }
 
 @Composable
-fun WirelessZoneEdit(
+fun DialogWirelessZoneEdit(
     zone: Zone,
     buttonIsLoading: MutableState<Boolean>,
     onDismiss: () -> Unit,
@@ -410,13 +604,11 @@ fun WirelessZoneEdit(
 
 
 @Composable
-fun WirelessZoneDelete(
+fun DialogWirelessZoneDelete(
     buttonIsLoading: MutableState<Boolean>,
-    zone: Zone,
     onDismiss: () -> Unit,
     onSubmit: () -> Unit
 ) {
-
     val context = LocalContext.current
 
     Dialog(onDismissRequest = onDismiss) {
@@ -488,8 +680,70 @@ fun WirelessZoneDelete(
                         color = appColors[10],
                     )
                 }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp),
+                ) {
+
+                    Box(modifier = Modifier
+                        .background(appColors[4])
+                        .clickable {
+                            if (!buttonIsLoading.value) {
+                                onDismiss.invoke()
+                            } else {
+                                context.showToast("لطفا تا پایان عملیات صبر کنید")
+                            }
+                        }
+                        .weight(1f)
+                        .fillMaxHeight(), contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "لغو",
+                            style = MaterialTheme.typography.h2,
+                            color = appColors[8],
+                        )
+                    }
+
+                    Box(modifier = Modifier
+                        .background(appColors[10])
+                        .clickable {
+
+                            if (!buttonIsLoading.value) {
+                                onSubmit.invoke()
+
+                                buttonIsLoading.value = true
+                                Timer().schedule(object : TimerTask() {
+                                    override fun run() {
+                                        buttonIsLoading.value = false
+                                    }
+                                }, WaitingToReceiveSms)
+
+                            } else {
+                                context.showToast("لطفا صبر کنید")
+                            }
+
+                        }
+                        .weight(1f)
+                        .fillMaxHeight(), contentAlignment = Alignment.Center
+                    ) {
+                        if (buttonIsLoading.value) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                text = "حذف",
+                                style = MaterialTheme.typography.h2,
+                                color = appColors[1],
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
-

@@ -27,9 +27,7 @@ import ir.dunijet.securitycheckapp.service.sms.SmsRepository
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
 import ir.dunijet.securitycheckapp.ui.TimingButton
-import ir.dunijet.securitycheckapp.ui.widgets.WiredZoneList
-import ir.dunijet.securitycheckapp.ui.widgets.ZoneDialog
-import ir.dunijet.securitycheckapp.ui.widgets.ZoneTimingButton
+import ir.dunijet.securitycheckapp.ui.widgets.*
 import ir.dunijet.securitycheckapp.util.*
 import kotlinx.coroutines.launch
 
@@ -49,7 +47,7 @@ fun WirelessZoneScreen() {
     val mainActivity = LocalContext.current as MainActivity
     val navigation = getNavController()
 
-    val showDialog = remember { mutableStateOf(false) }
+    val showDialog = remember { mutableStateOf("hide") }
     val dialogZone = remember { mutableStateOf(FAKE_ZONE) }
 
     val numberEngine = mainActivity.databaseServiceMain.readFromLocal(KEY_NUMBER_ENGINE)
@@ -222,6 +220,17 @@ fun WirelessZoneScreen() {
 
     }
 
+    fun getNextZoneId(): Int {
+
+        val fullList =
+            mutableListOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+        wirelessZones.forEach {
+            fullList.remove(it.zoneId.toInt())
+        }
+
+        return fullList.first()
+    }
+
     fun addData() {
 
         coroutineScope.launch {
@@ -305,51 +314,120 @@ fun WirelessZoneScreen() {
 
                     Divider(color = MainActivity.appColors[4], thickness = 1.dp)
 
-                    WiredZoneList(wirelessZones) {
+                    WirelessZoneList(wirelessZones, onVirayeshClicked = {
 
                         // on virayesh clicked
                         dialogZone.value = it
-                        showDialog.value = true
+                        showDialog.value = "edit"
+
+                    }, onDeleteClicked = {
+
+                        // on delete clicked
+                        dialogZone.value = it
+                        showDialog.value = "delete"
+
+                    })
+
+                }
+
+                if (wirelessZones.size < 20) {
+                    FloatingActionButton(
+                        backgroundColor = appColors[0],
+                        contentColor = appColors[1],
+                        onClick = {
+
+                            // on add zone clicked
+                            showDialog.value = "add"
+
+                        },
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(16.dp)
+                            .padding(bottom = if (wirelessZones.size == 0) 0.dp else 40.dp)
+                    ) {
+
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_add),
+                            contentDescription = "add wireless zone"
+                        )
+
+                    }
+                }
+
+                when (showDialog.value) {
+
+                    "add" -> {
+                        DialogWirelessZoneAdd(
+                            id = getNextZoneId(),
+                            buttonIsLoading = buttonIsLoading,
+                            onDismiss = {
+                                if (!buttonIsLoading.value) {
+                                    showDialog.value = "hide"
+                                } else {
+                                    context.showToast("لطفا تا پایان عملیات صبر کنید")
+                                }
+                            },
+                            onSubmit = { name, id ->
+
+                                // send add sms
+                                context.showToast("add clicked")
+
+                            }
+                        )
+                    }
+
+                    "edit" -> {
+                        DialogWirelessZoneEdit(
+                            zone = dialogZone.value,
+                            buttonIsLoading = buttonIsLoading,
+                            onDismiss = {
+                                if (!buttonIsLoading.value) {
+                                    showDialog.value = "hide"
+                                } else {
+                                    context.showToast("لطفا تا پایان عملیات صبر کنید")
+                                }
+                            },
+                            onSubmit = {
+
+                                // send edit sms
+                                context.showToast("edit clicked")
+
+                            }
+                        )
+                    }
+
+                    "delete" -> {
+                        DialogWirelessZoneDelete(
+                            buttonIsLoading = buttonIsLoading,
+                            onDismiss = {
+                                if (!buttonIsLoading.value) {
+                                    showDialog.value = "hide"
+                                } else {
+                                    context.showToast("لطفا تا پایان عملیات صبر کنید")
+                                }
+                            },
+                            onSubmit = {
+
+                                // send delete sms
+                                context.showToast("delete clicked")
+
+                            }
+                        )
+                    }
+                }
+
+                if (wirelessZones.size > 0) {
+
+                    ZoneTimingButton(
+                        modifier = Modifier.align(Alignment.BottomCenter),
+                        buttonIsLoading = buttonIsLoadingSaveAll
+                    ) {
+
+                        // save new zone array change list to database
+                        // send new data in sms and look for its response
 
                     }
 
-                }
-
-                FloatingActionButton(backgroundColor = appColors[0],
-                    contentColor = appColors[1],onClick = {  } , modifier = Modifier.align(Alignment.BottomStart).padding(16.dp) , ) {
-
-                    Icon(painter = painterResource(id = R.drawable.ic_add), contentDescription = "add wireless zone")
-
-                }
-
-                if (showDialog.value) {
-
-                    ZoneDialog(
-                        buttonIsLoading = buttonIsLoading,
-                        zone = dialogZone.value,
-                        onDismiss = {
-                            if (!buttonIsLoading.value) {
-                                showDialog.value = false
-                            } else {
-                                context.showToast("لطفا تا پایان عملیات صبر کنید")
-                            }
-                        }, { nameZone, zoneNoee ->
-
-
-                            if (zoneNoee == ZoneNooe.Cheshmi) {
-
-                                // sensor cheshmi
-                                context.showToast("این رو بکن یک سنسور چشمی")
-
-                            } else {
-
-                                // sensor dood va atash
-                                context.showToast("این رو بکن یک سنسور دود و آتش")
-
-                            }
-
-                        }
-                    )
                 }
 
 

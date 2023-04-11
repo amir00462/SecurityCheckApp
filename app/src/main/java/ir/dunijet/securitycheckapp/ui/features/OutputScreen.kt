@@ -355,7 +355,7 @@ fun OutputScreen() {
 
                     "add" -> {
                         DialogOutputAdd(
-                            id = getNextOutputId(),
+                            idd = getNextOutputId().toString(),
                             buttonIsLoading = buttonIsLoading,
                             onDismiss = {
                                 if (!buttonIsLoading.value) {
@@ -374,8 +374,8 @@ fun OutputScreen() {
                     }
 
                     "edit" -> {
-                        DialogOutputAdd(
-                            id = getNextOutputId(),
+                        DialogOutputEdit(
+                            output = dialogOutput.value,
                             buttonIsLoading = buttonIsLoading,
                             onDismiss = {
                                 if (!buttonIsLoading.value) {

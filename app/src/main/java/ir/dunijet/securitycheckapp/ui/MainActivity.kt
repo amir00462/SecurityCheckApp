@@ -26,6 +26,7 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import dev.burnoo.cokoin.Koin
 import dev.burnoo.cokoin.get
 import dev.burnoo.cokoin.navigation.KoinNavHost
+import ir.dunijet.securitycheckapp.R
 import ir.dunijet.securitycheckapp.model.data.Log
 import ir.dunijet.securitycheckapp.service.local.LocalRepository
 import ir.dunijet.securitycheckapp.ui.theme.SecureHomeSystemTheme
@@ -41,6 +42,11 @@ class MainActivity : ComponentActivity() {
     lateinit var databaseServiceMain: LocalRepository
 
     companion object {
+
+        // in output screen ->
+        var dialogOutputTitle = "چراغ\u200Cهای حیاط"
+        var dialogOutputIcon = R.drawable.ic_lamp
+
         var recomposition = 0
         var mainTypeModir = true
         var appColors = listOf<Color>()

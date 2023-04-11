@@ -119,7 +119,7 @@ fun SecureHomeSystem() {
 
         composable(MyScreens.SignUpScreen.route) {
 
-            WirelessZoneScreen()
+            AlarmScreen()
 
 //            if(databaseServiceMain.readFromLocal(RouteToGo) == "null") {
 //                SignUpScreen()

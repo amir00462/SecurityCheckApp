@@ -3,6 +3,9 @@ package ir.dunijet.securitycheckapp.util
 import ir.dunijet.securitycheckapp.model.data.Zone
 import ir.dunijet.securitycheckapp.ui.theme.*
 import ir.dunijet.securitycheckapp.R
+import ir.dunijet.securitycheckapp.model.data.Member
+import ir.dunijet.securitycheckapp.model.data.Output
+import ir.dunijet.securitycheckapp.model.data.Remote
 
 const val FIRST_LOGIC_DATA = "nufjas66wedd"
 const val SECOND_LOGIC_DATA = "nubtoekdd"
@@ -70,6 +73,13 @@ enum class MemberTask {
     DeleteUser
 }
 
+// Output =
+enum class OutputType {
+    KhamooshRoshan,
+    Lahzeii,
+    VabasteDoodAtash
+}
+
 // Colors =>
 val darkColors = listOf(
     DPrimary,
@@ -102,17 +112,11 @@ val lightColors = listOf(
     LColorSuccess // 12
 )
 
-val FAKE_MEMBER = ir.dunijet.securitycheckapp.model.data.Member(null, true, "", "")
-val FAKE_REMOTE = ir.dunijet.securitycheckapp.model.data.Remote(null, "", "", false, false)
-val FAKE_ZONE = ir.dunijet.securitycheckapp.model.data.Zone(
-    null,
-    false,
-    "",
-    R.drawable.ic_eye,
-    "1",
-    2,
-    ZoneType.CheshmiTwoTypes
-)
+val FAKE_MEMBER = Member(null, true, "", "")
+val FAKE_REMOTE = Remote(null, "", "", false, false)
+val FAKE_ZONE = Zone(null, false, "", R.drawable.ic_eye, "1", 2, ZoneType.CheshmiTwoTypes)
+val FAKE_OUTPUT =
+    Output(null, "چراغ\u200Cهای حیاط", R.drawable.ic_lamp, "1", OutputType.KhamooshRoshan, 27f)
 
 val zoneType1 = listOf("غیرفعال", "نیمه فعال", "فعال", "دینگ دانگ")
 val zoneType2 = listOf("غیرفعال", "24 ساعته", "فعال", "دینگ دانگ")
@@ -170,5 +174,21 @@ fun getDefaultWiredZones(): List<Zone> {
             zoneStatus = ZoneType.GheirFaal,
             zoneNooe = ZoneNooe.AtashDood
         ),
+    )
+}
+
+fun getDefaultOutputs(): List<Output> {
+    return listOf(
+
+        Output(null, "چراغ\u200Cهای حیاط", R.drawable.ic_lamp, "1", OutputType.KhamooshRoshan, 27f),
+        Output(
+            null,
+            "وابسته به سنسور دود و آتش",
+            R.drawable.ic_fire,
+            "2",
+            OutputType.VabasteDoodAtash,
+            27f
+        )
+
     )
 }

@@ -192,3 +192,12 @@ fun getDefaultOutputs(): List<Output> {
 
     )
 }
+
+val outputNameList = listOf(
+    Pair("درب خروجی", R.drawable.ic_home),
+    Pair("درب ورودی", R.drawable.ic_home),
+    Pair("پارکینگ", R.drawable.ic_home),
+    Pair("انبار شیراز", R.drawable.ic_home),
+    Pair("انبار تهران", R.drawable.ic_home),
+    Pair("انبار اهواز", R.drawable.ic_home),
+)

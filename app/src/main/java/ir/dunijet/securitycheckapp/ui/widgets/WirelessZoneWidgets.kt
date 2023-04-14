@@ -444,12 +444,8 @@ fun DialogWirelessZoneAdd(
                             )
                         }
                     }
-
                 }
-
             }
-
-
         }
     }
 }

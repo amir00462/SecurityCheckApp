@@ -7,17 +7,26 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -26,14 +35,13 @@ import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import ir.dunijet.securitycheckapp.R
 import ir.dunijet.securitycheckapp.model.data.Output
-import ir.dunijet.securitycheckapp.model.data.Zone
 import ir.dunijet.securitycheckapp.ui.MainActivity
+import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
 import ir.dunijet.securitycheckapp.ui.MemberId
 import ir.dunijet.securitycheckapp.ui.MyMenu
-import ir.dunijet.securitycheckapp.ui.theme.ColorFaal
 import ir.dunijet.securitycheckapp.ui.theme.Shapes
+import ir.dunijet.securitycheckapp.ui.theme.VazirFont
 import ir.dunijet.securitycheckapp.ui.theme.VazirFontDigits
-import ir.dunijet.securitycheckapp.ui.theme.colorGheirFaal
 import ir.dunijet.securitycheckapp.util.*
 import java.util.*
 
@@ -284,7 +292,6 @@ fun OutputWidget(
     }
 }
 
-
 @Composable
 fun DialogOutputAdd(
     idd: String,
@@ -295,6 +302,10 @@ fun DialogOutputAdd(
 
     val context = LocalContext.current
     val creatingOutput = remember { mutableStateOf(FAKE_OUTPUT) }
+    val alphaLahzeii =
+        remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
+    val isDoodAtash =
+        remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
 
     Dialog(onDismissRequest = onDismiss) {
 
@@ -345,8 +356,8 @@ fun DialogOutputAdd(
                         modifier = Modifier.padding(top = 40.dp),
                         id = idd,
                         name = creatingOutput.value.title,
-                        icon = creatingOutput.value.icon ,
-                        isDoodAtash = creatingOutput.value.outputType == OutputType.VabasteDoodAtash
+                        icon = creatingOutput.value.icon,
+                        isDoodAtash = isDoodAtash.value
                     ) {
 
                         // open new screen to choose new icon and title
@@ -354,23 +365,33 @@ fun DialogOutputAdd(
 
                     }
 
+
                     // type
                     OutputTypeWidget(
                         modifier = Modifier.padding(top = 24.dp),
                         value = creatingOutput.value.outputType
                     ) {
-                        Log.v("testHH" , "$it")
+                        Log.v("testHH", "$it")
+
                         creatingOutput.value.outputType = it
+                        alphaLahzeii.value =
+                            if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f
+                        isDoodAtash.value =
+                            creatingOutput.value.outputType == OutputType.VabasteDoodAtash
                     }
 
                     // zaman
-                    OutputTimeLahzeii(
-                        modifier = Modifier.padding(top = 24.dp, bottom = 40.dp),
-                        value = if (creatingOutput.value.outputType == OutputType.Lahzeii) creatingOutput.value.outputLahzeiiZaman else 27f,
-                        onValueChanged = {
-                            creatingOutput.value.outputLahzeiiZaman = it
-                        })
-
+                    Box(
+                        modifier = Modifier.alpha(alphaLahzeii.value)
+                    ) {
+                        OutputTimeLahzeii(
+                            modifier = Modifier.padding(top = 24.dp, bottom = 40.dp),
+                            isWorking = alphaLahzeii.value == 1f,
+                            value = if (creatingOutput.value.outputType == OutputType.Lahzeii) creatingOutput.value.outputLahzeiiZaman else 27f,
+                            onValueChanged = {
+                                creatingOutput.value.outputLahzeiiZaman = it
+                            })
+                    }
                 }
 
                 Row(
@@ -434,13 +455,9 @@ fun DialogOutputAdd(
                     }
 
                 }
-
             }
-
-
         }
     }
-
 }
 
 @Composable
@@ -452,6 +469,8 @@ fun DialogOutputEdit(
 ) {
     val context = LocalContext.current
     val creatingOutput = remember { mutableStateOf(output) }
+    val alphaLahzeii =
+        remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
 
     Dialog(onDismissRequest = onDismiss) {
 
@@ -522,6 +541,7 @@ fun DialogOutputEdit(
                     // zaman
                     OutputTimeLahzeii(
                         modifier = Modifier.padding(top = 24.dp, bottom = 40.dp),
+                        isWorking = alphaLahzeii.value == 1f,
                         value = if (creatingOutput.value.outputType == OutputType.Lahzeii) creatingOutput.value.outputLahzeiiZaman else 27f,
                         onValueChanged = {
                             creatingOutput.value.outputLahzeiiZaman = it
@@ -751,7 +771,7 @@ fun OutputName(
     id: String,
     name: String,
     icon: Int,
-    isDoodAtash :Boolean ,
+    isDoodAtash: Boolean,
     onChangeIconAndNameClicked: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -805,79 +825,138 @@ fun OutputName(
             thickness = 1.dp
         )
 
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .height(42.dp)
-                .padding(4.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            if (isDoodAtash) {
 
-            ConstraintLayout(
-                Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .clip(MaterialTheme.shapes.small)
-                    .background(
-                        // if (selectedPart != OutputType.VabasteDoodAtash)
-                        //    Color.Transparent
-                        // else
-                        MainActivity.appColors[1]
-                    )
-                    .clickable(
-                        interactionSource = interactionSource,
-                        indication = null
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .padding(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    ConstraintLayout(
+                        Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .clip(MaterialTheme.shapes.small)
+                            .background(
+                                // if (selectedPart != OutputType.VabasteDoodAtash)
+                                //    Color.Transparent
+                                // else
+                                MainActivity.appColors[1]
+                            )
+
                     ) {
+                        val (title, buttonGoNextPage) = createRefs()
 
-                        if(!isDoodAtash) {
-                            onChangeIconAndNameClicked.invoke()
-                        }
+                        Text(
+                            modifier = Modifier
+                                .constrainAs(title) {
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                    end.linkTo(buttonGoNextPage.start)
+                                }
+                                .padding(bottom = 4.dp),
+                            text = "وابسته به سنسور دود و آتش",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MainActivity.appColors[8]
+                        )
+
+                        Icon(modifier = Modifier
+                            .constrainAs(buttonGoNextPage) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                                end.linkTo(parent.end)
+                            }
+                            .padding(4.dp),
+                            painter = painterResource(id = R.drawable.ic_fire),
+                            tint = MainActivity.appColors[8],
+                            contentDescription = null)
 
                     }
-            ) {
-                val (title, iconn, buttonGoNextPage) = createRefs()
 
-                if(!isDoodAtash) {
-                    Icon(modifier = Modifier
-                        .constrainAs(iconn) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                        }
-                        .padding(12.dp),
-                        painter = painterResource(id = R.drawable.ic_arrow_left),
-                        tint = MainActivity.appColors[6],
-                        contentDescription = null)
                 }
 
-                Text(
-                    modifier = Modifier
-                        .constrainAs(title) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            end.linkTo(buttonGoNextPage.start)
-                        }.padding(bottom = 4.dp),
-                    text = if(isDoodAtash) "وابسته به سنسور دود و آتش" else name,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = MainActivity.appColors[8]
-                )
+            } else {
 
-                Icon(modifier = Modifier
-                    .constrainAs(buttonGoNextPage) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        end.linkTo(parent.end)
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .padding(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    ConstraintLayout(
+                        Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .clip(MaterialTheme.shapes.small)
+                            .background(
+                                // if (selectedPart != OutputType.VabasteDoodAtash)
+                                //    Color.Transparent
+                                // else
+                                MainActivity.appColors[1]
+                            )
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null
+                            ) {
+
+                                onChangeIconAndNameClicked.invoke()
+                            }
+                    ) {
+                        val (title, iconn, buttonGoNextPage) = createRefs()
+
+                        Icon(modifier = Modifier
+                            .constrainAs(iconn) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                                start.linkTo(parent.start)
+                            }
+                            .padding(12.dp),
+                            painter = painterResource(id = R.drawable.ic_arrow_left),
+                            tint = MainActivity.appColors[6],
+                            contentDescription = null)
+
+                        Text(
+                            modifier = Modifier
+                                .constrainAs(title) {
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                    end.linkTo(buttonGoNextPage.start)
+                                }
+                                .padding(bottom = 4.dp),
+                            text = name,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MainActivity.appColors[8]
+                        )
+
+                        Icon(modifier = Modifier
+                            .constrainAs(buttonGoNextPage) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                                end.linkTo(parent.end)
+                            }
+                            .padding(4.dp),
+                            painter = painterResource(id = icon),
+                            tint = MainActivity.appColors[8],
+                            contentDescription = null)
                     }
-                    .padding(4.dp),
-                    painter = painterResource(id = if(isDoodAtash) R.drawable.ic_fire else icon),
-                    tint = MainActivity.appColors[8],
-                    contentDescription = null)
+
+                }
 
             }
         }
+
     }
+
 }
 
 @Composable
@@ -889,7 +968,7 @@ fun OutputTypeWidget(
     val interactionSource = remember { MutableInteractionSource() }
     val currentState = remember { mutableStateOf(value) }
 
-    Column (
+    Column(
         modifier = modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
@@ -957,7 +1036,7 @@ fun OutputTypeWidget(
                     text = "وابسته به سنسور دود و آتش",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
-                    color = if (currentState.value != OutputType.VabasteDoodAtash)MainActivity.appColors[6]
+                    color = if (currentState.value != OutputType.VabasteDoodAtash) MainActivity.appColors[6]
                     else MainActivity.appColors[8]
                 )
             }
@@ -984,7 +1063,7 @@ fun OutputTypeWidget(
                     text = "خاموش / روشن",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
-                    color = if (currentState.value != OutputType.KhamooshRoshan)MainActivity.appColors[6]
+                    color = if (currentState.value != OutputType.KhamooshRoshan) MainActivity.appColors[6]
                     else MainActivity.appColors[8]
                 )
             }
@@ -1011,7 +1090,7 @@ fun OutputTypeWidget(
                     text = "لحظه\u200Cای",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
-                    color = if (currentState.value != OutputType.Lahzeii)MainActivity.appColors[6]
+                    color = if (currentState.value != OutputType.Lahzeii) MainActivity.appColors[6]
                     else MainActivity.appColors[8]
                 )
             }
@@ -1025,10 +1104,10 @@ fun OutputTypeWidget(
 @Composable
 fun OutputTimeLahzeii(
     modifier: Modifier,
+    isWorking: Boolean,
     value: Float,
     onValueChanged: (Float) -> Unit
 ) {
-
     var selectedValue by remember { mutableStateOf(value) }
 
     Column(
@@ -1090,11 +1169,199 @@ fun OutputTimeLahzeii(
                     valueRange = 1f..60.9f,
                     value = selectedValue,
                     onValueChange = {
-                        selectedValue = it
-                        onValueChanged.invoke(it)
+
+                        if (isWorking) {
+                            selectedValue = it
+                            onValueChanged.invoke(it)
+
+                        }
+
                     },
                 )
             }
         }
     }
+}
+
+
+//  -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+// select output name ->
+
+@Composable
+fun SearchBar(onValueChanged: (String) -> Unit) {
+
+    Surface(
+        color = appColors[1], modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+    ) {
+
+        Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
+            SearchTextField {
+                onValueChanged.invoke(it)
+            }
+        }
+    }
+
+}
+
+@Composable
+fun SearchTextField(
+    onValueChanged: (String) -> Unit
+) {
+    val text = remember { mutableStateOf("") }
+
+    Surface(
+        color = appColors[4],
+        modifier = Modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(6.dp)),
+    ) {
+        BasicTextField(
+            value = text.value,
+            onValueChange = {
+                text.value = it
+                onValueChanged.invoke(text.value)
+            },
+            singleLine = true,
+            cursorBrush = SolidColor(appColors[6]),
+            textStyle = TextStyle(
+                color = appColors[6],
+                fontSize = 16.sp,
+                lineHeight = 26.sp,
+                fontFamily = VazirFont,
+                fontWeight = FontWeight.W400
+            ),
+            decorationBox = { innerTextField ->
+
+                Row(
+                    Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(6.dp)),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    // leading icon
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_search),
+                        contentDescription = "",
+                        modifier = Modifier.padding(12.dp),
+                        tint = appColors[6]
+                    )
+
+                    Box(Modifier.weight(1f)) {
+                        if (text.value.isEmpty()) Text(
+                            "نام خروجی را جستجو کنید",
+                            style = TextStyle(
+                                color = appColors[6],
+                                fontSize = 16.sp,
+                                lineHeight = 26.sp,
+                                fontFamily = VazirFont,
+                                fontWeight = FontWeight.W400
+                            )
+                        )
+                        innerTextField()
+                    }
+
+                    // trailing icon
+                    if (text.value != "") {
+                        IconButton(
+                            onClick = {
+                                text.value = ""
+                            }
+                        ) {
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = "",
+                                tint = appColors[6],
+                                modifier = Modifier
+                                    .padding(14.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        )
+    }
+
+
+}
+
+@Composable
+fun OutputNamesList(onItemSelected: (String, Int) -> Unit) {
+
+    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+        items(outputNameList.size) {
+
+            OutputNameSearch(
+                name = outputNameList[it].first,
+                icon = outputNameList[it].second,
+            ) {
+                onItemSelected.invoke(outputNameList[it].first, outputNameList[it].second)
+            }
+
+        }
+    }
+
+}
+
+@Composable
+fun OutputNameSearch(
+    name: String,
+    icon: Int,
+    onChoose: () -> Unit
+) {
+
+    ConstraintLayout(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .background(appColors[2])
+            .clickable(
+
+            ) {
+                onChoose.invoke()
+            })
+    {
+        val (title, iconn, downSpacer) = createRefs()
+
+        Icon(modifier = Modifier
+            .constrainAs(iconn) {
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+            }
+            .padding(12.dp),
+            painter = painterResource(id = icon),
+            tint = appColors[6],
+            contentDescription = null)
+
+        Text(
+            modifier = Modifier
+                .constrainAs(title) {
+                    top.linkTo(iconn.top)
+                    bottom.linkTo(iconn.bottom)
+                    start.linkTo(iconn.end)
+                }
+                .padding(start = 16.dp),
+            text = name,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.W400,
+            lineHeight = 26.sp,
+            fontFamily = VazirFont,
+            color = appColors[8]
+        )
+
+        Divider(
+            modifier = Modifier.constrainAs(downSpacer) {
+                bottom.linkTo(parent.bottom)
+                end.linkTo(parent.end)
+                start.linkTo(parent.start)
+            },
+            color = appColors[6].copy(0.16f),
+            thickness = 1.dp
+        )
+
+    }
+
 }

@@ -8,15 +8,39 @@ import android.util.DisplayMetrics
 import android.util.LayoutDirection
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.text.layoutDirection
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import ir.dunijet.securitycheckapp.R
+import ir.dunijet.securitycheckapp.ui.MainActivity
+import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
+import ir.dunijet.securitycheckapp.ui.theme.VazirFont
 import kotlinx.coroutines.CoroutineExceptionHandler
 import java.util.*
 
@@ -110,7 +134,7 @@ fun isPermissionGranted(context: Context): Boolean {
 //    }
 //}
 
-fun getFlags() :Int {
+fun getFlags(): Int {
     return when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
             PendingIntent.FLAG_IMMUTABLE

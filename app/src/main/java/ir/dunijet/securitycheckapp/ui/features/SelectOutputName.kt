@@ -1,7 +1,10 @@
 package ir.dunijet.securitycheckapp.ui.features
 
 import android.content.BroadcastReceiver
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -30,7 +33,7 @@ import ir.dunijet.securitycheckapp.util.*
 import kotlinx.coroutines.launch
 
 @Composable
-fun OutputScreen() {
+fun SelectOutputName() {
 
     val outputs = remember { mutableStateListOf<Output>() }
     val coroutineScope = rememberCoroutineScope()
@@ -216,7 +219,6 @@ fun OutputScreen() {
 //        context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
 
     }
-
     fun getNextOutputId(): Int {
 
         val fullList = (1..64).toMutableList()
@@ -226,7 +228,6 @@ fun OutputScreen() {
 
         return fullList.first()
     }
-
     fun addData() {
 
         coroutineScope.launch {
@@ -279,7 +280,7 @@ fun OutputScreen() {
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Normal,
                         lineHeight = 36.sp,
-                        text = "خروجی\u200Cهای دستگاه",
+                        text = "نام خروجی را انتخاب کنید",
                         color = MainActivity.appColors[8]
                     )
                 },
@@ -302,117 +303,26 @@ fun OutputScreen() {
         }
     ) {
 
-        Surface(color = MainActivity.appColors[1]) {
+        Surface(color = MainActivity.appColors[2]) {
 
-            Box(modifier = Modifier.fillMaxSize()) {
-
-                Column {
+                Column(modifier = Modifier.fillMaxSize()) {
 
                     Divider(color = MainActivity.appColors[4], thickness = 1.dp)
 
-                    OutputList(outputs, onVirayeshClicked = {
+                    SearchBar {
 
-                        // on virayesh clicked
-                        dialogOutput.value = it
-                        showDialog.value = "edit"
+                    }
 
-                    }, onDeleteClicked = {
+                    Divider(color = MainActivity.appColors[4], thickness = 1.dp)
 
-                        // on delete clicked
-                        dialogOutput.value = it
-                        showDialog.value = "delete"
+                    OutputNamesList { title , icon ->
 
-                    })
+                        // onSelected
+
+                    }
 
                 }
 
-                // todo check another if statement for if the manager bought gold version
-                if (outputs.size < 64) {
-                    FloatingActionButton(
-                        backgroundColor = appColors[0],
-                        contentColor = appColors[1],
-                        onClick = {
-
-                            // on add output clicked
-                            showDialog.value = "add"
-
-                        },
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(16.dp)
-                    ) {
-
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_add),
-                            contentDescription = "add wireless zone"
-                        )
-
-                    }
-                }
-
-                when (showDialog.value) {
-
-                    "add" -> {
-                        DialogOutputAdd(
-                            idd = getNextOutputId().toString(),
-                            buttonIsLoading = buttonIsLoading,
-                            onDismiss = {
-                                if (!buttonIsLoading.value) {
-                                    showDialog.value = "hide"
-                                } else {
-                                    context.showToast("لطفا تا پایان عملیات صبر کنید")
-                                }
-                            },
-                            onSubmit = {
-
-                                // send add sms
-                                context.showToast("add output clicked")
-
-                            }
-                        )
-                    }
-
-                    "edit" -> {
-                        DialogOutputEdit(
-                            output = dialogOutput.value,
-                            buttonIsLoading = buttonIsLoading,
-                            onDismiss = {
-                                if (!buttonIsLoading.value) {
-                                    showDialog.value = "hide"
-                                } else {
-                                    context.showToast("لطفا تا پایان عملیات صبر کنید")
-                                }
-                            },
-                            onSubmit = {
-
-                                // send add sms
-                                context.showToast("add output clicked")
-
-                            }
-                        )
-                    }
-
-                    "delete" -> {
-                        DialogOutputDelete(
-                            buttonIsLoading = buttonIsLoading,
-                            onDismiss = {
-                                if (!buttonIsLoading.value) {
-                                    showDialog.value = "hide"
-                                } else {
-                                    context.showToast("لطفا تا پایان عملیات صبر کنید")
-                                }
-                            },
-                            onSubmit = {
-
-                                // send delete sms
-                                context.showToast("delete clicked")
-
-                            }
-                        )
-                    }
-                }
-
-            }
         }
     }
 }

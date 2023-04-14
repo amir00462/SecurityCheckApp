@@ -125,7 +125,7 @@ fun SecureHomeSystem() {
 
         composable(MyScreens.SignUpScreen.route) {
 
-            OutputScreen()
+            SelectOutputName()
 
 //            if(databaseServiceMain.readFromLocal(RouteToGo) == "null") {
 //                SignUpScreen()

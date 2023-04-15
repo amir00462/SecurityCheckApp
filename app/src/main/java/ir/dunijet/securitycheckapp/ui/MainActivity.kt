@@ -125,7 +125,7 @@ fun SecureHomeSystem() {
 
         composable(MyScreens.SignUpScreen.route) {
 
-            SelectOutputName()
+            WiredZoneScreen()
 
 //            if(databaseServiceMain.readFromLocal(RouteToGo) == "null") {
 //                SignUpScreen()
@@ -166,6 +166,10 @@ fun SecureHomeSystem() {
 
         composable(MyScreens.AlarmScreen.route) {
             AlarmScreen()
+        }
+
+        composable(MyScreens.OutputScreen.route) {
+            OutputScreen()
         }
 
     }

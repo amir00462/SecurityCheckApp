@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,17 +29,15 @@ import ir.dunijet.securitycheckapp.ui.widgets.*
 import ir.dunijet.securitycheckapp.util.*
 import kotlinx.coroutines.launch
 
+// vaziatDastgah , lastBeroozresani , vaziatKhoroojiHayeFaalVaGheirFaaal va beRoozResani Anha
+
 @Composable
-fun AlarmScreen() {
+fun HomeScreen() {
 
     // variables
-    val zamanSedayAzhirHa = remember { mutableStateOf(5f) }
-    val azhirKharegi = remember { mutableStateOf(false) }
-    val azhirDakheli = remember { mutableStateOf(true) }
-    val bolandiSedayAzhirDakheli = remember { mutableStateOf(73f) }
 
+    val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
-    val buttonIsLoading = remember { mutableStateOf(false) }
 
     lateinit var smsSent: BroadcastReceiver
     lateinit var smsReceived: BroadcastReceiver
@@ -261,6 +260,7 @@ fun AlarmScreen() {
     }
 
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
 
             TopAppBar(
@@ -270,16 +270,19 @@ fun AlarmScreen() {
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Normal,
                         lineHeight = 36.sp,
-                        text = "آژیر ها",
+                        text = "فاطر الکترونیک",
                         color = MainActivity.appColors[8]
                     )
                 },
 
                 navigationIcon = {
-                    IconButton(onClick = { navigation.navigate(MyScreens.OutputScreen.route) }) {
+                    IconButton(onClick = {
+                        coroutineScope.launch {
+                            scaffoldState.drawerState.open()
+                        }
+                    }) {
                         Icon(
-                            modifier = Modifier.scale(scaleX = -1f, scaleY = 1f),
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.Default.Menu,
                             contentDescription = "Back Button",
                             tint = MainActivity.appColors[6]
                         )
@@ -301,60 +304,12 @@ fun AlarmScreen() {
 
                     Divider(color = MainActivity.appColors[4], thickness = 1.dp)
 
-                    Text(
-                        modifier = Modifier.padding(top = 24.dp, start = 16.dp),
-                        text = "موقع سرقت",
-                        lineHeight = 36.sp,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.W500
+                    HomeVaziat(
+                        homeVaziat = HomeVaziat.Faal,
+                        lastUpdated = "امروز ساعت 10:36",
+                        onChangeVaziatClicked = {},
+                        onUpdateClicked = {}
                     )
-
-                    AlarmZaman(
-                        modifier = Modifier.padding(top = 16.dp),
-                        value = zamanSedayAzhirHa.value,
-                        onValueChanged = {
-                            zamanSedayAzhirHa.value = it
-                        })
-
-                    Text(
-                        modifier = Modifier.padding(start = 16.dp, top = 24.dp),
-                        text = "حالت عادی",
-                        lineHeight = 36.sp,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.W500
-                    )
-
-                    AlarmChangeOnOff(
-                        modifier = Modifier.padding(top = 16.dp),
-                        titlee = "آژیر خارجی",
-                        value = azhirKharegi.value,
-                        onValueChanged = {
-                            azhirKharegi.value = it
-                        })
-
-                    AlarmChangeOnOff(
-                        modifier = Modifier.padding(top = 16.dp),
-                        titlee = "آژیر داخلی",
-                        value = azhirDakheli.value,
-                        onValueChanged = {
-                            azhirDakheli.value = it
-                        })
-
-                    AlarmBolandi(
-                        modifier = Modifier.padding(top = 16.dp),
-                        value = bolandiSedayAzhirDakheli.value,
-                        onValueChanged = {
-                            bolandiSedayAzhirDakheli.value = it
-                        })
-
-                }
-
-                ZoneTimingButton(
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                    buttonIsLoading = buttonIsLoading
-                ) {
-
-                    // save alarm settings into sms
 
                 }
 

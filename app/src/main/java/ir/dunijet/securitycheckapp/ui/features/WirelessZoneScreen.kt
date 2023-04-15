@@ -289,7 +289,7 @@ fun WirelessZoneScreen() {
                 },
 
                 navigationIcon = {
-                    IconButton(onClick = { navigation.popBackStack() }) {
+                    IconButton(onClick = { navigation.navigate(MyScreens.AlarmScreen.route) }) {
                         Icon(
                             modifier = Modifier.scale(scaleX = -1f, scaleY = 1f),
                             imageVector = Icons.Default.ArrowBack,

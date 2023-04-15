@@ -12,4 +12,5 @@ sealed class MyScreens(val route: String) {
     object WiredZoneScreen : MyScreens("wiredZoneScreen")
     object WirelessZoneScreen : MyScreens("wirelessZoneScreen")
     object AlarmScreen : MyScreens("alarmScreen")
+    object OutputScreen : MyScreens("outputScreen")
 }

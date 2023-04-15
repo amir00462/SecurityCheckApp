@@ -44,6 +44,13 @@ enum class SensorType {
     DoodAtash,
 }
 
+// Home Vaziat
+enum class HomeVaziat {
+    GheirFaal,
+    NimeFaal,
+    Faal
+}
+
 // Zones =>
 enum class EyeTypes {
     GheirFaal,

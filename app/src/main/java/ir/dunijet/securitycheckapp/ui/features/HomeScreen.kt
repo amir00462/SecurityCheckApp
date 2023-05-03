@@ -2,10 +2,9 @@ package ir.dunijet.securitycheckapp.ui.features
 
 import android.app.Activity
 import android.content.BroadcastReceiver
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -13,12 +12,14 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import dev.burnoo.cokoin.get
 import dev.burnoo.cokoin.navigation.getNavController
 import ir.dunijet.securitycheckapp.model.data.Remote
@@ -27,6 +28,8 @@ import ir.dunijet.securitycheckapp.service.sms.SmsRepository
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
 import ir.dunijet.securitycheckapp.ui.TimingButton
+import ir.dunijet.securitycheckapp.ui.theme.ColorFaal
+import ir.dunijet.securitycheckapp.ui.theme.VazirFontDigits
 import ir.dunijet.securitycheckapp.ui.widgets.*
 import ir.dunijet.securitycheckapp.util.*
 import kotlinx.coroutines.launch
@@ -273,6 +276,7 @@ fun HomeScreen() {
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Normal,
                         lineHeight = 36.sp,
+                        fontFamily = VazirFontDigits,
                         text = "فاطر الکترونیک",
                         color = MainActivity.appColors[8]
                     )
@@ -295,7 +299,7 @@ fun HomeScreen() {
                     }
                 },
 
-                backgroundColor = MainActivity.appColors[1],
+                backgroundColor = appColors[1],
                 contentColor = Color.Gray,
                 elevation = 0.dp
             )
@@ -330,12 +334,88 @@ fun HomeScreen() {
 
                     Divider(color = MainActivity.appColors[4], thickness = 1.dp)
 
-                    HomeVaziat(
-                        homeVaziat = HomeVaziat.Faal,
-                        lastUpdated = "امروز ساعت 10:36",
-                        onChangeVaziatClicked = {},
-                        onUpdateClicked = {}
-                    )
+                    Box(modifier = Modifier.padding(16.dp)) {
+                        HomeVaziat(
+                            homeVaziat = HomeVaziat.Faal,
+                            lastUpdated = "امروز ساعت 10:36",
+                            onChangeVaziatClicked = {},
+                            onUpdateClicked = {}
+                        )
+                    }
+
+                    ConstraintLayout(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(24.dp)
+                            .background(color = appColors[4])
+                    ) {
+                        val (title, iconFaal, titleFaal, iconGheirFaal, titleGheirFaal) = createRefs()
+
+                        Text(
+                            modifier = Modifier.constrainAs(title) {
+                                top.linkTo(parent.top, 2.dp)
+                                bottom.linkTo(parent.bottom, 2.dp)
+                                start.linkTo(parent.start, 16.dp)
+                            },
+                            text = "وضعیت خروجی\u200Cها",
+                            fontWeight = FontWeight.W500,
+                            fontSize = 12.sp,
+                            lineHeight = 20.sp,
+                            color = appColors[6],
+                        )
+
+                        // Faal
+                        Box(modifier = Modifier
+                            .clip(CircleShape)
+                            .background(color = appColors[1])
+                            .constrainAs(iconFaal) {
+                                end.linkTo(parent.end, 16.dp)
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                            }
+                        )
+                        Text(
+                            modifier = Modifier.constrainAs(titleFaal) {
+                                end.linkTo(iconFaal.start, 4.dp)
+                                top.linkTo(parent.top, 2.dp)
+                                bottom.linkTo(parent.bottom)
+                            },
+                            text = "1",
+                            fontWeight = FontWeight.W500,
+                            fontSize = 12.sp,
+                            lineHeight = 20.sp,
+                            color = appColors[6],
+                        )
+
+                        // GheirFaal
+                        Text(
+                            modifier = Modifier.constrainAs(titleGheirFaal) {
+                                end.linkTo(titleGheirFaal.start, 4.dp)
+                                top.linkTo(parent.top, 2.dp)
+                                bottom.linkTo(parent.bottom)
+                            },
+                            text = "1",
+                            fontWeight = FontWeight.W500,
+                            fontSize = 12.sp,
+                            lineHeight = 20.sp,
+                            color = appColors[6],
+                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(color = Color(0xFFAFB2B8))
+                                .constrainAs(iconGheirFaal) {
+                                    end.linkTo(titleFaal.start, 16.dp)
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                }
+                        )
+
+
+
+                    }
+
+                    OutputVaziatList()
 
                 }
 
@@ -344,6 +424,5 @@ fun HomeScreen() {
         }
 
     }
-
 
 }

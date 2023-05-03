@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,6 +23,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import dev.burnoo.cokoin.navigation.getNavController
 import ir.dunijet.securitycheckapp.R
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
@@ -39,11 +42,34 @@ import ir.dunijet.securitycheckapp.util.*
 import java.util.*
 
 @Composable
+fun OutputVaziatList() {
+
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())) {
+
+
+
+
+    }
+
+}
+
+@Composable
+fun OutputVaziatItem() {
+
+
+}
+
+@Composable
 fun HomeDrawer(
     themeData: ThemeData,
     onCloseDrawer: () -> Unit,
     onChangeTheme: (ThemeData) -> Unit
 ) {
+    val navigation = getNavController()
+    val context = LocalContext.current
 
     BackHandler(onBack = onCloseDrawer)
     Column(
@@ -62,7 +88,7 @@ fun HomeDrawer(
                         end.linkTo(parent.end, 16.dp)
                     },
                 onClick = {
-
+                    onCloseDrawer.invoke()
                 }
             ) {
                 Icon(
@@ -71,8 +97,6 @@ fun HomeDrawer(
                     tint = appColors[6]
                 )
             }
-
-
 
             Text(
                 modifier = Modifier.constrainAs(title) {
@@ -93,27 +117,31 @@ fun HomeDrawer(
         Divider(color = appColors[4], thickness = 1.dp)
 
         DrawerItem(title = "اعضای دستگاه", icon = R.drawable.ic_person) {
-
+            context.showToast("اعضای")
         }
 
         DrawerItem(title = "ریموت\u200Cهای دستگاه", icon = R.drawable.ic_remote) {
-
+            context.showToast("ریموت")
         }
 
         DrawerItem(title = "زون\u200Cهای سیم\u200Cدار", icon = R.drawable.ic_eye) {
-
+            onCloseDrawer.invoke()
+            navigation.navigate(MyScreens.WiredZoneScreen.route)
         }
 
         DrawerItem(title = "زون\u200Cهای بی\u200Cسیم", icon = R.drawable.ic_eye) {
-
+            onCloseDrawer.invoke()
+            navigation.navigate(MyScreens.WirelessZoneScreen.route)
         }
 
         DrawerItem(title = "آژیرها", icon = R.drawable.ic_ring) {
-
+            onCloseDrawer.invoke()
+            navigation.navigate(MyScreens.AlarmScreen.route)
         }
 
         DrawerItem(title = "خروجی\u200Cهای دستگاه", icon = R.drawable.ic_output) {
-
+            onCloseDrawer.invoke()
+            navigation.navigate(MyScreens.OutputScreen.route)
         }
 
         Divider(color = appColors[4], thickness = 1.dp)

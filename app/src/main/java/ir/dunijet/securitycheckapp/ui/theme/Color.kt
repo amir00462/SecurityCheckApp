@@ -2,6 +2,8 @@ package ir.dunijet.securitycheckapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+val drawerItemColor = Color(0xFF222222)
+
 // Light Colors =>
 val LPrimary = Color(0xFF5B65EA)
 val LColor1 = Color(0xFFFFFFFF)

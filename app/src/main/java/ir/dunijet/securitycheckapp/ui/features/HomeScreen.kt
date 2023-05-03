@@ -1,5 +1,6 @@
 package ir.dunijet.securitycheckapp.ui.features
 
+import android.app.Activity
 import android.content.BroadcastReceiver
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import ir.dunijet.securitycheckapp.model.data.Remote
 import ir.dunijet.securitycheckapp.model.data.Zone
 import ir.dunijet.securitycheckapp.service.sms.SmsRepository
 import ir.dunijet.securitycheckapp.ui.MainActivity
+import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
 import ir.dunijet.securitycheckapp.ui.TimingButton
 import ir.dunijet.securitycheckapp.ui.widgets.*
 import ir.dunijet.securitycheckapp.util.*
@@ -43,6 +45,7 @@ fun HomeScreen() {
     lateinit var smsReceived: BroadcastReceiver
     val smsService = get<SmsRepository>()
 
+    val activity = (LocalContext.current as? Activity)
     val context = LocalContext.current
     val mainActivity = LocalContext.current as MainActivity
     val navigation = getNavController()
@@ -277,13 +280,16 @@ fun HomeScreen() {
 
                 navigationIcon = {
                     IconButton(onClick = {
+
                         coroutineScope.launch {
                             scaffoldState.drawerState.open()
                         }
+
+
                     }) {
                         Icon(
                             imageVector = Icons.Default.Menu,
-                            contentDescription = "Back Button",
+                            contentDescription = "Menu Button",
                             tint = MainActivity.appColors[6]
                         )
                     }
@@ -293,7 +299,27 @@ fun HomeScreen() {
                 contentColor = Color.Gray,
                 elevation = 0.dp
             )
-        }
+        },
+        drawerGesturesEnabled = true,
+        drawerContent = {
+            HomeDrawer(
+                themeData = ThemeData.LightTheme,
+                onChangeTheme = { context.showToast("change Theme of app and save the new theme in database") },
+                onCloseDrawer = {
+
+                    coroutineScope.launch {
+
+                        if (scaffoldState.drawerState.currentValue == DrawerValue.Open) {
+                            scaffoldState.drawerState.close()
+                        } else {
+                            activity?.finish()
+                        }
+
+                    }
+                })
+        },
+        drawerElevation = 2.dp,
+        drawerBackgroundColor = appColors[1]
     ) {
 
         Surface(color = MainActivity.appColors[1]) {
@@ -316,5 +342,8 @@ fun HomeScreen() {
             }
 
         }
+
     }
+
+
 }

@@ -39,6 +39,11 @@ enum class ZoneNooe {
     AtashDood
 }
 
+enum class ThemeData {
+    LightTheme ,
+    DarkTheme
+}
+
 enum class SensorType {
     Cheshmi,
     DoodAtash,

@@ -7,10 +7,12 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,9 +49,54 @@ fun OutputVaziatList() {
     Column(
         Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())) {
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = 16.dp)
+    ) {
 
 
+        OutputVaziatItem(
+            outputId = "1",
+            iconInput = R.drawable.ic_home,
+            titleMain = "درب اصلی ساختمان",
+            lastUpdated = "دیروز ساعت 16:45",
+            isCheckedNow = true,
+            onCheckedChange = {
+
+            }
+        )
+
+        OutputVaziatItem(
+            outputId = "1",
+            iconInput = R.drawable.ic_home,
+            titleMain = "درب اصلی ساختمان",
+            lastUpdated = "دیروز ساعت 16:45",
+            isCheckedNow = true,
+            onCheckedChange = {
+
+            }
+        )
+
+        OutputVaziatItem(
+            outputId = "1",
+            iconInput = R.drawable.ic_home,
+            titleMain = "درب اصلی ساختمان",
+            lastUpdated = "دیروز ساعت 16:45",
+            isCheckedNow = true,
+            onCheckedChange = {
+
+            }
+        )
+
+        OutputVaziatItem(
+            outputId = "1",
+            iconInput = R.drawable.ic_home,
+            titleMain = "درب اصلی ساختمان",
+            lastUpdated = "دیروز ساعت 16:45",
+            isCheckedNow = true,
+            onCheckedChange = {
+
+            }
+        )
 
 
     }
@@ -57,10 +104,154 @@ fun OutputVaziatList() {
 }
 
 @Composable
-fun OutputVaziatItem() {
+fun OutputVaziatItem(
+    outputId: String,
+    iconInput: Int,
+    titleMain: String,
+    lastUpdated: String,
+    isCheckedNow: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    val isChecked = remember { mutableStateOf(isCheckedNow) }
+    val interactionSource = remember { MutableInteractionSource() }
 
+    Box(modifier = Modifier.padding(top = 16.dp , start = 16.dp , end = 16.dp)) {
+
+        Card(
+            elevation = 12.dp,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+
+            ConstraintLayout(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(113.dp)
+                    .background(appColors[1])
+            ) {
+                val (switch, dorIcon, iconInside, mainTitle, detailTitle, divider, timeOfUpdated) = createRefs()
+
+                HomeDrawerSwitch(
+                    modifier = Modifier.constrainAs(switch) {
+                        top.linkTo(parent.top, 14.dp)
+                        end.linkTo(parent.end, 14.dp)
+                    },
+                    width = 36.dp,
+                    height = 20.dp,
+                    scale = 1f,
+                    checkedTrackColor = appColors[0],
+                    uncheckedTrackColor = Color(0xFFAFB2B8),
+                    currentState = isChecked.value,
+                    onChangeValueClicked = {
+                        isChecked.value = it
+                        onCheckedChange.invoke(it)
+                    }
+                )
+
+                Box(modifier = Modifier
+                    .size(40.dp)
+                    .clip(Shapes.medium)
+                    .background(color = if (isChecked.value) appColors[0].copy(alpha = 0.2f) else appColors[4])
+                    .constrainAs(dorIcon) {
+                        start.linkTo(parent.start, 14.dp)
+                        top.linkTo(parent.top, 14.dp)
+                    })
+
+                Icon(
+                    modifier = Modifier.constrainAs(iconInside) {
+                        top.linkTo(dorIcon.top)
+                        bottom.linkTo(dorIcon.bottom)
+                        start.linkTo(dorIcon.start)
+                        end.linkTo(dorIcon.end)
+                    },
+                    painter = painterResource(id = iconInput),
+                    contentDescription = null,
+                    tint = if (isChecked.value) appColors[0] else Color(0xFF7F808A)
+                )
+
+                Text(
+                    modifier = Modifier.constrainAs(mainTitle) {
+                        top.linkTo(dorIcon.top)
+                        start.linkTo(dorIcon.end, 12.dp)
+                    },
+                    text = titleMain,
+                    fontWeight = FontWeight.W500,
+                    fontFamily = VazirFontDigits,
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    color = appColors[8],
+                )
+
+                Text(
+                    modifier = Modifier.constrainAs(detailTitle) {
+                        top.linkTo(mainTitle.bottom)
+                        start.linkTo(mainTitle.start)
+                    },
+                    text = "خروجی شماره " + outputId + "#",
+                    fontFamily = VazirFontDigits,
+                    fontWeight = FontWeight.W400,
+                    fontSize = 12.sp,
+                    lineHeight = 20.sp,
+                    color = Color(0xFF7F808A),
+                )
+
+                Divider(modifier = Modifier.constrainAs(divider) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    top.linkTo(detailTitle.bottom, 12.dp)
+                }, color = appColors[6].copy(alpha = 0.16f), thickness = 1.dp)
+
+                val context = LocalContext.current
+                Row(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .constrainAs(timeOfUpdated) {
+                            start.linkTo(parent.start , 14.dp)
+                            top.linkTo(divider.bottom , 12.dp)
+                        }
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) {
+
+                            // clicked  on updating :)
+
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_refresh),
+                        contentDescription = null,
+                        tint = Color(0xFF7F808A)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "آخرین بروزرسانی:",
+                        fontSize = 12.sp,
+                        lineHeight = 20.sp,
+                        fontWeight = FontWeight.W400,
+                        color = Color(0xFF7F808A)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = lastUpdated,
+                        fontSize = 12.sp,
+                        lineHeight = 20.sp,
+                        fontFamily = VazirFontDigits,
+                        fontWeight = FontWeight.W400,
+                        color = Color(0xFF7F808A)
+                    )
+
+                }
+
+
+            }
+        }
+
+    }
 
 }
+
 
 @Composable
 fun HomeDrawer(
@@ -173,115 +364,134 @@ fun HomeVaziat(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(140.dp)
-                .background(appColors[12])
+                .background(if (state.value == HomeVaziat.Faal) ColorFaal else if (state.value == HomeVaziat.NimeFaal) colorNimeFaal else colorGheirFaal)
         ) {
 
             Text(
                 modifier = Modifier.padding(top = 12.dp, start = 18.dp),
                 text = "وضعیت دستگاه",
                 fontWeight = FontWeight.W500,
+                fontFamily = VazirFontDigits,
                 fontSize = 12.sp,
                 lineHeight = 20.sp,
                 color = appColors[1],
             )
 
-            Row(
-                Modifier
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Box(
+                modifier = Modifier
                     .fillMaxWidth()
                     .height(44.dp)
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(start = 14.dp, end = 14.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(color = Color(0xFFFFFFFF).copy(alpha = 0.2f)),
+
+                contentAlignment = Alignment.Center
+
             ) {
 
-                // faal
-                Box(
+                Row(
                     Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(
-                            if (state.value != HomeVaziat.Faal) Color.Transparent
-                            else appColors[1]
-                        )
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = null
-                        ) {
-                            state.value = HomeVaziat.Faal
-                            onChangeVaziatClicked.invoke(state.value)
-                        },
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .height(38.dp)
+                        .padding(horizontal = 5.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "فعال",
-                        fontSize = 16.sp,
-                        lineHeight = 26.sp,
-                        fontWeight = FontWeight.W500,
-                        color = if (state.value != HomeVaziat.Faal) appColors[1]
-                        else appColors[8]
-                    )
-                }
 
-                // nime faal
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clip(MaterialTheme.shapes.small)
-                        .background(
-                            if (state.value != HomeVaziat.NimeFaal) Color.Transparent
-                            else appColors[1]
+                    // faal
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(
+                                if (state.value != HomeVaziat.Faal) Color.Transparent
+                                else appColors[1]
+                            )
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null
+                            ) {
+                                state.value = HomeVaziat.Faal
+                                onChangeVaziatClicked.invoke(state.value)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "فعال",
+                            fontSize = 16.sp,
+                            lineHeight = 26.sp,
+                            fontWeight = FontWeight.W500,
+                            color = if (state.value != HomeVaziat.Faal) appColors[1]
+                            else appColors[8]
                         )
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = null
-                        ) {
-                            state.value = HomeVaziat.NimeFaal
-                            onChangeVaziatClicked.invoke(state.value)
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "نیمه فعال",
-                        fontSize = 16.sp,
-                        lineHeight = 26.sp,
-                        fontWeight = FontWeight.W500,
-                        color = if (state.value != HomeVaziat.NimeFaal) appColors[1]
-                        else appColors[8]
-                    )
-                }
+                    }
 
-                // gheir faal
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clip(MaterialTheme.shapes.small)
-                        .background(
-                            if (state.value != HomeVaziat.GheirFaal) Color.Transparent
-                            else appColors[1]
+                    // nime faal
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(MaterialTheme.shapes.small)
+                            .background(
+                                if (state.value != HomeVaziat.NimeFaal) Color.Transparent
+                                else appColors[1]
+                            )
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null
+                            ) {
+                                state.value = HomeVaziat.NimeFaal
+                                onChangeVaziatClicked.invoke(state.value)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "نیمه فعال",
+                            fontSize = 16.sp,
+                            lineHeight = 26.sp,
+                            fontWeight = FontWeight.W500,
+                            color = if (state.value != HomeVaziat.NimeFaal) appColors[1]
+                            else appColors[8]
                         )
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = null
-                        ) {
-                            state.value = HomeVaziat.GheirFaal
-                            onChangeVaziatClicked.invoke(state.value)
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "غیر فعال",
-                        fontSize = 16.sp,
-                        lineHeight = 26.sp,
-                        fontWeight = FontWeight.W500,
-                        color = if (state.value != HomeVaziat.GheirFaal) appColors[1]
-                        else appColors[8]
-                    )
+                    }
+
+                    // gheir faal
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(MaterialTheme.shapes.small)
+                            .background(
+                                if (state.value != HomeVaziat.GheirFaal) Color.Transparent
+                                else appColors[1]
+                            )
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null
+                            ) {
+                                state.value = HomeVaziat.GheirFaal
+                                onChangeVaziatClicked.invoke(state.value)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "غیر فعال",
+                            fontSize = 16.sp,
+                            lineHeight = 26.sp,
+                            fontWeight = FontWeight.W500,
+                            color = if (state.value != HomeVaziat.GheirFaal) appColors[1]
+                            else appColors[8]
+                        )
+                    }
+
                 }
 
             }
+
+            Spacer(modifier = Modifier.height(14.dp))
 
             Divider(color = appColors[1].copy(alpha = 0.32f), thickness = 1.dp)
 
@@ -295,9 +505,15 @@ fun HomeVaziat(
                     ) {
                         onUpdateClicked.invoke()
                     },
+                verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Icon(painter = painterResource(id = R.drawable.ic_refresh), contentDescription = "")
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_refresh),
+                    contentDescription = null,
+                    tint = Color(0xFFFFFFFF)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "آخرین بروزرسانی:",
                     fontSize = 12.sp,
@@ -305,10 +521,12 @@ fun HomeVaziat(
                     fontWeight = FontWeight.W400,
                     color = appColors[1]
                 )
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = lastUpdated,
                     fontSize = 12.sp,
                     lineHeight = 20.sp,
+                    fontFamily = VazirFontDigits,
                     fontWeight = FontWeight.W400,
                     color = appColors[1]
                 )
@@ -319,6 +537,7 @@ fun HomeVaziat(
         }
 
     }
+
 }
 
 @Composable

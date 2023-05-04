@@ -222,7 +222,6 @@ fun HomeScreen() {
 //        context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
 
     }
-
     fun addData() {
 
         coroutineScope.launch {
@@ -251,7 +250,6 @@ fun HomeScreen() {
             }
         }
     }
-
     addData()
     LaunchedEffect(Unit) {
         MainActivity.recomposition = 0
@@ -366,8 +364,9 @@ fun HomeScreen() {
 
                         // Faal
                         Box(modifier = Modifier
+                            .size(10.dp)
                             .clip(CircleShape)
-                            .background(color = appColors[1])
+                            .background(color = appColors[0])
                             .constrainAs(iconFaal) {
                                 end.linkTo(parent.end, 16.dp)
                                 top.linkTo(parent.top)
@@ -377,11 +376,12 @@ fun HomeScreen() {
                         Text(
                             modifier = Modifier.constrainAs(titleFaal) {
                                 end.linkTo(iconFaal.start, 4.dp)
-                                top.linkTo(parent.top, 2.dp)
+                                top.linkTo(parent.top)
                                 bottom.linkTo(parent.bottom)
                             },
-                            text = "1",
+                            text = "7",
                             fontWeight = FontWeight.W500,
+                            fontFamily = VazirFontDigits,
                             fontSize = 12.sp,
                             lineHeight = 20.sp,
                             color = appColors[6],
@@ -390,18 +390,20 @@ fun HomeScreen() {
                         // GheirFaal
                         Text(
                             modifier = Modifier.constrainAs(titleGheirFaal) {
-                                end.linkTo(titleGheirFaal.start, 4.dp)
-                                top.linkTo(parent.top, 2.dp)
+                                end.linkTo(iconGheirFaal.start, 4.dp)
+                                top.linkTo(parent.top)
                                 bottom.linkTo(parent.bottom)
                             },
-                            text = "1",
+                            text = "9",
                             fontWeight = FontWeight.W500,
                             fontSize = 12.sp,
+                            fontFamily = VazirFontDigits,
                             lineHeight = 20.sp,
                             color = appColors[6],
                         )
                         Box(
                             modifier = Modifier
+                                .size(10.dp)
                                 .clip(CircleShape)
                                 .background(color = Color(0xFFAFB2B8))
                                 .constrainAs(iconGheirFaal) {
@@ -418,11 +420,7 @@ fun HomeScreen() {
                     OutputVaziatList()
 
                 }
-
             }
-
         }
-
     }
-
 }

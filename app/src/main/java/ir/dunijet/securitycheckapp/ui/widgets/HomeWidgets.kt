@@ -53,7 +53,6 @@ fun OutputVaziatList() {
             .padding(bottom = 16.dp)
     ) {
 
-
         OutputVaziatItem(
             outputId = "1",
             iconInput = R.drawable.ic_home,

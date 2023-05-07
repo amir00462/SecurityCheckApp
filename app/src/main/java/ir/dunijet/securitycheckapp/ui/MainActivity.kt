@@ -151,16 +151,30 @@ fun SecureHomeSystem() {
 
         composable(MyScreens.SignUpScreen.route) {
 
-            if(databaseServiceMain.readFromLocal(AuthenticatedOrNot) == "null") {
-                SignUpScreen()
-            } else {
-                HomeScreen()
+            when(databaseServiceMain.readFromLocal(AuthenticatedOrNot)) {
+
+                "null" -> {
+                    SignUpScreen()
+                }
+
+                "changePassword" -> {
+                    ChangePasswordScreen()
+                }
+
+                "home" -> {
+                    HomeScreen()
+                }
+
             }
 
         }
 
         composable(MyScreens.ChangePasswordScreen.route) {
             ChangePasswordScreen()
+        }
+
+        composable(MyScreens.HomeScreen.route) {
+            HomeScreen()
         }
 
         composable(MyScreens.MembersScreen.route) {

@@ -32,15 +32,11 @@ fun ChangePasswordScreen() {
 
     lateinit var smsReceived: BroadcastReceiver
     lateinit var smsSent: BroadcastReceiver
-
     val smsService = get<SmsRepository>()
-
     val context = LocalContext.current
     val mainActivity = LocalContext.current as MainActivity
-
     val navigation = getNavController()
     val databaseService = get<LocalRepository>()
-
     val buttonIsLoading = remember { mutableStateOf(false) }
 
     // states
@@ -55,7 +51,7 @@ fun ChangePasswordScreen() {
         return false
     }
 
-    fun tryToGo() {
+    fun changePasswordLogic() {
 
         buttonIsLoading.value = true
 
@@ -160,7 +156,7 @@ fun ChangePasswordScreen() {
             TimingButton(buttonIsLoading , validateInputs()) {
 
                 if (validateInputs()) {
-                    tryToGo()
+                    changePasswordLogic()
                 } else
                     context.showToast("لطفا همه مقادیر را به درستی وارد کنید")
 

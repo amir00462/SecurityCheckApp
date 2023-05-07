@@ -5,7 +5,7 @@ const val FIRST_LOGIC_DATA = "nufjas66wedd"
 const val SECOND_LOGIC_DATA = "nubtoekdd"
 const val SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED"
 const val SMS_SENT = "SMS_SENT"
-const val WaitingToReceiveSms = 18000L
+const val WaitingToReceiveSms = 20000L
 
 // Key ->
 const val KEY_HOVIAT = "hoviat"

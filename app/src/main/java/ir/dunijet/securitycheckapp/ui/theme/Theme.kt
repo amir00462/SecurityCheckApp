@@ -53,11 +53,10 @@ private val LightColorPalette = lightColors(
 // new
 @Composable
 fun SecureHomeSystemTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
 
-    val colors = if (darkTheme) {
+    val colors = if (isSystemInDarkTheme()) {
         DarkColorPalette
     } else {
         LightColorPalette
@@ -69,4 +68,5 @@ fun SecureHomeSystemTheme(
         shapes = Shapes,
         content = content
     )
+
 }

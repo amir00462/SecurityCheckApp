@@ -76,18 +76,8 @@ dependencies {
     kapt "androidx.room:room-compiler:2.4.2"
 
 
-
-
-
-
     // System Ui Controller
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.17.0"
-
-
-
-
-
-
 
     // Lottie Animations
     implementation "com.airbnb.android:lottie-compose:5.2.0"

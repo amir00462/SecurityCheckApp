@@ -7,11 +7,18 @@ import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -32,6 +39,7 @@ import ir.dunijet.securitycheckapp.service.local.LocalRepository
 import ir.dunijet.securitycheckapp.ui.theme.SecureHomeSystemTheme
 import ir.dunijet.securitycheckapp.util.*
 import ir.dunijet.securitycheckapp.di.myModules
+import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
 import ir.dunijet.securitycheckapp.ui.features.*
 import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
@@ -39,7 +47,7 @@ import org.koin.android.ext.koin.androidContext
 class MainActivity : ComponentActivity() {
 
     val logMain = arrayListOf<Log>()
-    lateinit var databaseServiceMain: LocalRepository
+    lateinit var databaseService: LocalRepository
 
     companion object {
 
@@ -82,7 +90,7 @@ class MainActivity : ComponentActivity() {
     fun addLogsToDb() {
 
         lifecycleScope.launch {
-            databaseServiceMain.writeLogs(logMain)
+            databaseService.writeLogs(logMain)
             logMain.clear()
         }
 
@@ -93,27 +101,91 @@ class MainActivity : ComponentActivity() {
         window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-
         setContent {
             Koin(appDeclaration = {
                 androidContext(this@MainActivity)
                 modules(myModules)
             }) {
-                SecureHomeSystemTheme {
-                    appColors = if (isSystemInDarkTheme()) darkColors else lightColors
 
-                    val variantColor = MaterialTheme.colors.primaryVariant
-                    val uiController = rememberSystemUiController()
-                    SideEffect { uiController.setStatusBarColor(variantColor) }
+                var isDarkTheme by remember { mutableStateOf(false) }
+                var themeColors = remember { mutableStateOf(listOf<Color>()) }
+                databaseService = get()
 
-                    databaseServiceMain = get()
-                    SecureHomeSystem()
+                // check what should be the theme
+                if (isFirstRun()) {
+                    isDarkTheme = isSystemInDarkTheme()
+                } else {
+                    when (databaseService.readFromLocal(KEY_THEME_DATA)) {
+
+                        "null" -> {
+                            isDarkTheme = isSystemInDarkTheme()
+                        }
+
+                        "light" -> {
+                            isDarkTheme = false
+                        }
+
+                        "dark" -> {
+                            isDarkTheme = true
+                        }
+
+                    }
+                }
+
+                val context = LocalContext.current
+                CheckTheme(isDarkTheme) {
+                    context.showToast("check theme")
+                    isDarkTheme = !isDarkTheme
+
+                    if(isDarkTheme)
+                        themeColors.value = darkColors
+                    else
+                        themeColors.value = lightColors
+
                 }
             }
+
+        }
+    }
+
+    private fun isFirstRun(): Boolean {
+
+        val readData = databaseService.readFromLocal(KEY_FIRST_RUN)
+        return if (readData == "null") {
+            databaseService.writeToLocal(KEY_FIRST_RUN, "-1")
+            true
+        } else {
+            false
         }
 
+    }
+
+}
+
+@Composable
+fun CheckTheme(isDarkTheme: Boolean, toggleTheme: () -> Unit) {
+
+    appColors = if (isDarkTheme) darkColors else lightColors
+    SecureHomeSystemTheme(isDarkTheme) {
+
+        val variantColor = MaterialTheme.colors.primaryVariant
+        val uiController = rememberSystemUiController()
+        SideEffect { uiController.setStatusBarColor(variantColor) }
+
+        val context = LocalContext.current
+
+        key(appColors) {
+
+            Box() {
+                Text(modifier = Modifier.clickable {
+                    toggleTheme.invoke()
+                }, text = "hello friends")
+            }
+
+        }
 
     }
+
 }
 
 @Composable

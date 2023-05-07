@@ -18,6 +18,9 @@ const val KEY_NUMBER_USER = "keyNumberUser"
 const val KEY_USER_PASSWORD = "keyUserPass"
 const val KEY_SERIAL_ENGINE = "keySerialEngine"
 const val KEY_IS_ADMIN = "isAdmin"
+const val KEY_FIRST_RUN = "firstRun"
+const val KEY_THEME_DATA = "themeData"
+
 
 const val RouteToGo = "routeToGo"
 

@@ -21,12 +21,10 @@ import androidx.compose.ui.unit.sp
 import dev.burnoo.cokoin.get
 import dev.burnoo.cokoin.navigation.getNavController
 import ir.dunijet.securitycheckapp.R
-import ir.dunijet.securitycheckapp.model.data.Remote
 import ir.dunijet.securitycheckapp.model.data.Zone
 import ir.dunijet.securitycheckapp.service.sms.SmsRepository
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
-import ir.dunijet.securitycheckapp.ui.TimingButton
 import ir.dunijet.securitycheckapp.ui.widgets.*
 import ir.dunijet.securitycheckapp.util.*
 import kotlinx.coroutines.launch
@@ -50,8 +48,8 @@ fun WirelessZoneScreen() {
     val showDialog = remember { mutableStateOf("hide") }
     val dialogZone = remember { mutableStateOf(FAKE_ZONE) }
 
-    val numberEngine = mainActivity.databaseServiceMain.readFromLocal(KEY_NUMBER_ENGINE)
-    val password = mainActivity.databaseServiceMain.readFromLocal(KEY_USER_PASSWORD)
+    val numberEngine = mainActivity.databaseService.readFromLocal(KEY_NUMBER_ENGINE)
+    val password = mainActivity.databaseService.readFromLocal(KEY_USER_PASSWORD)
 
     fun myListeners() {
 
@@ -235,7 +233,7 @@ fun WirelessZoneScreen() {
 
         coroutineScope.launch {
 
-            val dataFromDatabase = mainActivity.databaseServiceMain.readWiredZones()
+            val dataFromDatabase = mainActivity.databaseService.readWiredZones()
             if (dataFromDatabase.isNotEmpty()) {
                 wirelessZones.clear()
                 wirelessZones.addAll(getDefaultWiredZones())

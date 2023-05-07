@@ -217,7 +217,7 @@ fun SignUpScreen() {
                     context.unregisterReceiver(smsReceived)
                     context.unregisterReceiver(smsSent)
 
-                    mainActivity.databaseServiceMain.writeToLocal(RouteToGo , "MembersScreen")
+                    mainActivity.databaseService.writeToLocal(RouteToGo , "MembersScreen")
                     navigation.navigate(MyScreens.MembersScreen.route)
 
 //                    {

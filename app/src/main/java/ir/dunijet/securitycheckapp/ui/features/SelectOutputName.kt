@@ -1,33 +1,24 @@
 package ir.dunijet.securitycheckapp.ui.features
 
 import android.content.BroadcastReceiver
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.burnoo.cokoin.get
 import dev.burnoo.cokoin.navigation.getNavController
-import ir.dunijet.securitycheckapp.R
 import ir.dunijet.securitycheckapp.model.data.Output
-import ir.dunijet.securitycheckapp.model.data.Remote
-import ir.dunijet.securitycheckapp.model.data.Zone
 import ir.dunijet.securitycheckapp.service.sms.SmsRepository
 import ir.dunijet.securitycheckapp.ui.MainActivity
-import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
-import ir.dunijet.securitycheckapp.ui.TimingButton
 import ir.dunijet.securitycheckapp.ui.widgets.*
 import ir.dunijet.securitycheckapp.util.*
 import kotlinx.coroutines.launch
@@ -50,8 +41,8 @@ fun SelectOutputName() {
     val showDialog = remember { mutableStateOf("hide") }
     val dialogOutput = remember { mutableStateOf(FAKE_OUTPUT) }
 
-    val numberEngine = mainActivity.databaseServiceMain.readFromLocal(KEY_NUMBER_ENGINE)
-    val password = mainActivity.databaseServiceMain.readFromLocal(KEY_USER_PASSWORD)
+    val numberEngine = mainActivity.databaseService.readFromLocal(KEY_NUMBER_ENGINE)
+    val password = mainActivity.databaseService.readFromLocal(KEY_USER_PASSWORD)
 
     fun myListeners() {
 
@@ -232,7 +223,7 @@ fun SelectOutputName() {
 
         coroutineScope.launch {
 
-            val dataFromDatabase = mainActivity.databaseServiceMain.readWiredZones()
+            val dataFromDatabase = mainActivity.databaseService.readWiredZones()
             if (dataFromDatabase.isNotEmpty()) {
 //                wirelessZones.clear()
 //                wirelessZones.addAll(getDefaultWiredZones())

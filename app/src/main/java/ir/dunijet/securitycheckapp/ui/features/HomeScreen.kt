@@ -7,13 +7,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -22,13 +19,9 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import dev.burnoo.cokoin.get
 import dev.burnoo.cokoin.navigation.getNavController
-import ir.dunijet.securitycheckapp.model.data.Remote
-import ir.dunijet.securitycheckapp.model.data.Zone
 import ir.dunijet.securitycheckapp.service.sms.SmsRepository
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
-import ir.dunijet.securitycheckapp.ui.TimingButton
-import ir.dunijet.securitycheckapp.ui.theme.ColorFaal
 import ir.dunijet.securitycheckapp.ui.theme.VazirFontDigits
 import ir.dunijet.securitycheckapp.ui.widgets.*
 import ir.dunijet.securitycheckapp.util.*
@@ -53,8 +46,8 @@ fun HomeScreen() {
     val mainActivity = LocalContext.current as MainActivity
     val navigation = getNavController()
 
-    val numberEngine = mainActivity.databaseServiceMain.readFromLocal(KEY_NUMBER_ENGINE)
-    val password = mainActivity.databaseServiceMain.readFromLocal(KEY_USER_PASSWORD)
+    val numberEngine = mainActivity.databaseService.readFromLocal(KEY_NUMBER_ENGINE)
+    val password = mainActivity.databaseService.readFromLocal(KEY_USER_PASSWORD)
 
     fun myListeners() {
 
@@ -222,11 +215,12 @@ fun HomeScreen() {
 //        context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
 
     }
+
     fun addData() {
 
         coroutineScope.launch {
 
-            val dataFromDatabase = mainActivity.databaseServiceMain.readWiredZones()
+            val dataFromDatabase = mainActivity.databaseService.readWiredZones()
             if (dataFromDatabase.isNotEmpty()) {
 //                wiredZones.clear()
 //                wiredZones.addAll(getDefaultWiredZones())
@@ -306,7 +300,16 @@ fun HomeScreen() {
         drawerContent = {
             HomeDrawer(
                 themeData = ThemeData.LightTheme,
-                onChangeTheme = { context.showToast("change Theme of app and save the new theme in database") },
+                onChangeTheme = {
+
+                    if (it == ThemeData.LightTheme) {
+                        appColors = lightColors
+                    } else {
+                        appColors = darkColors
+                    }
+
+                    context.showToast("change Theme of app and save the new theme in database")
+                },
                 onCloseDrawer = {
 
                     coroutineScope.launch {
@@ -412,7 +415,6 @@ fun HomeScreen() {
                                     bottom.linkTo(parent.bottom)
                                 }
                         )
-
 
 
                     }

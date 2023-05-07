@@ -18,11 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.burnoo.cokoin.get
 import dev.burnoo.cokoin.navigation.getNavController
-import ir.dunijet.securitycheckapp.model.data.Remote
 import ir.dunijet.securitycheckapp.model.data.Zone
 import ir.dunijet.securitycheckapp.service.sms.SmsRepository
 import ir.dunijet.securitycheckapp.ui.MainActivity
-import ir.dunijet.securitycheckapp.ui.TimingButton
 import ir.dunijet.securitycheckapp.ui.widgets.WiredZoneList
 import ir.dunijet.securitycheckapp.ui.widgets.ZoneDialog
 import ir.dunijet.securitycheckapp.ui.widgets.ZoneTimingButton
@@ -48,8 +46,8 @@ fun WiredZoneScreen() {
     val showDialog = remember { mutableStateOf(false) }
     val dialogZone = remember { mutableStateOf(FAKE_ZONE) }
 
-    val numberEngine = mainActivity.databaseServiceMain.readFromLocal(KEY_NUMBER_ENGINE)
-    val password = mainActivity.databaseServiceMain.readFromLocal(KEY_USER_PASSWORD)
+    val numberEngine = mainActivity.databaseService.readFromLocal(KEY_NUMBER_ENGINE)
+    val password = mainActivity.databaseService.readFromLocal(KEY_USER_PASSWORD)
 
     fun myListeners() {
 
@@ -222,7 +220,7 @@ fun WiredZoneScreen() {
 
         coroutineScope.launch {
 
-            val dataFromDatabase = mainActivity.databaseServiceMain.readWiredZones()
+            val dataFromDatabase = mainActivity.databaseService.readWiredZones()
             if (dataFromDatabase.isNotEmpty()) {
                 wiredZones.clear()
                 wiredZones.addAll(getDefaultWiredZones())

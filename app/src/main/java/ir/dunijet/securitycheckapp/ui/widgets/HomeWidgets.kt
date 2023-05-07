@@ -554,6 +554,7 @@ fun DrawerItem(title: String, icon: Int, itemClicked: () -> Unit) {
         ) {
 
             Icon(
+                tint = appColors[8],
                 modifier = Modifier.padding(end = 16.dp),
                 painter = painterResource(id = icon),
                 contentDescription = null
@@ -564,7 +565,7 @@ fun DrawerItem(title: String, icon: Int, itemClicked: () -> Unit) {
                 fontSize = 14.sp,
                 lineHeight = 24.sp,
                 fontWeight = FontWeight.W500,
-                color = drawerItemColor
+                color = appColors[8]
             )
 
         }
@@ -584,6 +585,7 @@ fun DarkThemeToggle(currentTheme: ThemeData, changeThemeClicked: (Boolean) -> Un
             val (icon, text, switch) = createRefs()
 
             Icon(
+                tint = appColors[8],
                 modifier = Modifier
                     .constrainAs(icon) {
                         top.linkTo(parent.top)
@@ -605,7 +607,7 @@ fun DarkThemeToggle(currentTheme: ThemeData, changeThemeClicked: (Boolean) -> Un
                 fontSize = 14.sp,
                 lineHeight = 24.sp,
                 fontWeight = FontWeight.W500,
-                color = drawerItemColor
+                color = appColors[8]
             )
 
             HomeDrawerSwitch(

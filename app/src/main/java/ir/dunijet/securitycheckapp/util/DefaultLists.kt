@@ -9,7 +9,7 @@ import ir.dunijet.securitycheckapp.model.data.Zone
 val FAKE_MEMBER = Member(null, true, "", "")
 val FAKE_REMOTE = Remote(null, "", "", false, false)
 val FAKE_ZONE = Zone(null, false, "", R.drawable.ic_eye, "1", 2, ZoneType.CheshmiTwoTypes)
-val FAKE_OUTPUT = Output(null, "چراغ\u200Cهای حیاط", R.drawable.ic_lamp, "1", OutputType.KhamooshRoshan, 27f)
+val FAKE_OUTPUT = Output(null, "چراغ\u200Cهای حیاط", R.drawable.ic_lamp, "1", OutputType.KhamooshRoshan, 27f , false , "نیاز به بروزرسانی")
 
 val outputNameList = listOf(
     Pair("درب خروجی", R.drawable.ic_home),
@@ -81,14 +81,16 @@ fun getDefaultWiredZones(): List<Zone> {
 fun getDefaultOutputs(): List<Output> {
     return listOf(
 
-        Output(null, "چراغ\u200Cهای حیاط", R.drawable.ic_lamp, "1", OutputType.KhamooshRoshan, 27f),
+        Output(null, "چراغ\u200Cهای حیاط", R.drawable.ic_lamp, "1", OutputType.KhamooshRoshan, 27f , false , "نیاز به بروز رسانی"),
         Output(
             null,
             "وابسته به سنسور دود و آتش",
             R.drawable.ic_fire,
             "2",
             OutputType.VabasteDoodAtash,
-            27f
+            27f,
+            false ,
+            "نیاز به بروز رسانی"
         )
 
     )

@@ -16,6 +16,9 @@ data class Output(
     var icon: Int,
     val outputId: String,
     var outputType: OutputType,
-    var outputLahzeiiZaman :Float
+    var outputLahzeiiZaman :Float,
+
+    var isEnabledInHome :Boolean,
+    var lastUpdatedIsEnabledInHome :String
 
     )

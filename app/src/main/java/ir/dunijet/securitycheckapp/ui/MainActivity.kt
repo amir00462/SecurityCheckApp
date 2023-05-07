@@ -35,7 +35,7 @@ import ir.dunijet.securitycheckapp.ui.features.*
 import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 
-class MainActivity : ComponentActivity() {
+class MainActivity : BaseActivity() {
 
     val logMain = arrayListOf<Log>()
     lateinit var databaseService: LocalRepository
@@ -98,11 +98,18 @@ class MainActivity : ComponentActivity() {
                 modules(myModules)
             }) {
                 databaseService = get()
-                appColors = if (isSystemInDarkTheme()) darkColors else lightColors
+
+                // check theme from sharedPref
+                val themeInShared = databaseService.readFromLocal(key_APP_THEME)
+                appColors = if(themeInShared == "null") {
+                    if (isSystemInDarkTheme()) darkColors else lightColors
+                } else {
+                    if (themeInShared == "dark") darkColors else lightColors
+                }
 
                 SecureHomeSystemTheme {
 
-                    val variantColor = MaterialTheme.colors.primaryVariant
+                    val variantColor = appColors[1]
                     val uiController = rememberSystemUiController()
                     SideEffect { uiController.setStatusBarColor(variantColor) }
 

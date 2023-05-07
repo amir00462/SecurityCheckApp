@@ -1,8 +1,12 @@
 package ir.dunijet.securitycheckapp.ui.features
 
 import android.app.Activity
+import android.app.UiModeManager
 import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -17,8 +21,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.app.ActivityCompat.recreate
 import dev.burnoo.cokoin.get
 import dev.burnoo.cokoin.navigation.getNavController
+import ir.dunijet.securitycheckapp.model.data.Output
 import ir.dunijet.securitycheckapp.service.sms.SmsRepository
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
@@ -33,7 +39,6 @@ import kotlinx.coroutines.launch
 fun HomeScreen() {
 
     // variables
-
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -48,6 +53,13 @@ fun HomeScreen() {
 
     val numberEngine = mainActivity.databaseService.readFromLocal(KEY_NUMBER_ENGINE)
     val password = mainActivity.databaseService.readFromLocal(KEY_USER_PASSWORD)
+
+    val engineStatus = remember { mutableStateOf(HomeVaziat.GheirFaal) }
+    val engineStatusLastUpdate = remember { mutableStateOf("نیاز به آپدیت اولیه") }
+    val outputs = remember { mutableStateOf(listOf<Output>()) }
+    var numberOnOutputs by remember { mutableStateOf(0) }
+    var numberOffOutputs by remember { mutableStateOf(0) }
+    var themeData by remember { mutableStateOf(ThemeData.LightTheme) }
 
     fun myListeners() {
 
@@ -215,39 +227,53 @@ fun HomeScreen() {
 //        context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
 
     }
+    fun logicHome() {
 
-    fun addData() {
+        //todo check if it is admin1 or admin2 or user and change Ui
 
+        // retrieve engine status from sharedPref
+        // retrieve engine status last update from sharedPref
+        val engStat =
+            mainActivity.databaseService.readFromLocal(KEY_ENGINE_STATUS) // 1 faal , 2 nime faal , 3 gheir faal
+        val engStatLast = mainActivity.databaseService.readFromLocal(KEY_ENGINE_STATUS_LAST_UPDATED)
+        when (engStat) {
+
+            "1" -> {
+                engineStatus.value = HomeVaziat.Faal
+            }
+
+            "2" -> {
+                engineStatus.value = HomeVaziat.NimeFaal
+            }
+
+            "3" -> {
+                engineStatus.value = HomeVaziat.GheirFaal
+            }
+
+        }
+        if (engStatLast != "null") {
+            engineStatusLastUpdate.value = engStatLast
+        }
+
+        // check Outputs from database and show them
+        // change enabled and disabled outputs
         coroutineScope.launch {
-
-            val dataFromDatabase = mainActivity.databaseService.readWiredZones()
-            if (dataFromDatabase.isNotEmpty()) {
-//                wiredZones.clear()
-//                wiredZones.addAll(getDefaultWiredZones())
-            } else {
-
-                if (MainActivity.recomposition < 1) {
-
-                    // get from sms
-//                    val formattedSms = SmsFormatter.getAllRemotes(password)
-//                    smsService.sendSms(formattedSms, numberEngine)
-
-                    // mock data from sms
-//                    wiredZones.clear()
-//                    wiredZones.addAll(getDefaultWiredZones())
-                    // mainActivity.databaseServiceMain.writeRemotes(remotes.toList())
-
-//                    context.showToast("در حال دریافت اطلاعات از دستگاه")
-                    context.showToast("لطفا 30 ثانیه صبر کنید")
-                    MainActivity.recomposition += 1
-                }
+            val newOutputs = mainActivity.databaseService.readOutputs()
+            if (newOutputs.isNotEmpty()) {
+                outputs.value = newOutputs
+                numberOnOutputs = newOutputs.count { it.isEnabledInHome }
+                numberOffOutputs = newOutputs.count { !it.isEnabledInHome }
             }
         }
+
+        // todo think about updating each output - when it should be done
+
     }
-    addData()
+
     LaunchedEffect(Unit) {
         MainActivity.recomposition = 0
         MainActivity.checkPermissions(context)
+        //logicHome()
         myListeners()
     }
     DisposableEffect(Unit) {
@@ -257,6 +283,16 @@ fun HomeScreen() {
         }
     }
 
+    val tmpTheme = mainActivity.databaseService.readFromLocal(key_APP_THEME)
+    themeData = if(tmpTheme == "null") {
+        if(isSystemInDarkTheme()) ThemeData.DarkTheme else ThemeData.LightTheme
+    } else {
+        if(tmpTheme == "dark") {
+            ThemeData.DarkTheme
+        } else {
+            ThemeData.LightTheme
+        }
+    }
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
@@ -299,16 +335,20 @@ fun HomeScreen() {
         drawerGesturesEnabled = true,
         drawerContent = {
             HomeDrawer(
-                themeData = ThemeData.LightTheme,
+                themeData = themeData,
                 onChangeTheme = {
 
-                    if (it == ThemeData.LightTheme) {
-                        appColors = lightColors
-                    } else {
-                        appColors = darkColors
-                    }
+                    mainActivity.databaseService.writeToLocal(key_APP_THEME , if(it == ThemeData.DarkTheme) "dark" else "light")
 
-                    context.showToast("change Theme of app and save the new theme in database")
+                    mainActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                    mainActivity.recreate()
+                    mainActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+
+                    //context.showToast("on change theme data clicked")
+                    //val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+                    //uiModeManager.nightMode = if (it == ThemeData.LightTheme) UiModeManager.MODE_NIGHT_NO else UiModeManager.MODE_NIGHT_YES
+
+
                 },
                 onCloseDrawer = {
 

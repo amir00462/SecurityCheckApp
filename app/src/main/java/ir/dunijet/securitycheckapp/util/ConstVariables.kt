@@ -16,4 +16,9 @@ const val KEY_SERIAL_ENGINE = "keySerialEngine"
 const val KEY_IS_ADMIN = "isAdmin"
 const val KEY_FIRST_RUN = "firstRun"
 const val KEY_THEME_DATA = "themeData"
+const val key_APP_THEME = "key_APP_THEME"
 const val AuthenticatedOrNot = "routeToGo"
+
+const val KEY_ENGINE_STATUS = "KEY_ENGINE_STATUS"
+const val KEY_ENGINE_STATUS_LAST_UPDATED = "KEY_ENGINE_STATUS_LAST_UPDATED"
+

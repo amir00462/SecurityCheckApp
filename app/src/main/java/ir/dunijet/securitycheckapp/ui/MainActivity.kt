@@ -9,8 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
@@ -26,6 +25,7 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import dev.burnoo.cokoin.Koin
 import dev.burnoo.cokoin.get
 import dev.burnoo.cokoin.navigation.KoinNavHost
+import ir.dunijet.securitycheckapp.R
 import ir.dunijet.securitycheckapp.model.data.Log
 import ir.dunijet.securitycheckapp.service.local.LocalRepository
 import ir.dunijet.securitycheckapp.ui.theme.SecureHomeSystemTheme
@@ -35,12 +35,17 @@ import ir.dunijet.securitycheckapp.ui.features.*
 import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 
-class MainActivity : ComponentActivity() {
+class MainActivity : BaseActivity() {
 
     val logMain = arrayListOf<Log>()
-    lateinit var databaseServiceMain: LocalRepository
+    lateinit var databaseService: LocalRepository
 
     companion object {
+
+        // in output screen ->
+        var dialogOutputTitle = "چراغ\u200Cهای حیاط"
+        var dialogOutputIcon = R.drawable.ic_lamp
+
         var recomposition = 0
         var mainTypeModir = true
         var appColors = listOf<Color>()
@@ -72,11 +77,10 @@ class MainActivity : ComponentActivity() {
                 }).check()
         }
     }
-
     fun addLogsToDb() {
 
         lifecycleScope.launch {
-            databaseServiceMain.writeLogs(logMain)
+            databaseService.writeLogs(logMain)
             logMain.clear()
         }
 
@@ -87,28 +91,61 @@ class MainActivity : ComponentActivity() {
         window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-
         setContent {
             Koin(appDeclaration = {
                 androidContext(this@MainActivity)
                 modules(myModules)
             }) {
-                SecureHomeSystemTheme {
-                    appColors = if (isSystemInDarkTheme()) darkColors else lightColors
+                databaseService = get()
 
-                    val variantColor = MaterialTheme.colors.primaryVariant
+                // check theme from sharedPref
+                val themeInShared = databaseService.readFromLocal(key_APP_THEME)
+                appColors = if(themeInShared == "null") {
+                    if (isSystemInDarkTheme()) darkColors else lightColors
+                } else {
+                    if (themeInShared == "dark") darkColors else lightColors
+                }
+
+                SecureHomeSystemTheme {
+
+                    val variantColor = appColors[1]
                     val uiController = rememberSystemUiController()
                     SideEffect { uiController.setStatusBarColor(variantColor) }
 
-                    databaseServiceMain = get()
                     SecureHomeSystem()
+
                 }
             }
         }
+    }
+    private fun isFirstRun(): Boolean {
 
+        val readData = databaseService.readFromLocal(KEY_FIRST_RUN)
+        return if (readData == "null") {
+            databaseService.writeToLocal(KEY_FIRST_RUN, "-1")
+            true
+        } else {
+            false
+        }
 
     }
+
 }
+
+//@Composable
+//fun CheckTheme(insideColors: List<Color>, toggleTheme: () -> Unit) {
+//
+//    SecureHomeSystemTheme(insideColors) {
+//
+//        val variantColor = MaterialTheme.colors.primaryVariant
+//        val uiController = rememberSystemUiController()
+//        SideEffect { uiController.setStatusBarColor(variantColor) }
+//
+//        SecureHomeSystem()
+//
+//    }
+//
+//}
 
 @Composable
 fun SecureHomeSystem() {
@@ -118,11 +155,31 @@ fun SecureHomeSystem() {
     KoinNavHost(navController = navController, startDestination = MyScreens.SignUpScreen.route) {
 
         composable(MyScreens.SignUpScreen.route) {
-            SignUpScreen()
+
+            when(databaseServiceMain.readFromLocal(AuthenticatedOrNot)) {
+
+                "null" -> {
+                    SignUpScreen()
+                }
+
+                "changePassword" -> {
+                    ChangePasswordScreen()
+                }
+
+                "home" -> {
+                    HomeScreen()
+                }
+
+            }
+
         }
 
         composable(MyScreens.ChangePasswordScreen.route) {
             ChangePasswordScreen()
+        }
+
+        composable(MyScreens.HomeScreen.route) {
+            HomeScreen()
         }
 
         composable(MyScreens.MembersScreen.route) {
@@ -147,11 +204,15 @@ fun SecureHomeSystem() {
         }
 
         composable(MyScreens.WirelessZoneScreen.route) {
-            WirelessZonesScreen()
+            WirelessZoneScreen()
         }
 
         composable(MyScreens.AlarmScreen.route) {
             AlarmScreen()
+        }
+
+        composable(MyScreens.OutputScreen.route) {
+            OutputScreen()
         }
 
     }

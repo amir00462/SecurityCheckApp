@@ -87,12 +87,7 @@ fun SignUpScreen() {
         return false
     }
 
-//    fun addLogsToDb() {
-//        databaseService.writeLogs(log)
-//        log.clear()
-//    }
-
-    fun tryToGo() {
+    fun appLogic() {
 
         smsReceived = smsReceivedListener(numberEngine.value, ResponseMain) {
 
@@ -149,13 +144,12 @@ fun SignUpScreen() {
                     context.unregisterReceiver(smsReceived)
                     context.unregisterReceiver(smsSent)
 
-                    navigation.navigate(MyScreens.ChangePasswordScreen.route)
-
-//                    {
-//                        popUpTo(MyScreens.SignUpScreen.route) {
-//                            inclusive = true
-//                        }
-//                    }
+                    mainActivity.databaseService.writeToLocal(AuthenticatedOrNot , "changePassword")
+                    navigation.navigate(MyScreens.ChangePasswordScreen.route) {
+                        popUpTo(MyScreens.SignUpScreen.route) {
+                            inclusive = true
+                        }
+                    }
 
                 }
 
@@ -217,14 +211,12 @@ fun SignUpScreen() {
                     context.unregisterReceiver(smsReceived)
                     context.unregisterReceiver(smsSent)
 
-                    mainActivity.databaseServiceMain.writeToLocal(RouteToGo , "MembersScreen")
-                    navigation.navigate(MyScreens.MembersScreen.route)
-
-//                    {
-//                        popUpTo(MyScreens.SignUpScreen.route) {
-//                            inclusive = true
-//                        }
-//                    }
+                    mainActivity.databaseService.writeToLocal(AuthenticatedOrNot , "home")
+                    navigation.navigate(MyScreens.HomeScreen.route) {
+                        popUpTo(MyScreens.SignUpScreen.route) {
+                            inclusive = true
+                        }
+                    }
 
                 }
 
@@ -268,12 +260,12 @@ fun SignUpScreen() {
                     context.unregisterReceiver(smsReceived)
                     context.unregisterReceiver(smsSent)
 
-                    navigation.navigate(MyScreens.ChangePasswordScreen.route)
-//                    {
-//                        popUpTo(MyScreens.SignUpScreen.route) {
-//                            inclusive = true
-//                        }
-//                    }
+                    mainActivity.databaseService.writeToLocal(AuthenticatedOrNot , "home")
+                    navigation.navigate(MyScreens.HomeScreen.route) {
+                        popUpTo(MyScreens.SignUpScreen.route) {
+                            inclusive = true
+                        }
+                    }
 
                 }
 
@@ -334,13 +326,14 @@ fun SignUpScreen() {
             TimingButton(buttonIsLoading, validateInputs()) {
 
                 if (validateInputs()) {
-                    tryToGo()
+                    appLogic()
                 } else
                     context.showToast("لطفا همه مقادیر را به درستی وارد کنید")
 
             }
 
         }
+
     }
 }
 

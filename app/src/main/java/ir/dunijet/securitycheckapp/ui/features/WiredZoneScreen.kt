@@ -8,6 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -17,12 +18,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.burnoo.cokoin.get
 import dev.burnoo.cokoin.navigation.getNavController
-import ir.dunijet.securitycheckapp.model.data.Remote
 import ir.dunijet.securitycheckapp.model.data.Zone
 import ir.dunijet.securitycheckapp.service.sms.SmsRepository
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.widgets.WiredZoneList
 import ir.dunijet.securitycheckapp.ui.widgets.ZoneDialog
+import ir.dunijet.securitycheckapp.ui.widgets.ZoneTimingButton
 import ir.dunijet.securitycheckapp.util.*
 import kotlinx.coroutines.launch
 
@@ -32,6 +33,7 @@ fun WiredZoneScreen() {
     val wiredZones = remember { mutableStateListOf<Zone>() }
     val coroutineScope = rememberCoroutineScope()
     val buttonIsLoading = remember { mutableStateOf(false) }
+    val buttonIsLoadingSaveAll = remember { mutableStateOf(false) }
 
     lateinit var smsSent: BroadcastReceiver
     lateinit var smsReceived: BroadcastReceiver
@@ -44,8 +46,8 @@ fun WiredZoneScreen() {
     val showDialog = remember { mutableStateOf(false) }
     val dialogZone = remember { mutableStateOf(FAKE_ZONE) }
 
-    val numberEngine = mainActivity.databaseServiceMain.readFromLocal(KEY_NUMBER_ENGINE)
-    val password = mainActivity.databaseServiceMain.readFromLocal(KEY_USER_PASSWORD)
+    val numberEngine = mainActivity.databaseService.readFromLocal(KEY_NUMBER_ENGINE)
+    val password = mainActivity.databaseService.readFromLocal(KEY_USER_PASSWORD)
 
     fun myListeners() {
 
@@ -218,7 +220,7 @@ fun WiredZoneScreen() {
 
         coroutineScope.launch {
 
-            val dataFromDatabase = mainActivity.databaseServiceMain.readWiredZones()
+            val dataFromDatabase = mainActivity.databaseService.readWiredZones()
             if (dataFromDatabase.isNotEmpty()) {
                 wiredZones.clear()
                 wiredZones.addAll(getDefaultWiredZones())
@@ -272,7 +274,9 @@ fun WiredZoneScreen() {
                 },
 
                 navigationIcon = {
-                    IconButton(onClick = { navigation.popBackStack() }) {
+                    IconButton(onClick = {
+                        navigation.navigate(MyScreens.WirelessZoneScreen.route)
+                    }) {
                         Icon(
                             modifier = Modifier.scale(scaleX = -1f, scaleY = 1f),
                             imageVector = Icons.Default.ArrowBack,
@@ -307,6 +311,15 @@ fun WiredZoneScreen() {
 
                 }
 
+                ZoneTimingButton(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    buttonIsLoading = buttonIsLoadingSaveAll
+                ) {
+
+                    // save new zone array list to database
+                    // send new data in sms and look for its response
+
+                }
 
                 if (showDialog.value) {
 
@@ -319,9 +332,10 @@ fun WiredZoneScreen() {
                             } else {
                                 context.showToast("لطفا تا پایان عملیات صبر کنید")
                             }
-                        }, { nameZone, zoneType ->
+                        }, { nameZone, zoneNoee ->
 
-                            if (zoneType == ZoneType.Faal) {
+
+                            if (zoneNoee == ZoneNooe.Cheshmi) {
 
                                 // sensor cheshmi
                                 context.showToast("این رو بکن یک سنسور چشمی")
@@ -334,18 +348,11 @@ fun WiredZoneScreen() {
                             }
 
                         }
-
                     )
-
-
                 }
 
+
             }
-
-
         }
-
     }
-
-
 }

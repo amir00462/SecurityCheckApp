@@ -17,7 +17,6 @@ val VazirFont = FontFamily(
 val VazirFontDigits = FontFamily(
     Font(R.font.vazir_regular_digits, FontWeight.Normal))
 
-
 val Typography = Typography(
 
     // bold fonts =>

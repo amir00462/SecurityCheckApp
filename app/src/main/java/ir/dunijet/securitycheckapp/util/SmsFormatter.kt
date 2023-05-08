@@ -122,16 +122,15 @@ class SmsFormatter {
         // response
         const val ResponseMain = "merssad"
 
-        // -    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
-        // Remotes
+        //  -    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 
+        // Remotes
         fun getAllRemotes(password: String): String {
             return """
                 name_list_remote:
                 $password
             """.trimIndent()
         }
-
         fun createRemote(remoteId: String, remoteName: String, remoteStatus: Boolean): String {
             return if (remoteStatus) {
                 """
@@ -150,7 +149,6 @@ class SmsFormatter {
             }
 
         }
-
         fun editRemote(remoteId: String, remoteName: String, remoteStatus: Boolean): String {
             return if (remoteStatus) {
                 """
@@ -168,13 +166,45 @@ class SmsFormatter {
                     """.trimIndent()
             }
         }
-
         fun deleteRemote(remoteId: String): String {
             return """
                         config_remote:
                         del_remote_$remoteId:
                    """.trimIndent()
         }
+
+        //  -    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+
+//      HomeScreen ->
+//      :1 حالت فعال
+//      :2 حالت نیمه فعال
+//      :3 حالت دینگ دانگ
+//      :0 حالت غیر فعال
+        fun getVaziatEngine(password: String): String {
+            return """
+                        home_page:
+                        uph:
+                        $password:
+                   """
+                .trimIndent()
+        }
+        fun updateVaziatEngine(password: String , it: HomeVaziat): String {
+
+            val status = when(it) {
+                HomeVaziat.Faal -> 1
+                HomeVaziat.NimeFaal -> 2
+                HomeVaziat.GheirFaal -> 0
+            }
+
+            return """
+                        home_page:
+                        status:$status
+                        $password:
+                   """
+                .trimIndent()
+        }
+
+
         // -    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 
 

@@ -93,4 +93,7 @@ dependencies {
     // security shared pref
     implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha03'
 
+    // jalali time
+    implementation 'com.github.samanzamani:PersianDate:1.6.1'
+
 }

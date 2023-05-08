@@ -35,6 +35,7 @@ val myModules = module {
             get<AppDatabase>().memberDao(),
             get<AppDatabase>().remoteDao(),
             get<AppDatabase>().zoneDao(),
+            get<AppDatabase>().outputDao(),
         )
     }
 

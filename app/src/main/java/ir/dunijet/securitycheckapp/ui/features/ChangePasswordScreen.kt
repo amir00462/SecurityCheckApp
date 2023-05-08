@@ -32,15 +32,11 @@ fun ChangePasswordScreen() {
 
     lateinit var smsReceived: BroadcastReceiver
     lateinit var smsSent: BroadcastReceiver
-
     val smsService = get<SmsRepository>()
-
     val context = LocalContext.current
     val mainActivity = LocalContext.current as MainActivity
-
     val navigation = getNavController()
     val databaseService = get<LocalRepository>()
-
     val buttonIsLoading = remember { mutableStateOf(false) }
 
     // states
@@ -55,8 +51,7 @@ fun ChangePasswordScreen() {
         return false
     }
 
-    fun tryToGo() {
-
+    fun changePasswordLogic() {
         buttonIsLoading.value = true
 
         // register
@@ -74,7 +69,9 @@ fun ChangePasswordScreen() {
                 context.unregisterReceiver(smsSent)
                 context.unregisterReceiver(smsReceived)
 
-                navigation.navigate(MyScreens.WiredZoneScreen.route)
+                databaseService.writeToLocal(KEY_USER_PASSWORD, changedPassword)
+                mainActivity.databaseService.writeToLocal(AuthenticatedOrNot, "home")
+                navigation.navigate(MyScreens.HomeScreen.route)
             } else {
                 mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms sent" + "-" + "Password_Change_Failed"))
                 context.showToast("عملیات تغییر پسورد ناموفق بود")
@@ -130,45 +127,42 @@ fun ChangePasswordScreen() {
         }
     ) {
 
-    Surface(color = MaterialTheme.colors.background, modifier = Modifier.fillMaxSize()) {
+        Surface(color = MaterialTheme.colors.background, modifier = Modifier.fillMaxSize()) {
 
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
 
-            Text(
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp,
-                text = "تغییر رمز ورود دستگاه",
-                modifier = Modifier.padding(top = 22.dp, start = 16.dp)
-            )
+                Text(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp,
+                    text = "تغییر رمز ورود دستگاه",
+                    modifier = Modifier.padding(top = 22.dp, start = 16.dp)
+                )
 
-            OtpTextField(
-                modifier = Modifier.padding(top = 24.dp),
-                txtSubject = "رمز ورود جدید",
-                onValueChanged = { newPassword.value = it },
-                value = newPassword.value,
-                length = 6
-            )
+                OtpTextField(
+                    modifier = Modifier.padding(top = 24.dp),
+                    txtSubject = "رمز ورود جدید",
+                    onValueChanged = { newPassword.value = it },
+                    value = newPassword.value,
+                    length = 6
+                )
 
-            OtpTextField(
-                modifier = Modifier.padding(top = 24.dp),
-                txtSubject = "تکرار رمز ورود جدید",
-                onValueChanged = { newPasswordTekrar.value = it },
-                value = newPasswordTekrar.value,
-                length = 6
-            )
+                OtpTextField(
+                    modifier = Modifier.padding(top = 24.dp),
+                    txtSubject = "تکرار رمز ورود جدید",
+                    onValueChanged = { newPasswordTekrar.value = it },
+                    value = newPasswordTekrar.value,
+                    length = 6
+                )
 
-            TimingButton(buttonIsLoading , validateInputs()) {
+                TimingButton(buttonIsLoading, validateInputs()) {
 
-                if (validateInputs()) {
-                    tryToGo()
-                } else
-                    context.showToast("لطفا همه مقادیر را به درستی وارد کنید")
+                    if (validateInputs()) {
+                        changePasswordLogic()
+                    } else
+                        context.showToast("لطفا همه مقادیر را به درستی وارد کنید")
 
+                }
             }
-
         }
     }
-
-}
-
 }

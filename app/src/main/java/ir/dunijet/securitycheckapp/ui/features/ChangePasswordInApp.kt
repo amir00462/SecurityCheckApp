@@ -81,7 +81,7 @@ fun ChangePasswordInApp(typeIsModir: Boolean) {
                 mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms sent" + "-" + "Password_Changed"))
 
                 if(typeIsModir) {
-                    mainActivity.databaseServiceMain.writeToLocal(KEY_USER_PASSWORD , changedPassword)
+                    mainActivity.databaseService.writeToLocal(KEY_USER_PASSWORD , changedPassword)
                 }
 
                 mainActivity.addLogsToDb()

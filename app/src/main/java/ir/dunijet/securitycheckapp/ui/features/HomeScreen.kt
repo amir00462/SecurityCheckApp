@@ -42,10 +42,6 @@ import saman.zamani.persiandate.PersianDate
 import saman.zamani.persiandate.PersianDateFormat
 import java.util.*
 
-// vaziatDastgah , lastBeroozresani , vaziatKhoroojiHayeFaalVaGheirFaaal va beRoozResani Anha
-
-// todo updateVaziatOutput,changeVaziatOutput sms we dont have
-// todo updateVaziatEngine,changeVaziatEngine not working
 // todo check if the user is admin1 or admin2 or a normal user what to show to him/her
 
 @Composable
@@ -75,13 +71,12 @@ fun HomeScreen() {
     var numberOnOutputs by remember { mutableStateOf(0) }
     var numberOffOutputs by remember { mutableStateOf(0) }
     var themeData by remember { mutableStateOf(ThemeData.LightTheme) }
-    var isConnecting by remember { mutableStateOf(false) }
 
     fun updateVaziatEngine() {
         val formattedSms = SmsFormatter.getVaziatEngine(password)
         smsService.sendSms(formattedSms, numberEngine)
     }
-    fun changeViziatEngine(it: HomeVaziat) {
+    fun changeVaziatEngine(it: HomeVaziat) {
         val formattedSms = SmsFormatter.updateVaziatEngine(password, it)
         smsService.sendSms(formattedSms, numberEngine)
     }
@@ -301,7 +296,7 @@ fun HomeScreen() {
                             homeVaziat = if (engineStatus.value == 1) HomeVaziat.Faal else if (engineStatus.value == 2) HomeVaziat.NimeFaal else HomeVaziat.GheirFaal,
                             lastUpdated = engineStatusLastUpdate.value,
                             onChangeVaziatClicked = {
-                                changeViziatEngine(it)
+                                changeVaziatEngine(it)
                             },
                             onUpdateClicked = {
                                 updateVaziatEngine()

@@ -1,0 +1,17 @@
+saved data in MainActivity ->
+
+check which screen should open next time:
+AuthenticatedOrNot Home - ChangePass - SignUp -> sharedPref
+
+saved data in SignUp ->
+hoviat (admin1-admin2-user) -> sharedPref
+KEY_NUMBER_ENGINE -> sharedPref
+KEY_NUMBER_USER -> sharedPref
+KEY_USER_PASSWORD -> sharedPref
+KEY_SERIAL_ENGINE -> sharedPref
+
+changePassword ->
+store new password
+
+
+home screen ->

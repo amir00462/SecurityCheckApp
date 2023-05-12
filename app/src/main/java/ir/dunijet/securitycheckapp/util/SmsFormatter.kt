@@ -203,7 +203,25 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
+        fun getVaziatOutput(password: String ,outputId :String): String {
+            return """
+                        home_page:
+                        up_out_$outputId:
+                        $password:
+                   """
+                .trimIndent()
+        }
+        fun updateVaziatOutput(password: String , outputId :String , vaziat :Boolean): String {
 
+            val whatToSay = if(vaziat) "on" else "off"
+
+            return """
+                        home_page:
+                        out_$outputId:$whatToSay
+                        $password:
+                   """
+                .trimIndent()
+        }
 
         // -    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 

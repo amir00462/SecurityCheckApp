@@ -46,6 +46,7 @@ import java.util.*
 
 // todo updateVaziatOutput,changeVaziatOutput sms we dont have
 // todo updateVaziatEngine,changeVaziatEngine not working
+// todo check if the user is admin1 or admin2 or a normal user what to show to him/her
 
 @Composable
 fun HomeScreen() {
@@ -70,7 +71,7 @@ fun HomeScreen() {
 
     val engineStatus = remember { mutableStateOf(0) }
     val engineStatusLastUpdate = remember { mutableStateOf("نیاز به بروز رسانی") }
-    val outputs = remember { mutableStateOf(listOf<Output>()) }
+    val outputs = remember { mutableStateListOf<Output>() }
     var numberOnOutputs by remember { mutableStateOf(0) }
     var numberOffOutputs by remember { mutableStateOf(0) }
     var themeData by remember { mutableStateOf(ThemeData.LightTheme) }
@@ -85,12 +86,12 @@ fun HomeScreen() {
         smsService.sendSms(formattedSms, numberEngine)
     }
     fun updateVaziatOutput(outputId :String) {
-//        val formattedSms = SmsFormatter.getVaziatEngine(password)
-//        smsService.sendSms(formattedSms, numberEngine)
+        val formattedSms = SmsFormatter.getVaziatOutput(password , outputId)
+        smsService.sendSms(formattedSms, numberEngine)
     }
     fun changeVaziatOutput(outputId :String , vaziat :Boolean) {
-//        val formattedSms = SmsFormatter.updateVaziatEngine(password, it)
-//        smsService.sendSms(formattedSms, numberEngine)
+        val formattedSms = SmsFormatter.updateVaziatOutput(password, outputId ,  vaziat)
+        smsService.sendSms(formattedSms, numberEngine)
     }
     fun myListeners() {
 
@@ -103,26 +104,51 @@ fun HomeScreen() {
 
                     // vaziat
                     val newStatus = (it.lines()[2].split(':')[1]).toInt()
-                    engineStatus.value = newStatus
+
+                    // update status
                     mainActivity.databaseService.writeToLocal(
                         KEY_ENGINE_STATUS,
                         newStatus.toString()
                     )
 
-                    // time updated
-                    val pdate = PersianDate()
-                    val pdformater = PersianDateFormat("i H y F j I")
-                    val value = pdformater.format(pdate) //۱۹ تیر ۹۶
+                    // update time
+                    val lastTimeInMillies = System.currentTimeMillis().toString()
+                    mainActivity.databaseService.writeToLocal(
+                        KEY_ENGINE_STATUS_LAST_UPDATED,
+                        lastTimeInMillies
+                    )
 
+                    // recreate ->
+                    engineStatusLastUpdate.value = lastTimeInMillies
+                    engineStatus.value = newStatus
 
                 }
 
                 // get updateVaziatOutput - changeVaizatOutput
+                it.contains("out_") -> {
 
+                    // vaziat
+                    val outputId = (it.lines()[2].split(':'))[0].split('_')[1]
+                    val isEnabled = (it.lines()[2].split(':'))[1] == "1"
+                    val inMilliesUpdate = System.currentTimeMillis().toString()
+
+                    coroutineScope.launch {
+                        mainActivity.databaseService.editOutputEnability(
+                            outputId,
+                            isEnabled,
+                            inMilliesUpdate
+                        )
+
+                        val foundOutput = outputs.find { itt -> itt.outputId == outputId }
+                        outputs.remove(foundOutput)
+                        outputs.add(foundOutput!!.copy(isEnabledInHome = isEnabled , lastUpdatedIsEnabledInHome = inMilliesUpdate))
+                    }
+
+                }
 
             }
-
         }
+
         smsSent = smsSentListener(
             context,
             navigation.currentDestination?.route!!,
@@ -139,33 +165,32 @@ fun HomeScreen() {
 
         // retrieve engine status from sharedPref
         // retrieve engine status last update from sharedPref
-        val engStat = mainActivity.databaseService.readFromLocal(KEY_ENGINE_STATUS) // 1 faal , 2 nime faal , 3 gheir faal
+        val engStat = mainActivity.databaseService.readFromLocal(KEY_ENGINE_STATUS) // 1 faal , 2 nime faal , 0 gheir faal
         val engStatLast = mainActivity.databaseService.readFromLocal(KEY_ENGINE_STATUS_LAST_UPDATED)
-        when (engStat) {
 
-            "1" -> {
-                engineStatus.value = 1
-            }
+        if(engStat == "null")
+            engineStatus.value = 0
+        else
+            engineStatus.value = engStat.toInt()
 
-            "2" -> {
-                engineStatus.value = 2
-            }
-
-            "3" -> {
-                engineStatus.value = 0
-            }
-
-        }
-        if (engStatLast != "null") {
+        if(engStatLast == "null")
+            engineStatusLastUpdate.value = "نیاز به بروز رسانی"
+        else
             engineStatusLastUpdate.value = engStatLast
-        }
+
+//        engineStatus.value = engStat.toInt()
+//        if (engStatLast != "null") {
+//            engineStatusLastUpdate.value = engStatLast
+//        }
 
         // check Outputs from database and show them
         // change enabled and disabled outputs
         coroutineScope.launch {
             val newOutputs = mainActivity.databaseService.readOutputs()
             if (newOutputs.isNotEmpty()) {
-                outputs.value = newOutputs
+                outputs.clear()
+                outputs.addAll(newOutputs)
+
                 numberOnOutputs = newOutputs.count { it.isEnabledInHome }
                 numberOffOutputs = newOutputs.count { !it.isEnabledInHome }
             }
@@ -186,7 +211,17 @@ fun HomeScreen() {
         }
     }
 
-
+    // check switch data for theme ->
+    val tmpTheme = mainActivity.databaseService.readFromLocal(key_APP_THEME)
+    themeData = if(tmpTheme == "null") {
+        if(isSystemInDarkTheme()) ThemeData.DarkTheme else ThemeData.LightTheme
+    } else {
+        if(tmpTheme == "dark") {
+            ThemeData.DarkTheme
+        } else {
+            ThemeData.LightTheme
+        }
+    }
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
@@ -348,7 +383,7 @@ fun HomeScreen() {
                     }
 
                     OutputVaziatList(
-                        list = outputs.value,
+                        list = outputs.toList(),
                         changeChecked = { id, isEnabled ->
                             changeVaziatOutput(id , isEnabled)
                     }, updateThis = { id ->
@@ -361,7 +396,6 @@ fun HomeScreen() {
         }
     }
 }
-
 fun recreateSmoothly(activity :Activity) {
     val mCurrentActivity: Activity = activity
     val intent: Intent = activity.intent

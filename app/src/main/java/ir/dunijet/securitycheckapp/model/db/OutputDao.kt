@@ -20,4 +20,7 @@ interface OutputDao {
     @Query("SELECT * FROM output_table")
     suspend fun getAll(): List<Output>
 
+    @Query("UPDATE output_table SET isEnabledInHome = :newEnabled AND lastUpdatedIsEnabledInHome = :lastUpdatedMillies WHERE outputId = :thisOutputId")
+    suspend fun editOutputEnability(thisOutputId :String , newEnabled :Boolean , lastUpdatedMillies :String)
+
 }

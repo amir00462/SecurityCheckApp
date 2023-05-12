@@ -54,11 +54,10 @@ fun OutputVaziatList(
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
             .padding(bottom = 16.dp)
     ) {
 
-        items(list.size) { it->
+        items(list.size) { it ->
 
             OutputVaziatItem(
                 outputId = list[it].outputId,
@@ -116,7 +115,7 @@ fun OutputVaziatItem(
     val interactionSource = remember { MutableInteractionSource() }
 
     // rotation
-    val lastThisUpdated = remember { mutableStateOf(lastUpdated) }
+    val lastThisUpdated = remember { mutableStateOf(context.correctDate(lastUpdated.toLong())) }
     val canSwitchChange = remember { mutableStateOf(true) }
     var rotationAngle by remember { mutableStateOf(0f) }
     val animatedRotationAngle by animateFloatAsState(
@@ -390,7 +389,7 @@ fun HomeVaziat(
     val interactionSource = remember { MutableInteractionSource() }
 
     // rotation
-    val lastThisUpdated = remember { mutableStateOf(lastUpdated) }
+    val lastThisUpdated = remember { mutableStateOf( if(lastUpdated == "نیاز به بروز رسانی") "نیاز به بروز رسانی" else context.correctDate(lastUpdated.toLong()) ) }
     var rotationAngle by remember { mutableStateOf(0f) }
     val animatedRotationAngle by animateFloatAsState(
         targetValue = rotationAngle,

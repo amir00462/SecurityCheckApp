@@ -99,5 +99,8 @@ class LocalRepository(
     suspend fun readOutputs(): List<Output> {
         return outputDao.getAll()
     }
+    suspend fun editOutputEnability(outputId :String , isEnabledInHome :Boolean , lastUpdatedMillies :String) {
+        outputDao.editOutputEnability(outputId , isEnabledInHome , lastUpdatedMillies)
+    }
 
 }

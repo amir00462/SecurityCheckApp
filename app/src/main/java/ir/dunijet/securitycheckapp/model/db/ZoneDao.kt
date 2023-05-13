@@ -31,4 +31,8 @@ interface ZoneDao {
     @Query("DELETE FROM zone_table WHERE zoneId = :id AND typeIsWire = :isWired")
     suspend fun deleteById(id: String , isWired :Boolean)
 
+    @Query("DELETE FROM zone_table WHERE typeIsWire = 1")
+    suspend fun clearWiredZones()
+
+
 }

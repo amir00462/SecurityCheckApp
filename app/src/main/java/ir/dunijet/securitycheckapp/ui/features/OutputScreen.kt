@@ -1,11 +1,13 @@
 package ir.dunijet.securitycheckapp.ui.features
 
 import android.content.BroadcastReceiver
+import android.content.IntentFilter
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -25,6 +27,11 @@ import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
 import ir.dunijet.securitycheckapp.ui.widgets.*
 import ir.dunijet.securitycheckapp.util.*
 import kotlinx.coroutines.launch
+
+// todo - deal lastUpdatedTime in OutputScreen - done
+// todo - close dialog after receiving sms - done
+// todo - output edit section restriction not added, and disability of fireman
+// todo - why edit of 1 not working
 
 @Composable
 fun OutputScreen() {
@@ -46,174 +53,212 @@ fun OutputScreen() {
 
     val numberEngine = mainActivity.databaseService.readFromLocal(KEY_NUMBER_ENGINE)
     val password = mainActivity.databaseService.readFromLocal(KEY_USER_PASSWORD)
+    val serial = mainActivity.databaseService.readFromLocal(KEY_SERIAL_ENGINE)
 
     fun myListeners() {
 
-//        // get them from sms
-//        smsReceived = smsReceivedListenerLong(SmsFormatter.ResponseMain) {
-//
-//            if (it.contains("admin1") && it.contains("admin2")) {
-//                val newMembersFromSms = mutableListOf<Member>()
-//
-//                for (i in 2..3) {
-//                    val adminNumber = it.lines()[i].split(':')[1]
-//                    if (adminNumber != "") {
-//                        newMembersFromSms.add(Member(null, true, (i - 1).toString(), adminNumber))
-//                    }
-//                }
-//
-//                for (i in 4..13) {
-//                    val memberNumber = it.lines()[i].split(':')[1]
-//                    if (memberNumber != "") {
-//                        newMembersFromSms.add(Member(null, false, (i - 3).toString(), memberNumber))
-//                    }
-//                }
-//
-//                coroutineScope.launch {
-//                    members.clear()
-//                    members.addAll(newMembersFromSms)
-//                    mainActivity.databaseServiceMain.writeMembers(members.toList())
-//                }
-//
-//            } else {
-//
-//                when (dialogTask.value) {
-//
-//                    // working number meghdar nadarad
-//
-//                    MemberTask.AddUser -> {
-//
-//                        // motmaen shodan
-//                        // do that task in database
-//                        // update states and database
-//                        // log
-//                        // dismiss dialog
-//
-//                        if (typeIsModir.value && it.contains(SmsFormatter.ResponseSetAdmin2)) {
-//
-//                            val numberAdmin2 = it.lines()[3].split(":")[1]
-//                            coroutineScope.launch {
-//                                mainActivity.databaseServiceMain.writeMember(
-//                                    Member(
-//                                        null,
-//                                        true,
-//                                        "2",
-//                                        numberAdmin2
-//                                    )
-//                                )
-//
-//                                members.add(
-//                                    Member(
-//                                        null,
-//                                        true,
-//                                        "2",
-//                                        numberAdmin2
-//                                    )
-//                                )
-//                                showDialog.value = false
-//                                mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "admin2Added"))
-//                            }
-//                        }
-//
-//                        if (!typeIsModir.value && it.contains(SmsFormatter.ResponseCreateUser)) {
-//
-//                            val userCreatedNumber = it.lines()[2].split(':')[1].substring(1)
-//                            val userId = (it.lines()[2].split('_')[3]).split(':')[0]
-//
-//                            coroutineScope.launch {
-//                                mainActivity.databaseServiceMain.writeMember(
-//                                    Member(
-//                                        null,
-//                                        false,
-//                                        userId,
-//                                        userCreatedNumber
-//                                    )
-//                                )
-//                                members.add(
-//                                    Member(
-//                                        null,
-//                                        false,
-//                                        userId,
-//                                        userCreatedNumber
-//                                    )
-//                                )
-//                                showDialog.value = false
-//                                mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "newUserAdded"))
-//                            }
-//                        }
-//                    }
-//
-//                    MemberTask.EditUser -> {
-//
-//                        // oldMember -> is number that on three dots clicking
-//                        // number from sms - edited number
-//                        // dialogMember.value
-//
-//                        // old number -> old member of user
-//                        // new number -> get the new member from sms
-//
-//                        var newNumber = ""
-//                        if(it.contains("admin")) {
-//                            newNumber = it.lines()[3].split(':')[1]
-//                        } else {
-//                            newNumber = it.lines()[2].split(':')[1].substring(1)
-//                        }
-//
-//                        coroutineScope.launch {
-//                            mainActivity.databaseServiceMain.editMember(
-//                                oldMember,
-//                                newNumber
-//                            )
-//
-//                            val foundMember = members.find { itt -> itt.memberNumber == oldMember }
-//                            members.remove(foundMember)
-//                            members.add(foundMember!!.copy(memberNumber = newNumber))
-//
-//                            showDialog.value = false
-//                            mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "someoneEdited"))
-//                        }
-//
-//                    }
-//
-//                    MemberTask.DeleteUser -> {
-//
-//                        // if (it.contains(workingNumber)) {
-//                        coroutineScope.launch {
-//                            mainActivity.databaseServiceMain.deleteMember(oldMember)
-//
-//                            val foundMember = members.find { itt -> itt.memberNumber == oldMember }
-//                            members.remove(foundMember)
-//
-//                            showDialog.value = false
-//                            mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "someoneRemoved"))
-//
-//                            if(it.contains(SmsFormatter.ResponseDeleteAdmin2)) {
-//                                modirCount = 1
-//                                createNewAdmin.value = true
-//                            }
-//
-//                            userCount = members.filter { !it.typeIsModir }.size
-//                            if(it.contains(SmsFormatter.ResponseDeleteUser) && userCount == 9) {
-//                                createNewUser.value = true
-//                            }
-//
-//                        }
-//                        // }
-//
-//                    }
-//                }
-//            }
-//        }
-//        smsSent = smsSentListener(
-//            context,
-//            navigation.currentDestination?.route!!,
-//            { buttonIsLoading.value = it },
-//            { mainActivity.logMain.add(it) })
-//        context.registerReceiver(smsReceived, IntentFilter(SMS_RECEIVED))
-//        context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
+        smsReceived = smsReceivedListener(numberEngine, serial) {
+            val idOutput = it.lines()[2].split('_')[1]
+
+            if (outputs.isExist(idOutput)) {
+
+                // mode update
+                when {
+
+                    // add daem - khamoosh roshan
+                    it.contains("_permament:") -> {
+
+                        showDialog.value = "hide"
+                        coroutineScope.launch {
+                            mainActivity.databaseService.writeOutput(
+                                dialogOutput.value.copy(
+                                    outputId = idOutput,
+                                    outputType = OutputType.KhamooshRoshan,
+                                    isEnabledInHome = false,
+                                    lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
+                                )
+                            )
+
+                            val existData = outputs.find {  it.outputId == idOutput  }
+                            outputs.remove(existData)
+                            outputs.add(
+                                dialogOutput.value.copy(
+                                    outputId = idOutput,
+                                    outputType = OutputType.KhamooshRoshan,
+                                    isEnabledInHome = false,
+                                    lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
+                                )
+                            )
+
+                        }
+
+                    }
+
+                    // add lahzeii
+                    it.contains("_momentary:") -> {
+
+                        showDialog.value = "hide"
+                        coroutineScope.launch {
+                            val timeLahzeii = it.lines()[3].split(':')[1].split('*')[1]
+
+                            mainActivity.databaseService.writeOutput(
+                                dialogOutput.value.copy(
+                                    outputId = idOutput,
+                                    outputType = OutputType.Lahzeii,
+                                    outputLahzeiiZaman = timeLahzeii.toInt().toFloat(),
+                                    isEnabledInHome = false,
+                                    lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
+                                )
+                            )
+
+                            val existData = outputs.find {  it.outputId == idOutput  }
+                            outputs.remove(existData)
+                            outputs.add(
+                                dialogOutput.value.copy(
+                                    outputId = idOutput,
+                                    outputType = OutputType.Lahzeii,
+                                    outputLahzeiiZaman = timeLahzeii.toInt().toFloat(),
+                                    isEnabledInHome = false,
+                                    lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
+                                )
+                            )
+
+                        }
+                    }
+
+                    // add fireman
+                    it.contains("_fireman:") -> {
+
+                        showDialog.value = "hide"
+                        coroutineScope.launch {
+                            mainActivity.databaseService.writeOutput(
+                                dialogOutput.value.copy(
+                                    outputId = idOutput,
+                                    outputType = OutputType.VabasteDoodAtash,
+                                    isEnabledInHome = false,
+                                    lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
+                                )
+                            )
+
+                            val existData = outputs.find {  it.outputId == idOutput  }
+                            outputs.remove(existData)
+                            outputs.add(
+                                dialogOutput.value.copy(
+                                    outputId = idOutput,
+                                    outputType = OutputType.VabasteDoodAtash,
+                                    isEnabledInHome = false,
+                                    lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
+                                )
+                            )
+                        }
+
+                    }
+
+                }
+
+            } else {
+
+                // mode add
+                when {
+
+                    // add daem - khamoosh roshan
+                    it.contains("_permament:") -> {
+
+                        showDialog.value = "hide"
+                        coroutineScope.launch {
+                            mainActivity.databaseService.writeOutput(
+                                dialogOutput.value.copy(
+                                    outputId = idOutput,
+                                    outputType = OutputType.KhamooshRoshan,
+                                    isEnabledInHome = false,
+                                    lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
+                                )
+                            )
+                            outputs.add(
+                                dialogOutput.value.copy(
+                                    outputId = idOutput,
+                                    outputType = OutputType.KhamooshRoshan,
+                                    isEnabledInHome = false,
+                                    lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
+                                )
+                            )
+
+                        }
+
+                    }
+
+                    // add lahzeii
+                    it.contains("_momentary:") -> {
+
+                        showDialog.value = "hide"
+                        coroutineScope.launch {
+                            val timeLahzeii = it.lines()[3].split(':')[1].split('*')[1]
+
+                            mainActivity.databaseService.writeOutput(
+                                dialogOutput.value.copy(
+                                    outputId = idOutput,
+                                    outputType = OutputType.Lahzeii,
+                                    outputLahzeiiZaman = timeLahzeii.toInt().toFloat(),
+                                    isEnabledInHome = false,
+                                    lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
+                                )
+                            )
+                            outputs.add(
+                                dialogOutput.value.copy(
+                                    outputId = idOutput,
+                                    outputType = OutputType.Lahzeii,
+                                    outputLahzeiiZaman = timeLahzeii.toInt().toFloat(),
+                                    isEnabledInHome = false,
+                                    lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
+                                )
+                            )
+
+
+                        }
+
+                    }
+
+                    // add fireman
+                    it.contains("_fireman:") -> {
+
+                        showDialog.value = "hide"
+                        coroutineScope.launch {
+                            mainActivity.databaseService.writeOutput(
+                                dialogOutput.value.copy(
+                                    outputId = idOutput,
+                                    outputType = OutputType.VabasteDoodAtash,
+                                    isEnabledInHome = false,
+                                    lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
+                                )
+                            )
+                            outputs.add(
+                                dialogOutput.value.copy(
+                                    outputId = idOutput,
+                                    outputType = OutputType.VabasteDoodAtash,
+                                    isEnabledInHome = false,
+                                    lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
+                                )
+                            )
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        smsSent = smsSentListener(
+            context,
+            navigation.currentDestination?.route!!,
+            { buttonIsLoading.value = it },
+            { mainActivity.logMain.add(it) })
+
+        context.registerReceiver(smsReceived, IntentFilter(SMS_RECEIVED))
+        context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
 
     }
-
     fun getNextOutputId(): Int {
 
         val fullList = (1..64).toMutableList()
@@ -223,34 +268,52 @@ fun OutputScreen() {
 
         return fullList.first()
     }
-
     fun addData() {
 
         coroutineScope.launch {
 
-            val dataFromDatabase = mainActivity.databaseService.readWiredZones()
+            val dataFromDatabase = mainActivity.databaseService.readOutputs()
             if (dataFromDatabase.isNotEmpty()) {
-//                wirelessZones.clear()
-//                wirelessZones.addAll(getDefaultWiredZones())
+                outputs.clear()
+                outputs.addAll(dataFromDatabase)
             } else {
 
-                if (MainActivity.recomposition < 1) {
-
-                    // get from sms
-//                    val formattedSms = SmsFormatter.getAllRemotes(password)
-//                    smsService.sendSms(formattedSms, numberEngine)
-
-                    // mock data from sms
-                    outputs.clear()
-                    outputs.addAll(getDefaultOutputs())
-                    // mainActivity.databaseServiceMain.writeRemotes(remotes.toList())
-
-//                    context.showToast("در حال دریافت اطلاعات از دستگاه")
-                    context.showToast("لطفا 30 ثانیه صبر کنید")
-                    MainActivity.recomposition += 1
-                }
+//                if (MainActivity.recomposition < 1) {
+//
+//                    // get from sms
+////                    val formattedSms = SmsFormatter.getAllRemotes(password)
+////                    smsService.sendSms(formattedSms, numberEngine)
+//
+//                    // mock data from sms
+//                    outputs.clear()
+//                    outputs.addAll(getDefaultOutputs())
+//                    // mainActivity.databaseServiceMain.writeRemotes(remotes.toList())
+//
+////                    context.showToast("در حال دریافت اطلاعات از دستگاه")
+//                    context.showToast("لطفا 30 ثانیه صبر کنید")
+//                    MainActivity.recomposition += 1
+//                }
             }
         }
+
+    }
+
+    // this functions use data in dialogOutput ->
+    fun addNewOutput(newOutput: Output) {
+        //dialogOutput.value = newOutput.copy( outputId = getNextOutputId().toString() )
+
+        val formattedSms = SmsFormatter.addNewOutput(password, newOutput)
+        smsService.sendSms(formattedSms, numberEngine)
+    }
+    fun editOutput(editedOutput: Output) {
+        //dialogOutput.value = editedOutput.copy( outputId = getNextOutputId().toString() )
+
+        val formattedSms = SmsFormatter.editOutput(password, editedOutput)
+        smsService.sendSms(formattedSms, numberEngine)
+    }
+    fun deleteOutput(idDeleting :String) {
+        val formattedSms = SmsFormatter.deleteOutput(password, idDeleting)
+        smsService.sendSms(formattedSms, numberEngine)
     }
 
     addData()
@@ -350,43 +413,96 @@ fun OutputScreen() {
                 when (showDialog.value) {
 
                     "add" -> {
-                        DialogOutputAdd(
-                            idd = getNextOutputId().toString(),
-                            buttonIsLoading = buttonIsLoading,
-                            onDismiss = {
-                                if (!buttonIsLoading.value) {
-                                    showDialog.value = "hide"
-                                } else {
-                                    context.showToast("لطفا تا پایان عملیات صبر کنید")
+
+                        if (getNextOutputId() == 1) {
+                            DialogOutputAddId1(
+                                idd = getNextOutputId().toString(),
+                                buttonIsLoading = buttonIsLoading,
+                                onDismiss = {
+                                    if (!buttonIsLoading.value) {
+                                        showDialog.value = "hide"
+                                    } else {
+                                        context.showToast("لطفا تا پایان عملیات صبر کنید")
+                                    }
+                                },
+                                onSubmit = {
+
+                                    // send add sms
+                                    context.showToast("add output clicked")
+                                    addNewOutput(it)
+
                                 }
-                            },
-                            onSubmit = {
+                            )
+                        } else {
+                            DialogOutputAdd(
+                                idd = getNextOutputId().toString(),
+                                buttonIsLoading = buttonIsLoading,
+                                onDismiss = {
+                                    if (!buttonIsLoading.value) {
+                                        showDialog.value = "hide"
+                                    } else {
+                                        context.showToast("لطفا تا پایان عملیات صبر کنید")
+                                    }
+                                },
+                                onSubmit = {
 
-                                // send add sms
-                                context.showToast("add output clicked")
+                                    // send add sms
+                                    context.showToast("add output clicked")
+                                    addNewOutput(it)
 
-                            }
-                        )
+                                }
+                            )
+                        }
+
                     }
 
                     "edit" -> {
-                        DialogOutputEdit(
-                            output = dialogOutput.value,
-                            buttonIsLoading = buttonIsLoading,
-                            onDismiss = {
-                                if (!buttonIsLoading.value) {
-                                    showDialog.value = "hide"
-                                } else {
-                                    context.showToast("لطفا تا پایان عملیات صبر کنید")
+
+                        if (dialogOutput.value.outputId == "1") {
+
+                            DialogOutputEditId1(
+                                output = dialogOutput.value,
+                                buttonIsLoading = buttonIsLoading,
+                                onDismiss = {
+                                    if (!buttonIsLoading.value) {
+                                        showDialog.value = "hide"
+                                    } else {
+                                        context.showToast("لطفا تا پایان عملیات صبر کنید")
+                                    }
+                                },
+                                onSubmit = {
+
+                                    // send add sms
+                                    context.showToast("edit output clicked")
+                                    editOutput(it)
+
                                 }
-                            },
-                            onSubmit = {
+                            )
 
-                                // send add sms
-                                context.showToast("add output clicked")
+                        } else {
 
-                            }
-                        )
+                            DialogOutputEdit(
+                                output = dialogOutput.value,
+                                buttonIsLoading = buttonIsLoading,
+                                onDismiss = {
+                                    if (!buttonIsLoading.value) {
+                                        showDialog.value = "hide"
+                                    } else {
+                                        context.showToast("لطفا تا پایان عملیات صبر کنید")
+                                    }
+                                },
+                                onSubmit = {
+
+                                    // send add sms
+                                    context.showToast("edit output clicked")
+                                    editOutput(it)
+
+                                }
+                            )
+
+                        }
+
+
                     }
 
                     "delete" -> {
@@ -403,6 +519,7 @@ fun OutputScreen() {
 
                                 // send delete sms
                                 context.showToast("delete clicked")
+                                deleteOutput(it)
 
                             }
                         )
@@ -410,6 +527,9 @@ fun OutputScreen() {
                 }
 
             }
+
         }
+
     }
+
 }

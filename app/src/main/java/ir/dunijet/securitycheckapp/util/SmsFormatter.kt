@@ -1,5 +1,8 @@
 package ir.dunijet.securitycheckapp.util
 
+import ir.dunijet.securitycheckapp.model.data.Output
+import ir.dunijet.securitycheckapp.model.data.Zone
+
 class SmsFormatter {
 
     companion object {
@@ -131,6 +134,7 @@ class SmsFormatter {
                 $password
             """.trimIndent()
         }
+
         fun createRemote(remoteId: String, remoteName: String, remoteStatus: Boolean): String {
             return if (remoteStatus) {
                 """
@@ -149,6 +153,7 @@ class SmsFormatter {
             }
 
         }
+
         fun editRemote(remoteId: String, remoteName: String, remoteStatus: Boolean): String {
             return if (remoteStatus) {
                 """
@@ -166,6 +171,7 @@ class SmsFormatter {
                     """.trimIndent()
             }
         }
+
         fun deleteRemote(remoteId: String): String {
             return """
                         config_remote:
@@ -175,7 +181,7 @@ class SmsFormatter {
 
         //  -    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 
-//      HomeScreen ->
+        //      HomeScreen ->
 //      :1 حالت فعال
 //      :2 حالت نیمه فعال
 //      :3 حالت دینگ دانگ
@@ -188,9 +194,10 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
-        fun updateVaziatEngine(password: String , it: HomeVaziat): String {
 
-            val status = when(it) {
+        fun updateVaziatEngine(password: String, it: HomeVaziat): String {
+
+            val status = when (it) {
                 HomeVaziat.Faal -> 1
                 HomeVaziat.NimeFaal -> 2
                 HomeVaziat.GheirFaal -> 0
@@ -203,7 +210,8 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
-        fun getVaziatOutput(password: String ,outputId :String): String {
+
+        fun getVaziatOutput(password: String, outputId: String): String {
             return """
                         home_page:
                         up_out_$outputId:
@@ -211,9 +219,10 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
-        fun updateVaziatOutput(password: String , outputId :String , vaziat :Boolean): String {
 
-            val whatToSay = if(vaziat) "on" else "off"
+        fun updateVaziatOutput(password: String, outputId: String, vaziat: Boolean): String {
+
+            val whatToSay = if (vaziat) "on" else "off"
 
             return """
                         home_page:
@@ -225,7 +234,208 @@ class SmsFormatter {
 
         // -    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 
+        // alarm screen ->
+        fun changeAlarm(password: String, a1: String, a2: String, a3: String, a4: String): String {
+
+            return """
+                        alarm set:
+                        $password:
+                        at_the_time_of_theft:$a1
+                        speaker_outside:$a2
+                        siren_inside:$a3
+                        volom_siren_inside:$a4
+                   """
+                .trimIndent()
+
+        }
+
+        // wired Zones ->
+        fun saveWiredZones(password: String, wiredZones: List<Zone>): String {
+
+            // 0 gheir faal
+            // 1 faal
+            // 2 nimeFaal
+            // 3 dingDong
+            // 4 faal shodan sensoor dood va atash
+            // 5 sensor dood va atash gheir faal shodan
+
+            val a1 = when (wiredZones.find { it.zoneId == "1" }!!.zoneStatus) {
+                ZoneType.Faal -> 1
+                ZoneType.NimeFaal -> 2
+                ZoneType.GheirFaal -> 0
+                ZoneType.DingDong -> 3
+                else -> {
+                    0
+                }
+            }
+
+            val a2 = when (wiredZones.find { it.zoneId == "2" }!!.zoneStatus) {
+                ZoneType.Faal -> 1
+                ZoneType.NimeFaal -> 2
+                ZoneType.GheirFaal -> 0
+                ZoneType.DingDong -> 3
+                else -> {
+                    0
+                }
+            }
+
+            val a3 = when (wiredZones.find { it.zoneId == "3" }!!.zoneStatus) {
+                ZoneType.Faal -> 1
+                ZoneType.NimeFaal -> 2
+                ZoneType.GheirFaal -> 0
+                ZoneType.DingDong -> 3
+                else -> {
+                    0
+                }
+            }
+
+            val a4 = when (wiredZones.find { it.zoneId == "4" }!!.zoneStatus) {
+                ZoneType.Faal -> 1
+                ZoneType.NimeFaal -> 2
+                ZoneType.GheirFaal -> 0
+                ZoneType.DingDong -> 3
+                else -> {
+                    0
+                }
+            }
+
+            val zone5 = wiredZones.find { it.zoneId == "5" }!!
+            var a5 = -1
+            when {
+
+                zone5.zoneNooe == ZoneNooe.AtashDood && zone5.zoneStatus == ZoneType.Faal -> {
+                    a5 = 4
+                }
+
+                zone5.zoneNooe == ZoneNooe.AtashDood && zone5.zoneStatus == ZoneType.GheirFaal -> {
+                    a5 = 5
+                }
+
+                zone5.zoneNooe == ZoneNooe.Cheshmi && zone5.zoneStatus == ZoneType.Faal -> {
+                    a5 = 1
+                }
+
+                zone5.zoneNooe == ZoneNooe.Cheshmi && zone5.zoneStatus == ZoneType.GheirFaal -> {
+                    a5 = 0
+                }
+
+                zone5.zoneNooe == ZoneNooe.Cheshmi && zone5.zoneStatus == ZoneType.NimeFaal -> {
+                    a5 = 2
+                }
+
+                zone5.zoneNooe == ZoneNooe.Cheshmi && zone5.zoneStatus == ZoneType.DingDong -> {
+                    a5 = 3
+                }
+
+            }
+
+            return """
+                        config_room:
+                        $password:
+                        active_room_1:$a1
+                        active_room_2:$a2
+                        active_room_3:$a3
+                        active_room_4:$a4
+                        enable_fire:$a5
+                   """
+                .trimIndent()
+        }
+
+        // -    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+        // Output ->
+
+        fun addNewOutput(password: String, newOutput: Output): String {
+
+            when (newOutput.outputType) {
+
+                OutputType.KhamooshRoshan -> {
+
+                    // daem - khamoosh roshan
+                    return """
+                        out_${newOutput.outputId}_set:
+                        $password:
+                        stable:
+                        1:
+                    """.trimIndent()
+
+                }
+
+                OutputType.Lahzeii -> {
+
+                    // lahzeii
+                    return """
+                        out_${newOutput.outputId}_set:
+                        $password:
+                        stable:
+                        2:
+                        ${newOutput.outputLahzeiiZaman.toInt()}:
+                    """.trimIndent()
+
+                }
+
+                else -> {
+
+                    // vabaste be dood atash
+                    return """
+                        out_${newOutput.outputId}_set:
+                        $password:
+                        stable:
+                        3:
+                    """.trimIndent()
+
+                }
+            }
+
+        }
+        fun editOutput(password: String, editingOutput: Output): String {
+
+            when (editingOutput.outputType) {
+
+                OutputType.KhamooshRoshan -> {
+
+                    // daem - khamoosh roshan
+                    return """
+                        edit_out_${editingOutput.outputId}_set:
+                        $password:
+                        stable:
+                        1:
+                    """.trimIndent()
+
+                }
+
+                OutputType.Lahzeii -> {
+
+                    // lahzeii
+                    return """
+                       edit_out_${editingOutput.outputId}_set:
+                        $password:
+                        stable:
+                        2:
+                        ${editingOutput.outputLahzeiiZaman.toInt()}:
+                    """.trimIndent()
+
+                }
+
+                else -> {
+
+                    // vabaste be dood atash
+                    return """
+                        edit_out_${editingOutput.outputId}_set:
+                        $password:
+                        stable:
+                        3:
+                    """.trimIndent()
+
+                }
+            }
+
+        }
+        fun deleteOutput(password: String, idDeleting :String): String {
+            return """
+                        out_${idDeleting}_delete:
+                        $password:
+                    """.trimIndent()
+        }
 
     }
-
 }

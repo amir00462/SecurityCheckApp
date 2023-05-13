@@ -20,6 +20,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +39,7 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import ir.dunijet.securitycheckapp.R
+import ir.dunijet.securitycheckapp.model.data.Output
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
 import ir.dunijet.securitycheckapp.ui.theme.VazirFont
@@ -45,6 +47,16 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import saman.zamani.persiandate.PersianDate
 import saman.zamani.persiandate.PersianDateFormat
 import java.util.*
+
+fun List<Output>.isExist(outputId: String): Boolean {
+
+    forEach {
+        if (it.outputId == outputId)
+            return true
+    }
+
+    return false
+}
 
 fun Context.correctDate(timeInMillies: Long): String {
 

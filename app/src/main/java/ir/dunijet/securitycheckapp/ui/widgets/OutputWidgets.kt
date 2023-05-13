@@ -247,7 +247,7 @@ fun OutputWidget(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "خاموش / روشن",
+                        text = "دائم",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
                         color = if (selectedPart != OutputType.KhamooshRoshan) MainActivity.appColors[6]
@@ -293,6 +293,339 @@ fun OutputWidget(
 }
 
 @Composable
+fun DialogOutputAddId1(
+    idd: String,
+    buttonIsLoading: MutableState<Boolean>,
+    onDismiss: () -> Unit,
+    onSubmit: (Output) -> Unit
+) {
+
+    val context = LocalContext.current
+    val creatingOutput = remember { mutableStateOf(FAKE_OUTPUT) }
+    val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
+    val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
+
+    Dialog(onDismissRequest = onDismiss) {
+
+        Card(
+            //modifier = Modifier.height(600.dp),
+            elevation = 8.dp,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+
+            Column {
+
+                ConstraintLayout(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(MainActivity.appColors[1])
+                ) {
+                    val (mainText) = createRefs()
+
+                    Text(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .constrainAs(mainText) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                            },
+                        text = "تعریف خروجی جدید",
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.W500,
+                        fontSize = 18.sp,
+                        lineHeight = 36.sp,
+                        color = MainActivity.appColors[8],
+                    )
+                }
+
+                Divider(color = MainActivity.appColors[4], thickness = 1.dp)
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MainActivity.appColors[2])
+                ) {
+
+                    // name
+                    OutputName(
+                        modifier = Modifier.padding(top = 40.dp),
+                        id = idd,
+                        name = creatingOutput.value.title,
+                        icon = creatingOutput.value.icon,
+                        isDoodAtash = isDoodAtash.value
+                    ) {
+
+                        // open new screen to choose new icon and title
+                        // todo check this
+
+                    }
+
+
+                    // type
+                    OutputTypeWidgetId1(
+                        modifier = Modifier.padding(top = 24.dp),
+                        value = creatingOutput.value.outputType
+                    ) {
+                        Log.v("testHH", "$it")
+
+                        creatingOutput.value.outputType = it
+                        alphaLahzeii.value = if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f
+                        isDoodAtash.value = creatingOutput.value.outputType == OutputType.VabasteDoodAtash
+                    }
+
+                    // zaman
+                    Box(
+                        modifier = Modifier.alpha(alphaLahzeii.value)
+                    ) {
+                        OutputTimeLahzeii(
+                            modifier = Modifier.padding(top = 24.dp, bottom = 40.dp),
+                            isWorking = alphaLahzeii.value == 1f,
+                            value = creatingOutput.value.outputLahzeiiZaman,
+                            onValueChanged = {
+                                creatingOutput.value.outputLahzeiiZaman = it
+                            })
+                    }
+
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                ) {
+
+                    Box(modifier = Modifier
+                        .background(MainActivity.appColors[4])
+                        .clickable {
+                            if (!buttonIsLoading.value) {
+                                onDismiss.invoke()
+                            } else {
+                                context.showToast("لطفا تا پایان عملیات صبر کنید")
+                            }
+                        }
+                        .weight(1f)
+                        .fillMaxHeight(), contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "لغو",
+                            style = MaterialTheme.typography.h2,
+                            color = MainActivity.appColors[8],
+                        )
+                    }
+
+                    Box(modifier = Modifier
+                        .background(MainActivity.appColors[0])
+                        .clickable {
+
+                            if (!buttonIsLoading.value) {
+                                onSubmit.invoke(creatingOutput.value.copy(outputId = idd))
+
+                                buttonIsLoading.value = true
+                                Timer().schedule(object : TimerTask() {
+                                    override fun run() {
+                                        buttonIsLoading.value = false
+                                    }
+                                }, WaitingToReceiveSms)
+
+                            }
+
+                        }
+                        .weight(1f)
+                        .fillMaxHeight(), contentAlignment = Alignment.Center
+                    ) {
+                        if (buttonIsLoading.value) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                text = "ایجاد",
+                                style = MaterialTheme.typography.h2,
+                                color = MainActivity.appColors[1],
+                            )
+                        }
+                    }
+
+                }
+
+            }
+        }
+    }
+}
+
+@Composable
+fun DialogOutputEditId1(
+    output: Output,
+    buttonIsLoading: MutableState<Boolean>,
+    onDismiss: () -> Unit,
+    onSubmit: (Output) -> Unit
+) {
+    val context = LocalContext.current
+    val creatingOutput = remember { mutableStateOf(output) }
+    val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
+    val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
+
+    Dialog(onDismissRequest = onDismiss) {
+
+        Card(
+            //modifier = Modifier.height(600.dp),
+            elevation = 8.dp,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+
+            Column {
+
+                ConstraintLayout(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(MainActivity.appColors[1])
+                ) {
+                    val (mainText) = createRefs()
+
+                    Text(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .constrainAs(mainText) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                            },
+                        text = "ویرایش خروجی",
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.W500,
+                        fontSize = 18.sp,
+                        lineHeight = 36.sp,
+                        color = MainActivity.appColors[8],
+                    )
+                }
+
+                Divider(color = MainActivity.appColors[4], thickness = 1.dp)
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MainActivity.appColors[2])
+                ) {
+
+                    // name
+                    OutputName(
+                        modifier = Modifier.padding(top = 40.dp),
+                        id = creatingOutput.value.outputId,
+                        name = creatingOutput.value.title,
+                        icon = creatingOutput.value.icon,
+                        isDoodAtash = isDoodAtash.value
+                    ) {
+
+                        // open new screen to choose new icon and title
+                        // todo check this
+
+                    }
+
+                    // type
+                    OutputTypeWidgetId1(
+                        modifier = Modifier.padding(top = 24.dp),
+                        value = creatingOutput.value.outputType
+                    ) {
+
+                        creatingOutput.value.outputType = it
+                        alphaLahzeii.value = if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f
+                        isDoodAtash.value = creatingOutput.value.outputType == OutputType.VabasteDoodAtash
+
+                    }
+
+                    // zaman
+                    Box(
+                        modifier = Modifier.alpha(alphaLahzeii.value)
+                    ) {
+                        OutputTimeLahzeii(
+                            modifier = Modifier.padding(top = 24.dp, bottom = 40.dp),
+                            isWorking = alphaLahzeii.value == 1f,
+                            value = if (creatingOutput.value.outputType == OutputType.Lahzeii) creatingOutput.value.outputLahzeiiZaman else 27f,
+                            onValueChanged = {
+                                creatingOutput.value.outputLahzeiiZaman = it
+                            })
+                    }
+
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                ) {
+
+                    Box(modifier = Modifier
+                        .background(MainActivity.appColors[4])
+                        .clickable {
+                            if (!buttonIsLoading.value) {
+                                onDismiss.invoke()
+                            } else {
+                                context.showToast("لطفا تا پایان عملیات صبر کنید")
+                            }
+                        }
+                        .weight(1f)
+                        .fillMaxHeight(), contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "لغو",
+                            style = MaterialTheme.typography.h2,
+                            color = MainActivity.appColors[8],
+                        )
+                    }
+
+                    Box(modifier = Modifier
+                        .background(MainActivity.appColors[0])
+                        .clickable {
+
+                            if (!buttonIsLoading.value) {
+                                onSubmit.invoke(creatingOutput.value)
+
+                                buttonIsLoading.value = true
+                                Timer().schedule(object : TimerTask() {
+                                    override fun run() {
+                                        buttonIsLoading.value = false
+                                    }
+                                }, WaitingToReceiveSms)
+
+                            }
+
+                        }
+                        .weight(1f)
+                        .fillMaxHeight(), contentAlignment = Alignment.Center
+                    ) {
+                        if (buttonIsLoading.value) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                text = "ویرایش",
+                                style = MaterialTheme.typography.h2,
+                                color = MainActivity.appColors[1],
+                            )
+                        }
+                    }
+
+                }
+
+            }
+
+
+        }
+    }
+
+}
+
+@Composable
 fun DialogOutputAdd(
     idd: String,
     buttonIsLoading: MutableState<Boolean>,
@@ -302,10 +635,8 @@ fun DialogOutputAdd(
 
     val context = LocalContext.current
     val creatingOutput = remember { mutableStateOf(FAKE_OUTPUT) }
-    val alphaLahzeii =
-        remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
-    val isDoodAtash =
-        remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
+    val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
+    val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
 
     Dialog(onDismissRequest = onDismiss) {
 
@@ -387,11 +718,12 @@ fun DialogOutputAdd(
                         OutputTimeLahzeii(
                             modifier = Modifier.padding(top = 24.dp, bottom = 40.dp),
                             isWorking = alphaLahzeii.value == 1f,
-                            value = if (creatingOutput.value.outputType == OutputType.Lahzeii) creatingOutput.value.outputLahzeiiZaman else 27f,
+                            value = creatingOutput.value.outputLahzeiiZaman,
                             onValueChanged = {
                                 creatingOutput.value.outputLahzeiiZaman = it
                             })
                     }
+
                 }
 
                 Row(
@@ -424,7 +756,7 @@ fun DialogOutputAdd(
                         .clickable {
 
                             if (!buttonIsLoading.value) {
-                                onSubmit.invoke(creatingOutput.value)
+                                onSubmit.invoke(creatingOutput.value.copy(outputId = idd))
 
                                 buttonIsLoading.value = true
                                 Timer().schedule(object : TimerTask() {
@@ -455,6 +787,7 @@ fun DialogOutputAdd(
                     }
 
                 }
+
             }
         }
     }
@@ -469,8 +802,8 @@ fun DialogOutputEdit(
 ) {
     val context = LocalContext.current
     val creatingOutput = remember { mutableStateOf(output) }
-    val alphaLahzeii =
-        remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
+    val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
+    val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
 
     Dialog(onDismissRequest = onDismiss) {
 
@@ -522,7 +855,7 @@ fun DialogOutputEdit(
                         id = creatingOutput.value.outputId,
                         name = creatingOutput.value.title,
                         icon = creatingOutput.value.icon,
-                        isDoodAtash = creatingOutput.value.outputType == OutputType.VabasteDoodAtash
+                        isDoodAtash = isDoodAtash.value
                     ) {
 
                         // open new screen to choose new icon and title
@@ -535,17 +868,25 @@ fun DialogOutputEdit(
                         modifier = Modifier.padding(top = 24.dp),
                         value = creatingOutput.value.outputType
                     ) {
+
                         creatingOutput.value.outputType = it
+                        alphaLahzeii.value = if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f
+                        isDoodAtash.value = creatingOutput.value.outputType == OutputType.VabasteDoodAtash
+
                     }
 
                     // zaman
-                    OutputTimeLahzeii(
-                        modifier = Modifier.padding(top = 24.dp, bottom = 40.dp),
-                        isWorking = alphaLahzeii.value == 1f,
-                        value = if (creatingOutput.value.outputType == OutputType.Lahzeii) creatingOutput.value.outputLahzeiiZaman else 27f,
-                        onValueChanged = {
-                            creatingOutput.value.outputLahzeiiZaman = it
-                        })
+                    Box(
+                        modifier = Modifier.alpha(alphaLahzeii.value)
+                    ) {
+                        OutputTimeLahzeii(
+                            modifier = Modifier.padding(top = 24.dp, bottom = 40.dp),
+                            isWorking = alphaLahzeii.value == 1f,
+                            value = if (creatingOutput.value.outputType == OutputType.Lahzeii) creatingOutput.value.outputLahzeiiZaman else 27f,
+                            onValueChanged = {
+                                creatingOutput.value.outputLahzeiiZaman = it
+                            })
+                    }
 
                 }
 
@@ -960,7 +1301,7 @@ fun OutputName(
 }
 
 @Composable
-fun OutputTypeWidget(
+fun OutputTypeWidgetId1(
     modifier: Modifier,
     value: OutputType,
     onValueChanged: (OutputType) -> Unit
@@ -1060,7 +1401,7 @@ fun OutputTypeWidget(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "خاموش / روشن",
+                    text = "دائم",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
                     color = if (currentState.value != OutputType.KhamooshRoshan) MainActivity.appColors[6]
@@ -1099,6 +1440,119 @@ fun OutputTypeWidget(
 
     }
 
+}
+
+@Composable
+fun OutputTypeWidget(
+    modifier: Modifier,
+    value: OutputType,
+    onValueChanged: (OutputType) -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val currentState = remember { mutableStateOf(value) }
+
+    Column(
+        modifier = modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+            .clip(Shapes.medium)
+            .background(MainActivity.appColors[4])
+    ) {
+
+        ConstraintLayout(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(36.dp),
+        ) {
+            val (title) = createRefs()
+
+            Text(
+                modifier = Modifier
+                    .constrainAs(title) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        end.linkTo(parent.end)
+                    }
+                    .padding(start = 8.dp, top = 8.dp),
+                fontWeight = FontWeight.Medium,
+                lineHeight = 24.sp,
+                color = MainActivity.appColors[6],
+                text = "نوع خروجی"
+            )
+
+        }
+
+        Divider(
+            modifier = Modifier.padding(top = 8.dp),
+            color = MainActivity.appColors[6].copy(0.16f),
+            thickness = 1.dp
+        )
+
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .height(92.dp)
+                .padding(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(MaterialTheme.shapes.small)
+                    .background(
+                        if (currentState.value != OutputType.KhamooshRoshan) Color.Transparent
+                        else MainActivity.appColors[1]
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        currentState.value = OutputType.KhamooshRoshan
+                        onValueChanged.invoke(currentState.value)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "دائم",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = if (currentState.value != OutputType.KhamooshRoshan) MainActivity.appColors[6]
+                    else MainActivity.appColors[8]
+                )
+            }
+
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(MaterialTheme.shapes.small)
+                    .background(
+                        if (currentState.value != OutputType.Lahzeii) Color.Transparent
+                        else MainActivity.appColors[1]
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        currentState.value = OutputType.Lahzeii
+                        onValueChanged.invoke(currentState.value)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "لحظه\u200Cای",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = if (currentState.value != OutputType.Lahzeii) MainActivity.appColors[6]
+                    else MainActivity.appColors[8]
+                )
+            }
+
+        }
+    }
 }
 
 @Composable
@@ -1166,7 +1620,7 @@ fun OutputTimeLahzeii(
 
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 Slider(
-                    valueRange = 1f..60.9f,
+                    valueRange = 1f..120.9f,
                     value = selectedValue,
                     onValueChange = {
 
@@ -1181,6 +1635,7 @@ fun OutputTimeLahzeii(
             }
         }
     }
+
 }
 
 

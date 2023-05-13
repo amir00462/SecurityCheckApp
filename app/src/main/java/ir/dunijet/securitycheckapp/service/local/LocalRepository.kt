@@ -88,11 +88,17 @@ class LocalRepository(
     suspend fun editZone1(id: String, isWired: Boolean, newTitle: String) {
         zoneDao.editById(id, isWired, newTitle)
     }
-    suspend fun editZone2(id: String, isWired: Boolean, newTitle: String, newZoneNooe: ZoneNooe) {
-        zoneDao.editByIdNooeZone(id, isWired, newTitle, newZoneNooe)
+    suspend fun editZone2(newZone :Zone) {
+        //zoneDao.editByIdNooeZone(id, isWired, newTitle, newZoneNooe)
+        zoneDao.deleteById(newZone.zoneId , newZone.typeIsWire)
+        zoneDao.insert(newZone)
+        zoneDao.insert(newZone)
     }
     suspend fun deleteZone(id: String, isWired: Boolean) {
         zoneDao.deleteById(id, isWired)
+    }
+    suspend fun clearWiredZones() {
+        zoneDao.clearWiredZones()
     }
 
     // output table
@@ -101,6 +107,13 @@ class LocalRepository(
     }
     suspend fun editOutputEnability(outputId :String , isEnabledInHome :Boolean , lastUpdatedMillies :String) {
         outputDao.editOutputEnability(outputId , isEnabledInHome , lastUpdatedMillies)
+    }
+    suspend fun writeOutput(newOutput: Output) {
+        outputDao.insert(newOutput)
+    }
+    suspend fun editOutput(newOutput: Output) {
+        outputDao.deleteById(newOutput.outputId)
+        outputDao.insert(newOutput)
     }
 
 }

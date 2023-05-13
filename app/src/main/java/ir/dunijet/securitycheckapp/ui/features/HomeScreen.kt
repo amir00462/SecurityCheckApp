@@ -37,6 +37,7 @@ import ir.dunijet.securitycheckapp.ui.widgets.HomeDrawer
 import ir.dunijet.securitycheckapp.ui.widgets.HomeVaziat
 import ir.dunijet.securitycheckapp.ui.widgets.OutputVaziatList
 import ir.dunijet.securitycheckapp.util.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import saman.zamani.persiandate.PersianDate
 import saman.zamani.persiandate.PersianDateFormat

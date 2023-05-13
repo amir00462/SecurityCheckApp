@@ -239,6 +239,7 @@ fun AlarmChangeOnOff(
 @Composable
 fun AlarmBolandi(
     modifier: Modifier,
+    isWorking: Boolean,
     value: Float,
     onValueChanged: (Float) -> Unit
 ) {
@@ -299,12 +300,16 @@ fun AlarmBolandi(
         ) {
 
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+
                 Slider(
                     valueRange = 0f..99.9f,
                     value = value,
                     onValueChange = {
-                        selectedValue = it
-                        onValueChanged.invoke(it)
+                        if (isWorking) {
+                            selectedValue = it
+                            onValueChanged.invoke(it)
+
+                        }
                     },
                 )
             }

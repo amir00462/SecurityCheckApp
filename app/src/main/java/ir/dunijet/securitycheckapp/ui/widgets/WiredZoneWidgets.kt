@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +48,7 @@ import java.util.*
 @Composable
 fun WiredZoneList(zones: SnapshotStateList<Zone>, onVirayeshClicked: (Zone) -> Unit) {
 
+    zones.sortBy { it.zoneId.toInt() }
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         items(zones.size) {
 
@@ -188,6 +190,7 @@ fun TwoStepZoneWire(
 
             Text(
                 modifier = Modifier
+                    .fillMaxWidth(0.63f)
                     .constrainAs(title) {
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
@@ -195,6 +198,8 @@ fun TwoStepZoneWire(
                     }
                     .padding(start = 10.dp, top = 8.dp),
                 fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 lineHeight = 24.sp,
                 color = appColors[6],
                 text = zone.title
@@ -349,12 +354,15 @@ fun FourStepZoneWire1(
 
             Text(
                 modifier = Modifier
+                    .fillMaxWidth(0.63f)
                     .constrainAs(title) {
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
                         start.linkTo(icon.end)
                     }
                     .padding(start = 10.dp, top = 8.dp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium,
                 lineHeight = 24.sp,
                 color = appColors[6],
@@ -564,12 +572,15 @@ fun FourStepZoneWire2(
 
             Text(
                 modifier = Modifier
+                    .fillMaxWidth(0.63f)
                     .constrainAs(title) {
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
                         start.linkTo(icon.end)
                     }
                     .padding(start = 10.dp, top = 8.dp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium,
                 lineHeight = 24.sp,
                 color = appColors[6],
@@ -876,7 +887,7 @@ fun ZoneDialog(
                 ConstraintLayout(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(if (zone.zoneNooe == ZoneNooe.Cheshmi) 140.dp else 280.dp)
+                        .height(140.dp)
                         .background(appColors[2])
                 ) {
 
@@ -901,18 +912,6 @@ fun ZoneDialog(
                         edtValue = nameRemoteEdt.value,
                         onValueChanges = { nameRemoteEdt.value = it })
 
-                    if (zone.zoneId == "5") {
-
-                        ZoneNoe(modifier = Modifier
-                            .constrainAs(status) {
-                                start.linkTo(parent.start)
-                                end.linkTo(parent.end)
-                                top.linkTo(textField.bottom)
-                            }
-                            .padding(top = 24.dp), zone = zone) {
-                            vaziatRemote.value = it
-                        }
-                    }
                 }
 
                 Row(
@@ -945,19 +944,8 @@ fun ZoneDialog(
                         .clickable {
 
                             if (nameRemoteEdt.value.count() > 0) {
-
-                                if (!buttonIsLoading.value) {
-                                    onSubmit.invoke(nameRemoteEdt.value, vaziatRemote.value!!)
-
-                                    buttonIsLoading.value = true
-                                    Timer().schedule(object : TimerTask() {
-                                        override fun run() {
-                                            buttonIsLoading.value = false
-                                        }
-                                    }, WaitingToReceiveSms)
-
-                                }
-
+                                onSubmit.invoke(nameRemoteEdt.value, vaziatRemote.value!!)
+                                onDismiss.invoke()
                             } else {
                                 context.showToast("لطفا نام زون را وارد کنید")
                             }
@@ -966,22 +954,161 @@ fun ZoneDialog(
                         .weight(1f)
                         .fillMaxHeight(), contentAlignment = Alignment.Center
                     ) {
-                        if (buttonIsLoading.value) {
-                            CircularProgressIndicator(
-                                color = Color.White,
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(
-                                text = "ویرایش",
-                                style = MaterialTheme.typography.h2,
-                                color = appColors[1],
-                            )
-                        }
+                        Text(
+                            text = "ویرایش",
+                            style = MaterialTheme.typography.h2,
+                            color = appColors[1],
+                        )
                     }
 
                 }
+
+
+            }
+
+
+        }
+    }
+}
+
+@Composable
+fun ZoneDialogDoodAtash(
+    buttonIsLoading: MutableState<Boolean>,
+    zone: Zone,
+    onDismiss: () -> Unit,
+    onSubmit: (String, ZoneNooe) -> Unit
+) {
+
+    val vaziatRemote = remember { mutableStateOf(zone.zoneNooe) }
+    val context = LocalContext.current
+    val nameRemoteEdt = remember { mutableStateOf(zone.title) }
+
+    Dialog(onDismissRequest = onDismiss) {
+
+        Card(
+            elevation = 8.dp,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+
+            Column {
+
+                ConstraintLayout(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(appColors[1])
+                ) {
+                    val (mainText) = createRefs()
+
+                    Text(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .constrainAs(mainText) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                            },
+                        text = "ویرایش زون",
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.W500,
+                        fontSize = 18.sp,
+                        lineHeight = 36.sp,
+                        color = appColors[8],
+                    )
+                }
+
+                Divider(color = appColors[4], thickness = 1.dp)
+
+                ConstraintLayout(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(280.dp)
+                        .background(appColors[2])
+                ) {
+
+                    val (memberId, textField, status) = createRefs()
+
+
+                    MemberId(modifier = Modifier
+                        .constrainAs(memberId) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                        }
+                        .padding(end = 16.dp, top = 41.dp), id = zone.zoneId)
+
+                    ZoneTextField(mainModifier = Modifier
+                        .constrainAs(textField) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
+                        .padding(top = 17.dp),
+                        txtSubject = "نام زون",
+                        edtValue = nameRemoteEdt.value,
+                        onValueChanges = { nameRemoteEdt.value = it })
+
+                    ZoneNoe(modifier = Modifier
+                        .constrainAs(status) {
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            top.linkTo(textField.bottom)
+                        }
+                        .padding(top = 24.dp), zone = zone) {
+                        vaziatRemote.value = it
+                    }
+
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                ) {
+
+                    Box(modifier = Modifier
+                        .background(appColors[4])
+                        .clickable {
+                            if (!buttonIsLoading.value) {
+                                onDismiss.invoke()
+                            } else {
+                                context.showToast("لطفا تا پایان عملیات صبر کنید")
+                            }
+                        }
+                        .weight(1f)
+                        .fillMaxHeight(), contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "لغو",
+                            style = MaterialTheme.typography.h2,
+                            color = appColors[8],
+                        )
+                    }
+
+                    Box(modifier = Modifier
+                        .background(appColors[0])
+                        .clickable {
+
+                            if (nameRemoteEdt.value.count() > 0) {
+                                onSubmit.invoke(nameRemoteEdt.value, vaziatRemote.value!!)
+                                onDismiss.invoke()
+                            } else {
+                                context.showToast("لطفا نام زون را وارد کنید")
+                            }
+
+                        }
+                        .weight(1f)
+                        .fillMaxHeight(), contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "ویرایش",
+                            style = MaterialTheme.typography.h2,
+                            color = appColors[1],
+                        )
+                    }
+
+                }
+
 
             }
 
@@ -1237,7 +1364,7 @@ fun FourStepZoneWireless(
 
 @Composable
 fun ZoneTimingButton(
-    modifier: Modifier ,
+    modifier: Modifier,
     buttonIsLoading: MutableState<Boolean>,
     clicked: () -> Unit
 ) {

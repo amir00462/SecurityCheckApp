@@ -1,6 +1,7 @@
 package ir.dunijet.securitycheckapp.ui.features
 
 import android.content.BroadcastReceiver
+import android.content.IntentFilter
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,9 +24,12 @@ import ir.dunijet.securitycheckapp.service.sms.SmsRepository
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.widgets.WiredZoneList
 import ir.dunijet.securitycheckapp.ui.widgets.ZoneDialog
+import ir.dunijet.securitycheckapp.ui.widgets.ZoneDialogDoodAtash
 import ir.dunijet.securitycheckapp.ui.widgets.ZoneTimingButton
 import ir.dunijet.securitycheckapp.util.*
 import kotlinx.coroutines.launch
+
+// todo sms working or not check that
 
 @Composable
 fun WiredZoneScreen() {
@@ -48,172 +52,231 @@ fun WiredZoneScreen() {
 
     val numberEngine = mainActivity.databaseService.readFromLocal(KEY_NUMBER_ENGINE)
     val password = mainActivity.databaseService.readFromLocal(KEY_USER_PASSWORD)
+    val serial = mainActivity.databaseService.readFromLocal(KEY_SERIAL_ENGINE)
 
     fun myListeners() {
 
-//        // get them from sms
-//        smsReceived = smsReceivedListenerLong(SmsFormatter.ResponseMain) {
-//
-//            if (it.contains("admin1") && it.contains("admin2")) {
-//                val newMembersFromSms = mutableListOf<Member>()
-//
-//                for (i in 2..3) {
-//                    val adminNumber = it.lines()[i].split(':')[1]
-//                    if (adminNumber != "") {
-//                        newMembersFromSms.add(Member(null, true, (i - 1).toString(), adminNumber))
-//                    }
-//                }
-//
-//                for (i in 4..13) {
-//                    val memberNumber = it.lines()[i].split(':')[1]
-//                    if (memberNumber != "") {
-//                        newMembersFromSms.add(Member(null, false, (i - 3).toString(), memberNumber))
-//                    }
-//                }
-//
-//                coroutineScope.launch {
-//                    members.clear()
-//                    members.addAll(newMembersFromSms)
-//                    mainActivity.databaseServiceMain.writeMembers(members.toList())
-//                }
-//
-//            } else {
-//
-//                when (dialogTask.value) {
-//
-//                    // working number meghdar nadarad
-//
-//                    MemberTask.AddUser -> {
-//
-//                        // motmaen shodan
-//                        // do that task in database
-//                        // update states and database
-//                        // log
-//                        // dismiss dialog
-//
-//                        if (typeIsModir.value && it.contains(SmsFormatter.ResponseSetAdmin2)) {
-//
-//                            val numberAdmin2 = it.lines()[3].split(":")[1]
-//                            coroutineScope.launch {
-//                                mainActivity.databaseServiceMain.writeMember(
-//                                    Member(
-//                                        null,
-//                                        true,
-//                                        "2",
-//                                        numberAdmin2
-//                                    )
-//                                )
-//
-//                                members.add(
-//                                    Member(
-//                                        null,
-//                                        true,
-//                                        "2",
-//                                        numberAdmin2
-//                                    )
-//                                )
-//                                showDialog.value = false
-//                                mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "admin2Added"))
-//                            }
-//                        }
-//
-//                        if (!typeIsModir.value && it.contains(SmsFormatter.ResponseCreateUser)) {
-//
-//                            val userCreatedNumber = it.lines()[2].split(':')[1].substring(1)
-//                            val userId = (it.lines()[2].split('_')[3]).split(':')[0]
-//
-//                            coroutineScope.launch {
-//                                mainActivity.databaseServiceMain.writeMember(
-//                                    Member(
-//                                        null,
-//                                        false,
-//                                        userId,
-//                                        userCreatedNumber
-//                                    )
-//                                )
-//                                members.add(
-//                                    Member(
-//                                        null,
-//                                        false,
-//                                        userId,
-//                                        userCreatedNumber
-//                                    )
-//                                )
-//                                showDialog.value = false
-//                                mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "newUserAdded"))
-//                            }
-//                        }
-//                    }
-//
-//                    MemberTask.EditUser -> {
-//
-//                        // oldMember -> is number that on three dots clicking
-//                        // number from sms - edited number
-//                        // dialogMember.value
-//
-//                        // old number -> old member of user
-//                        // new number -> get the new member from sms
-//
-//                        var newNumber = ""
-//                        if(it.contains("admin")) {
-//                            newNumber = it.lines()[3].split(':')[1]
-//                        } else {
-//                            newNumber = it.lines()[2].split(':')[1].substring(1)
-//                        }
-//
-//                        coroutineScope.launch {
-//                            mainActivity.databaseServiceMain.editMember(
-//                                oldMember,
-//                                newNumber
-//                            )
-//
-//                            val foundMember = members.find { itt -> itt.memberNumber == oldMember }
-//                            members.remove(foundMember)
-//                            members.add(foundMember!!.copy(memberNumber = newNumber))
-//
-//                            showDialog.value = false
-//                            mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "someoneEdited"))
-//                        }
-//
-//                    }
-//
-//                    MemberTask.DeleteUser -> {
-//
-//                        // if (it.contains(workingNumber)) {
-//                        coroutineScope.launch {
-//                            mainActivity.databaseServiceMain.deleteMember(oldMember)
-//
-//                            val foundMember = members.find { itt -> itt.memberNumber == oldMember }
-//                            members.remove(foundMember)
-//
-//                            showDialog.value = false
-//                            mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "someoneRemoved"))
-//
-//                            if(it.contains(SmsFormatter.ResponseDeleteAdmin2)) {
-//                                modirCount = 1
-//                                createNewAdmin.value = true
-//                            }
-//
-//                            userCount = members.filter { !it.typeIsModir }.size
-//                            if(it.contains(SmsFormatter.ResponseDeleteUser) && userCount == 9) {
-//                                createNewUser.value = true
-//                            }
-//
-//                        }
-//                        // }
-//
-//                    }
-//                }
-//            }
-//        }
-//        smsSent = smsSentListener(
-//            context,
-//            navigation.currentDestination?.route!!,
-//            { buttonIsLoading.value = it },
-//            { mainActivity.logMain.add(it) })
-//        context.registerReceiver(smsReceived, IntentFilter(SMS_RECEIVED))
-//        context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
+        smsReceived = smsReceivedListener(numberEngine, serial) {
 
+            when {
+
+                // after changes in iot device ->
+                it.contains("room_") && it.lines().size == 7 -> {
+
+                    coroutineScope.launch {
+
+                        // reset database and wiredZonesList due to received sms from iot device ->
+                        val stateRoom1 = it.lines()[2].split(':')[1].toInt()
+                        val stateRoom2 = it.lines()[3].split(':')[1].toInt()
+                        val stateRoom3 = it.lines()[4].split(':')[1].toInt()
+                        val stateRoom4 = it.lines()[5].split(':')[1].toInt()
+                        val stateRoom5 = it.lines()[6].split(':')[1].toInt()
+
+                        var zone1 = wiredZones.find { it.zoneId == "1" }!!
+                        var zone2 = wiredZones.find { it.zoneId == "2" }!!
+                        var zone3 = wiredZones.find { it.zoneId == "3" }!!
+                        var zone4 = wiredZones.find { it.zoneId == "4" }!!
+                        var zone5 = wiredZones.find { it.zoneId == "5" }!!
+
+                        when (stateRoom1) {
+
+                            0 -> {
+                                zone1 = zone1.copy(zoneStatus = ZoneType.GheirFaal)
+                            }
+
+                            1 -> {
+                                zone1 = zone1.copy(zoneStatus = ZoneType.Faal)
+                            }
+
+                            2 -> {
+                                zone1 = zone1.copy(zoneStatus = ZoneType.NimeFaal)
+                            }
+
+                            3 -> {
+                                zone1 = zone1.copy(zoneStatus = ZoneType.DingDong)
+                            }
+
+                        }
+                        when (stateRoom2) {
+
+                            0 -> {
+                                zone2 = zone2.copy(zoneStatus = ZoneType.GheirFaal)
+                            }
+
+                            1 -> {
+                                zone2 = zone2.copy(zoneStatus = ZoneType.Faal)
+                            }
+
+                            2 -> {
+                                zone2 = zone2.copy(zoneStatus = ZoneType.NimeFaal)
+                            }
+
+                            3 -> {
+                                zone2 = zone2.copy(zoneStatus = ZoneType.DingDong)
+                            }
+
+                        }
+                        when (stateRoom3) {
+
+                            0 -> {
+                                zone3 = zone3.copy(zoneStatus = ZoneType.GheirFaal)
+                            }
+
+                            1 -> {
+                                zone3 = zone3.copy(zoneStatus = ZoneType.Faal)
+                            }
+
+                            2 -> {
+                                zone3 = zone3.copy(zoneStatus = ZoneType.NimeFaal)
+                            }
+
+                            3 -> {
+                                zone3 = zone3.copy(zoneStatus = ZoneType.DingDong)
+                            }
+
+                        }
+                        when (stateRoom4) {
+
+                            0 -> {
+                                zone4 = zone4.copy(zoneStatus = ZoneType.GheirFaal)
+                            }
+
+                            1 -> {
+                                zone4 = zone4.copy(zoneStatus = ZoneType.Faal)
+                            }
+
+                            2 -> {
+                                zone4 = zone4.copy(zoneStatus = ZoneType.NimeFaal)
+                            }
+
+                            3 -> {
+                                zone4 = zone4.copy(zoneStatus = ZoneType.DingDong)
+                            }
+
+                        }
+
+                        // todo check atash va dood gheir faal ba addad 5
+                        if (stateRoom5 == 4) {
+                            zone5 = zone5.copy(
+                                zoneNooe = ZoneNooe.AtashDood,
+                                zoneStatus = ZoneType.Faal
+                            )
+                        } else {
+                            when (stateRoom5) {
+
+                                0 -> {
+                                    zone5 = zone5.copy(zoneStatus = ZoneType.GheirFaal)
+                                }
+
+                                1 -> {
+                                    zone5 = zone5.copy(zoneStatus = ZoneType.Faal)
+                                }
+
+                                2 -> {
+                                    zone5 = zone5.copy(zoneStatus = ZoneType.NimeFaal)
+                                }
+
+                                3 -> {
+                                    zone5 = zone5.copy(zoneStatus = ZoneType.DingDong)
+                                }
+
+                            }
+                        }
+
+                        // now the config is ready to add ->
+                        wiredZones.clear()
+                        wiredZones.add(zone1)
+                        wiredZones.add(zone2)
+                        wiredZones.add(zone3)
+                        wiredZones.add(zone4)
+                        wiredZones.add(zone5)
+
+                        // write in database ->
+                        mainActivity.databaseService.clearWiredZones()
+                        mainActivity.databaseService.writeZones(
+                            listOf(
+                                zone1,
+                                zone2,
+                                zone3,
+                                zone4,
+                                zone5
+                            )
+                        )
+
+                    }
+
+                }
+
+            }
+        }
+        smsSent = smsSentListener(
+            context,
+            navigation.currentDestination?.route!!,
+            { buttonIsLoading.value = it },
+            { mainActivity.logMain.add(it) })
+
+        context.registerReceiver(smsReceived, IntentFilter(SMS_RECEIVED))
+        context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
+
+    }
+
+    fun editZoneName(
+        newZoneId: String,
+        newZoneName: String,
+        newZoneNooe: ZoneNooe,
+        newZoneType: Int
+    ) {
+
+        coroutineScope.launch {
+
+            if (newZoneType == -1) {
+
+                // list in app ->
+                val thisData = wiredZones.find { it.zoneId == newZoneId }!!
+                wiredZones.remove(thisData)
+                wiredZones.add(thisData.copy(title = newZoneName, zoneNooe = newZoneNooe))
+
+                // change the data to database ->
+                mainActivity.databaseService.editZone2(
+                    thisData.copy(
+                        title = newZoneName,
+                        zoneNooe = newZoneNooe
+                    )
+                )
+
+            } else {
+
+                // dood va atash
+                // list in app ->
+                val thisData = wiredZones.find { it.zoneId == newZoneId }!!
+                wiredZones.remove(thisData)
+                wiredZones.add(
+                    thisData.copy(
+                        title = newZoneName,
+                        zoneNooe = newZoneNooe,
+                        zoneType = newZoneType,
+                        zoneStatus = ZoneType.GheirFaal
+                    )
+                )
+
+                // change the data to database ->
+                mainActivity.databaseService.editZone2(
+                    thisData.copy(
+                        title = newZoneName,
+                        zoneNooe = newZoneNooe,
+                        zoneType = newZoneType,
+                        zoneStatus = ZoneType.GheirFaal
+                    )
+                )
+
+            }
+
+        }
+    }
+
+    fun editZoneInIotDevice() {
+        val formattedSms = SmsFormatter.saveWiredZones(password, wiredZones)
+        smsService.sendSms(formattedSms, numberEngine)
     }
 
     fun addData() {
@@ -223,33 +286,21 @@ fun WiredZoneScreen() {
             val dataFromDatabase = mainActivity.databaseService.readWiredZones()
             if (dataFromDatabase.isNotEmpty()) {
                 wiredZones.clear()
-                wiredZones.addAll(getDefaultWiredZones())
+                wiredZones.addAll(dataFromDatabase)
             } else {
-
-                if (MainActivity.recomposition < 1) {
-
-                    // get from sms
-//                    val formattedSms = SmsFormatter.getAllRemotes(password)
-//                    smsService.sendSms(formattedSms, numberEngine)
-
-                    // mock data from sms
-                    wiredZones.clear()
-                    wiredZones.addAll(getDefaultWiredZones())
-                    // mainActivity.databaseServiceMain.writeRemotes(remotes.toList())
-
-//                    context.showToast("در حال دریافت اطلاعات از دستگاه")
-                    context.showToast("لطفا 30 ثانیه صبر کنید")
-                    MainActivity.recomposition += 1
-                }
+                mainActivity.databaseService.writeZones(getDefaultWiredZones())
+                wiredZones.clear()
+                wiredZones.addAll(getDefaultWiredZones())
             }
+
         }
     }
 
-    addData()
     LaunchedEffect(Unit) {
         MainActivity.recomposition = 0
         MainActivity.checkPermissions(context)
         myListeners()
+        addData()
     }
     DisposableEffect(Unit) {
         onDispose {
@@ -275,7 +326,7 @@ fun WiredZoneScreen() {
 
                 navigationIcon = {
                     IconButton(onClick = {
-                        navigation.navigate(MyScreens.WirelessZoneScreen.route)
+                        navigation.popBackStack()
                     }) {
                         Icon(
                             modifier = Modifier.scale(scaleX = -1f, scaleY = 1f),
@@ -315,42 +366,58 @@ fun WiredZoneScreen() {
                     modifier = Modifier.align(Alignment.BottomCenter),
                     buttonIsLoading = buttonIsLoadingSaveAll
                 ) {
-
-                    // save new zone array list to database
-                    // send new data in sms and look for its response
-
+                    editZoneInIotDevice()
                 }
 
                 if (showDialog.value) {
 
-                    ZoneDialog(
-                        buttonIsLoading = buttonIsLoading,
-                        zone = dialogZone.value,
-                        onDismiss = {
-                            if (!buttonIsLoading.value) {
-                                showDialog.value = false
-                            } else {
-                                context.showToast("لطفا تا پایان عملیات صبر کنید")
-                            }
-                        }, { nameZone, zoneNoee ->
+                    if (dialogZone.value.zoneId == "5") {
 
+                        ZoneDialogDoodAtash(
+                            buttonIsLoading = buttonIsLoading,
+                            zone = dialogZone.value,
+                            onDismiss = {
+                                if (!buttonIsLoading.value) {
+                                    showDialog.value = false
+                                } else {
+                                    context.showToast("لطفا تا پایان عملیات صبر کنید")
+                                }
+                            }, { nameZone, zoneNoee ->
 
-                            if (zoneNoee == ZoneNooe.Cheshmi) {
-
-                                // sensor cheshmi
-                                context.showToast("این رو بکن یک سنسور چشمی")
-
-                            } else {
-
-                                // sensor dood va atash
-                                context.showToast("این رو بکن یک سنسور دود و آتش")
+                                editZoneName(
+                                    dialogZone.value.zoneId,
+                                    nameZone,
+                                    zoneNoee,
+                                    if (zoneNoee == ZoneNooe.AtashDood) 3 else 1
+                                )
 
                             }
 
-                        }
-                    )
+                        )
+
+                    } else {
+
+                        ZoneDialog(
+                            buttonIsLoading = buttonIsLoading,
+                            zone = dialogZone.value,
+                            onDismiss = {
+                                if (!buttonIsLoading.value) {
+                                    showDialog.value = false
+                                } else {
+                                    context.showToast("لطفا تا پایان عملیات صبر کنید")
+                                }
+                            }, { nameZone, zoneNoee ->
+
+                                editZoneName(dialogZone.value.zoneId, nameZone, zoneNoee, -1)
+
+                            }
+
+                        )
+
+                    }
+
+
                 }
-
 
             }
         }

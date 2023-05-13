@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -44,6 +45,8 @@ import ir.dunijet.securitycheckapp.ui.theme.*
 import ir.dunijet.securitycheckapp.util.*
 import java.util.*
 
+// todo check height of the outputVaziatList item
+
 @Composable
 fun OutputVaziatList(
     list: List<Output>,
@@ -51,8 +54,11 @@ fun OutputVaziatList(
     updateThis: (String) -> Unit
 ) {
 
+    val config = LocalConfiguration.current
+    val heightOfScreen = config.screenHeightDp.dp
     LazyColumn(
         modifier = Modifier
+            .defaultMinSize(minHeight = 100.dp )
             .fillMaxWidth()
             .padding(bottom = 16.dp)
     ) {
@@ -348,22 +354,18 @@ fun HomeDrawer(
         }
 
         DrawerItem(title = "زون\u200Cهای سیم\u200Cدار", icon = R.drawable.ic_eye) {
-            onCloseDrawer.invoke()
             navigation.navigate(MyScreens.WiredZoneScreen.route)
         }
 
         DrawerItem(title = "زون\u200Cهای بی\u200Cسیم", icon = R.drawable.ic_eye) {
-            onCloseDrawer.invoke()
             navigation.navigate(MyScreens.WirelessZoneScreen.route)
         }
 
         DrawerItem(title = "آژیرها", icon = R.drawable.ic_ring) {
-            onCloseDrawer.invoke()
             navigation.navigate(MyScreens.AlarmScreen.route)
         }
 
         DrawerItem(title = "خروجی\u200Cهای دستگاه", icon = R.drawable.ic_output) {
-            onCloseDrawer.invoke()
             navigation.navigate(MyScreens.OutputScreen.route)
         }
 

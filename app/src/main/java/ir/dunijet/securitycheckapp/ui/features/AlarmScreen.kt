@@ -1,6 +1,8 @@
 package ir.dunijet.securitycheckapp.ui.features
 
+
 import android.content.BroadcastReceiver
+import android.content.IntentFilter
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +13,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -25,6 +28,10 @@ import ir.dunijet.securitycheckapp.ui.widgets.*
 import ir.dunijet.securitycheckapp.util.*
 import kotlinx.coroutines.launch
 
+// todo alarmScreen etelaatesh ro homeScreen daryaft mishe hamishe :)
+// todo javab payamak ha az samt dastgah nemiad
+// todo shobhe raje be time seday dakheili
+
 @Composable
 fun AlarmScreen() {
 
@@ -33,6 +40,7 @@ fun AlarmScreen() {
     val azhirKharegi = remember { mutableStateOf(false) }
     val azhirDakheli = remember { mutableStateOf(true) }
     val bolandiSedayAzhirDakheli = remember { mutableStateOf(73f) }
+    val alphaDakheli = remember { mutableStateOf(if (azhirDakheli.value) 1f else 0.6f) }
 
     val coroutineScope = rememberCoroutineScope()
     val buttonIsLoading = remember { mutableStateOf(false) }
@@ -47,208 +55,113 @@ fun AlarmScreen() {
 
     val numberEngine = mainActivity.databaseService.readFromLocal(KEY_NUMBER_ENGINE)
     val password = mainActivity.databaseService.readFromLocal(KEY_USER_PASSWORD)
+    val serial = mainActivity.databaseService.readFromLocal(KEY_SERIAL_ENGINE)
 
     fun myListeners() {
 
-//        // get them from sms
-//        smsReceived = smsReceivedListenerLong(SmsFormatter.ResponseMain) {
-//
-//            if (it.contains("admin1") && it.contains("admin2")) {
-//                val newMembersFromSms = mutableListOf<Member>()
-//
-//                for (i in 2..3) {
-//                    val adminNumber = it.lines()[i].split(':')[1]
-//                    if (adminNumber != "") {
-//                        newMembersFromSms.add(Member(null, true, (i - 1).toString(), adminNumber))
-//                    }
-//                }
-//
-//                for (i in 4..13) {
-//                    val memberNumber = it.lines()[i].split(':')[1]
-//                    if (memberNumber != "") {
-//                        newMembersFromSms.add(Member(null, false, (i - 3).toString(), memberNumber))
-//                    }
-//                }
-//
-//                coroutineScope.launch {
-//                    members.clear()
-//                    members.addAll(newMembersFromSms)
-//                    mainActivity.databaseServiceMain.writeMembers(members.toList())
-//                }
-//
-//            } else {
-//
-//                when (dialogTask.value) {
-//
-//                    // working number meghdar nadarad
-//
-//                    MemberTask.AddUser -> {
-//
-//                        // motmaen shodan
-//                        // do that task in database
-//                        // update states and database
-//                        // log
-//                        // dismiss dialog
-//
-//                        if (typeIsModir.value && it.contains(SmsFormatter.ResponseSetAdmin2)) {
-//
-//                            val numberAdmin2 = it.lines()[3].split(":")[1]
-//                            coroutineScope.launch {
-//                                mainActivity.databaseServiceMain.writeMember(
-//                                    Member(
-//                                        null,
-//                                        true,
-//                                        "2",
-//                                        numberAdmin2
-//                                    )
-//                                )
-//
-//                                members.add(
-//                                    Member(
-//                                        null,
-//                                        true,
-//                                        "2",
-//                                        numberAdmin2
-//                                    )
-//                                )
-//                                showDialog.value = false
-//                                mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "admin2Added"))
-//                            }
-//                        }
-//
-//                        if (!typeIsModir.value && it.contains(SmsFormatter.ResponseCreateUser)) {
-//
-//                            val userCreatedNumber = it.lines()[2].split(':')[1].substring(1)
-//                            val userId = (it.lines()[2].split('_')[3]).split(':')[0]
-//
-//                            coroutineScope.launch {
-//                                mainActivity.databaseServiceMain.writeMember(
-//                                    Member(
-//                                        null,
-//                                        false,
-//                                        userId,
-//                                        userCreatedNumber
-//                                    )
-//                                )
-//                                members.add(
-//                                    Member(
-//                                        null,
-//                                        false,
-//                                        userId,
-//                                        userCreatedNumber
-//                                    )
-//                                )
-//                                showDialog.value = false
-//                                mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "newUserAdded"))
-//                            }
-//                        }
-//                    }
-//
-//                    MemberTask.EditUser -> {
-//
-//                        // oldMember -> is number that on three dots clicking
-//                        // number from sms - edited number
-//                        // dialogMember.value
-//
-//                        // old number -> old member of user
-//                        // new number -> get the new member from sms
-//
-//                        var newNumber = ""
-//                        if(it.contains("admin")) {
-//                            newNumber = it.lines()[3].split(':')[1]
-//                        } else {
-//                            newNumber = it.lines()[2].split(':')[1].substring(1)
-//                        }
-//
-//                        coroutineScope.launch {
-//                            mainActivity.databaseServiceMain.editMember(
-//                                oldMember,
-//                                newNumber
-//                            )
-//
-//                            val foundMember = members.find { itt -> itt.memberNumber == oldMember }
-//                            members.remove(foundMember)
-//                            members.add(foundMember!!.copy(memberNumber = newNumber))
-//
-//                            showDialog.value = false
-//                            mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "someoneEdited"))
-//                        }
-//
-//                    }
-//
-//                    MemberTask.DeleteUser -> {
-//
-//                        // if (it.contains(workingNumber)) {
-//                        coroutineScope.launch {
-//                            mainActivity.databaseServiceMain.deleteMember(oldMember)
-//
-//                            val foundMember = members.find { itt -> itt.memberNumber == oldMember }
-//                            members.remove(foundMember)
-//
-//                            showDialog.value = false
-//                            mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "someoneRemoved"))
-//
-//                            if(it.contains(SmsFormatter.ResponseDeleteAdmin2)) {
-//                                modirCount = 1
-//                                createNewAdmin.value = true
-//                            }
-//
-//                            userCount = members.filter { !it.typeIsModir }.size
-//                            if(it.contains(SmsFormatter.ResponseDeleteUser) && userCount == 9) {
-//                                createNewUser.value = true
-//                            }
-//
-//                        }
-//                        // }
-//
-//                    }
-//                }
-//            }
-//        }
-//        smsSent = smsSentListener(
-//            context,
-//            navigation.currentDestination?.route!!,
-//            { buttonIsLoading.value = it },
-//            { mainActivity.logMain.add(it) })
-//        context.registerReceiver(smsReceived, IntentFilter(SMS_RECEIVED))
-//        context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
+        smsReceived = smsReceivedListener(numberEngine, serial) {
+
+            when {
+
+                // after get Alarm data
+                it.contains("home_page_status:") -> {
+
+                }
+
+                // after edit alarm data
+                it.contains("allarm_set:") -> {
+
+                    // get data
+                    val newZamanSedaAzhir = it.lines()[3].split(':')[1]
+                    val newIsEnabledSpeakerOutside = it.lines()[4].split(':')[1]
+                    val newIsEnabledSpeakerInside = it.lines()[5].split(':')[1]
+                    val newVolumeSpeakerInside = it.lines()[6].split(':')[1]
+                    val newTimeSpeakerInside = it.lines()[7].split(':')[1]
+
+                    // set to sharedPref
+                    mainActivity.databaseService.writeToLocal(
+                        KEY_ALARM_ZAMAN_SEDA_AZHIR,
+                        newZamanSedaAzhir
+                    )
+                    mainActivity.databaseService.writeToLocal(
+                        KEY_ALARM_IS_ENABLED_AZHIR_KHAREGI,
+                        newIsEnabledSpeakerOutside
+                    )
+                    mainActivity.databaseService.writeToLocal(
+                        KEY_ALARM_IS_ENABLED_AZHIR_DAKHELI,
+                        newIsEnabledSpeakerInside
+                    )
+                    mainActivity.databaseService.writeToLocal(
+                        KEY_ALARM_BOLANDI_DAKHELI,
+                        newVolumeSpeakerInside
+                    )
+                    mainActivity.databaseService.writeToLocal(
+                        KEY_ALARM_TIME_DAKHELI,
+                        newTimeSpeakerInside
+                    )
+
+                    // show to user
+                    zamanSedayAzhirHa.value = newZamanSedaAzhir.toFloat()
+                    azhirKharegi.value = newIsEnabledSpeakerOutside == "1"
+                    azhirDakheli.value = newIsEnabledSpeakerInside == "1"
+                    bolandiSedayAzhirDakheli.value = newVolumeSpeakerInside.toFloat()
+
+                }
+
+            }
+
+        }
+
+        smsSent = smsSentListener(
+            context,
+            navigation.currentDestination?.route!!,
+            { buttonIsLoading.value = it },
+            { mainActivity.logMain.add(it) })
+
+        context.registerReceiver(smsReceived, IntentFilter(SMS_RECEIVED))
+        context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
 
     }
-
+    fun changeAlarm() {
+        val formattedSms = SmsFormatter.changeAlarm(
+            password,
+            zamanSedayAzhirHa.value.toInt().toString() ,
+            if(azhirKharegi.value) "1" else "0" ,
+            if(azhirDakheli.value) "1" else "0" ,
+            bolandiSedayAzhirDakheli.value.toInt().toString()
+            )
+        smsService.sendSms(formattedSms, numberEngine)
+    }
     fun addData() {
 
-        coroutineScope.launch {
+        // get data
+        val newZamanSedaAzhir = mainActivity.databaseService.readFromLocal(KEY_ALARM_ZAMAN_SEDA_AZHIR)
+        val newIsEnabledSpeakerOutside = mainActivity.databaseService.readFromLocal(KEY_ALARM_IS_ENABLED_AZHIR_KHAREGI)
+        val newIsEnabledSpeakerInside = mainActivity.databaseService.readFromLocal(KEY_ALARM_IS_ENABLED_AZHIR_DAKHELI)
+        val newVolumeSpeakerInside = mainActivity.databaseService.readFromLocal(KEY_ALARM_BOLANDI_DAKHELI)
+        val newTimeSpeakerInside = mainActivity.databaseService.readFromLocal(KEY_ALARM_TIME_DAKHELI)
 
-            val dataFromDatabase = mainActivity.databaseService.readWiredZones()
-            if (dataFromDatabase.isNotEmpty()) {
-//                wiredZones.clear()
-//                wiredZones.addAll(getDefaultWiredZones())
-            } else {
-
-                if (MainActivity.recomposition < 1) {
-
-                    // get from sms
-//                    val formattedSms = SmsFormatter.getAllRemotes(password)
-//                    smsService.sendSms(formattedSms, numberEngine)
-
-                    // mock data from sms
-//                    wiredZones.clear()
-//                    wiredZones.addAll(getDefaultWiredZones())
-                    // mainActivity.databaseServiceMain.writeRemotes(remotes.toList())
-
-//                    context.showToast("در حال دریافت اطلاعات از دستگاه")
-                    context.showToast("لطفا 30 ثانیه صبر کنید")
-                    MainActivity.recomposition += 1
-                }
-            }
+        // show to user
+        if (
+            newZamanSedaAzhir != "null" &&
+            newIsEnabledSpeakerOutside != "null" &&
+            newIsEnabledSpeakerInside != "null" &&
+            newVolumeSpeakerInside != "null" &&
+            newTimeSpeakerInside != "null"
+        ) {
+            zamanSedayAzhirHa.value = newZamanSedaAzhir.toFloat()
+            azhirKharegi.value = newIsEnabledSpeakerOutside == "1"
+            azhirDakheli.value = newIsEnabledSpeakerInside == "1"
+            bolandiSedayAzhirDakheli.value = newVolumeSpeakerInside.toFloat()
         }
+
     }
 
-    addData()
     LaunchedEffect(Unit) {
         MainActivity.recomposition = 0
         MainActivity.checkPermissions(context)
         myListeners()
+        addData()
     }
     DisposableEffect(Unit) {
         onDispose {
@@ -273,7 +186,7 @@ fun AlarmScreen() {
                 },
 
                 navigationIcon = {
-                    IconButton(onClick = { navigation.navigate(MyScreens.OutputScreen.route) }) {
+                    IconButton(onClick = { navigation.popBackStack() }) {
                         Icon(
                             modifier = Modifier.scale(scaleX = -1f, scaleY = 1f),
                             imageVector = Icons.Default.ArrowBack,
@@ -334,15 +247,23 @@ fun AlarmScreen() {
                         titlee = "آژیر داخلی",
                         value = azhirDakheli.value,
                         onValueChanged = {
+
                             azhirDakheli.value = it
+                            alphaDakheli.value = if (azhirDakheli.value) 1f else 0.6f
+
                         })
 
-                    AlarmBolandi(
-                        modifier = Modifier.padding(top = 16.dp),
-                        value = bolandiSedayAzhirDakheli.value,
-                        onValueChanged = {
-                            bolandiSedayAzhirDakheli.value = it
-                        })
+                    Box(
+                        modifier = Modifier.alpha(alphaDakheli.value)
+                    ) {
+                        AlarmBolandi(
+                            modifier = Modifier.padding(top = 16.dp),
+                            isWorking = alphaDakheli.value == 1f,
+                            value = bolandiSedayAzhirDakheli.value,
+                            onValueChanged = {
+                                bolandiSedayAzhirDakheli.value = it
+                            })
+                    }
 
                 }
 
@@ -352,11 +273,13 @@ fun AlarmScreen() {
                 ) {
 
                     // save alarm settings into sms
+                    changeAlarm()
 
                 }
 
             }
 
         }
+
     }
 }

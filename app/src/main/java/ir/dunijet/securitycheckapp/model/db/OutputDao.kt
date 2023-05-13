@@ -23,4 +23,7 @@ interface OutputDao {
     @Query("UPDATE output_table SET isEnabledInHome = :newEnabled AND lastUpdatedIsEnabledInHome = :lastUpdatedMillies WHERE outputId = :thisOutputId")
     suspend fun editOutputEnability(thisOutputId :String , newEnabled :Boolean , lastUpdatedMillies :String)
 
+    @Query("DELETE FROM output_table WHERE outputId = :id")
+    suspend fun deleteById(id: String)
+
 }

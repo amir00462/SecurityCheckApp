@@ -58,7 +58,7 @@ fun OutputVaziatList(
     val heightOfScreen = config.screenHeightDp.dp
     LazyColumn(
         modifier = Modifier
-            .defaultMinSize(minHeight = 100.dp )
+            .defaultMinSize(minHeight = 1000.dp )
             .fillMaxWidth()
             .padding(bottom = 16.dp)
     ) {

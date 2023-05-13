@@ -62,7 +62,7 @@ fun OutputScreen() {
 
             if (outputs.isExist(idOutput)) {
 
-                // mode update
+                // mode update , delete
                 when {
 
                     // add daem - khamoosh roshan
@@ -150,6 +150,21 @@ fun OutputScreen() {
                                     lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
                                 )
                             )
+                        }
+
+                    }
+
+                    // delete an output
+                    it.contains("_delete") -> {
+
+                        showDialog.value = "hide"
+                        coroutineScope.launch {
+
+                            mainActivity.databaseService.deleteOutput(idOutput)
+
+                            val foundData = outputs.find {  it.outputId == idOutput  }
+                            outputs.remove(foundData)
+
                         }
 
                     }
@@ -519,7 +534,7 @@ fun OutputScreen() {
 
                                 // send delete sms
                                 context.showToast("delete clicked")
-                                deleteOutput(it)
+                                deleteOutput(dialogOutput.value.outputId)
 
                             }
                         )

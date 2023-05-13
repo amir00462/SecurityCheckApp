@@ -115,5 +115,8 @@ class LocalRepository(
         outputDao.deleteById(newOutput.outputId)
         outputDao.insert(newOutput)
     }
+    suspend fun deleteOutput(outputId :String) {
+        outputDao.deleteById(outputId)
+    }
 
 }

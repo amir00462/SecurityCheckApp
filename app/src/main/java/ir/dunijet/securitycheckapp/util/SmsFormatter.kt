@@ -431,10 +431,12 @@ class SmsFormatter {
 
         }
         fun deleteOutput(password: String, idDeleting :String): String {
+
             return """
                         out_${idDeleting}_delete:
                         $password:
                     """.trimIndent()
+
         }
 
     }

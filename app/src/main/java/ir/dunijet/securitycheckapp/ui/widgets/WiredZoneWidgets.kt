@@ -1304,8 +1304,6 @@ fun TwoStepNormalZone(
                         CheshmiTwoTypesStep.KhamooshRoshanLahzeii -> "لحظه ای"
                         else -> "فعال"
                     },
-
-
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
                     color = if (selectedPart == EyeTypes.Faal) MaterialTheme.colors.onPrimary

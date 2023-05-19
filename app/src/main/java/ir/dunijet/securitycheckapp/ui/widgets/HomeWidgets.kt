@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,13 +50,15 @@ import java.util.*
 
 @Composable
 fun OutputVaziatList(
-    list: List<Output>,
+    list: SnapshotStateList<Output>,
     changeChecked: (String, Boolean) -> Unit,
     updateThis: (String) -> Unit
 ) {
 
     val config = LocalConfiguration.current
     val heightOfScreen = config.screenHeightDp.dp
+
+    list.sortBy { it.outputId.toInt() }
     LazyColumn(
         modifier = Modifier
             .defaultMinSize(minHeight = 1000.dp )
@@ -80,6 +83,7 @@ fun OutputVaziatList(
             )
 
         }
+
     }
 
 //    Column(
@@ -116,6 +120,7 @@ fun OutputVaziatItem(
     onCheckedChange: (String, Boolean) -> Unit,
     onUpdateClicked: (String) -> Unit
 ) {
+
     val context = LocalContext.current
     val isChecked = remember { mutableStateOf(isCheckedNow) }
     val interactionSource = remember { MutableInteractionSource() }

@@ -1,6 +1,5 @@
 package ir.dunijet.securitycheckapp.ui.features
 
-
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
 import androidx.compose.foundation.layout.Box

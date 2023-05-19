@@ -32,6 +32,8 @@ import kotlinx.coroutines.launch
 // todo - close dialog after receiving sms - done
 // todo - output edit section restriction not added, and disability of fireman
 // todo - why edit of 1 not working
+// todo - outputs should not change in config screen
+// todo - i change vaziat of output in config but it doesnt change in ui of list
 
 @Composable
 fun OutputScreen() {
@@ -348,7 +350,6 @@ fun OutputScreen() {
         topBar = {
 
             TopAppBar(
-
                 title = {
                     Text(
                         fontSize = 18.sp,
@@ -358,7 +359,6 @@ fun OutputScreen() {
                         color = MainActivity.appColors[8]
                     )
                 },
-
                 navigationIcon = {
                     IconButton(onClick = { navigation.popBackStack() }) {
                         Icon(
@@ -369,15 +369,16 @@ fun OutputScreen() {
                         )
                     }
                 },
-
                 backgroundColor = MainActivity.appColors[1],
                 contentColor = Color.Gray,
                 elevation = 0.dp
             )
+
         }
+
     ) {
 
-        Surface(color = MainActivity.appColors[1]) {
+        Surface(color = appColors[1]) {
 
             Box(modifier = Modifier.fillMaxSize()) {
 

@@ -27,6 +27,7 @@ import ir.dunijet.securitycheckapp.ui.widgets.ZoneDialog
 import ir.dunijet.securitycheckapp.ui.widgets.ZoneDialogDoodAtash
 import ir.dunijet.securitycheckapp.ui.widgets.ZoneTimingButton
 import ir.dunijet.securitycheckapp.util.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // todo sms working or not check that
@@ -156,28 +157,52 @@ fun WiredZoneScreen() {
                         }
 
                         // todo check atash va dood gheir faal ba addad 5
-                        if (stateRoom5 == 4) {
-                            zone5 = zone5.copy(
-                                zoneNooe = ZoneNooe.AtashDood,
-                                zoneStatus = ZoneType.Faal
-                            )
+                        if (stateRoom5 == 4 || stateRoom5 == 5) {
+
+                            // atash va dood
+                            zone5 = if(stateRoom5 == 4) {
+                                zone5.copy(
+                                    zoneNooe = ZoneNooe.AtashDood,
+                                    zoneStatus = ZoneType.Faal
+                                )
+                            } else {
+                                zone5.copy(
+                                    zoneNooe = ZoneNooe.AtashDood,
+                                    zoneStatus = ZoneType.GheirFaal
+                                )
+                            }
+
                         } else {
+
+                            // normal point
                             when (stateRoom5) {
 
                                 0 -> {
-                                    zone5 = zone5.copy(zoneStatus = ZoneType.GheirFaal)
+                                    zone5 = zone5.copy(
+                                        zoneNooe = ZoneNooe.Cheshmi,
+                                        zoneStatus = ZoneType.GheirFaal
+                                    )
                                 }
 
                                 1 -> {
-                                    zone5 = zone5.copy(zoneStatus = ZoneType.Faal)
+                                    zone5 = zone5.copy(
+                                        zoneNooe = ZoneNooe.Cheshmi,
+                                        zoneStatus = ZoneType.Faal
+                                    )
                                 }
 
                                 2 -> {
-                                    zone5 = zone5.copy(zoneStatus = ZoneType.NimeFaal)
+                                    zone5 = zone5.copy(
+                                        zoneNooe = ZoneNooe.Cheshmi,
+                                        zoneStatus = ZoneType.NimeFaal
+                                    )
                                 }
 
                                 3 -> {
-                                    zone5 = zone5.copy(zoneStatus = ZoneType.DingDong)
+                                    zone5 = zone5.copy(
+                                        zoneNooe = ZoneNooe.Cheshmi,
+                                        zoneStatus = ZoneType.DingDong
+                                    )
                                 }
 
                             }
@@ -208,6 +233,7 @@ fun WiredZoneScreen() {
                 }
 
             }
+
         }
         smsSent = smsSentListener(
             context,
@@ -226,22 +252,19 @@ fun WiredZoneScreen() {
         newZoneNooe: ZoneNooe,
         newZoneType: Int
     ) {
-
         coroutineScope.launch {
 
             if (newZoneType == -1) {
 
                 // list in app ->
                 val thisData = wiredZones.find { it.zoneId == newZoneId }!!
+                val newData = thisData.copy(title = newZoneName, zoneNooe = newZoneNooe)
                 wiredZones.remove(thisData)
-                wiredZones.add(thisData.copy(title = newZoneName, zoneNooe = newZoneNooe))
-
+                delay(10)
+                wiredZones.add( newData  )
                 // change the data to database ->
                 mainActivity.databaseService.editZone2(
-                    thisData.copy(
-                        title = newZoneName,
-                        zoneNooe = newZoneNooe
-                    )
+                    newData
                 )
 
             } else {
@@ -249,24 +272,21 @@ fun WiredZoneScreen() {
                 // dood va atash
                 // list in app ->
                 val thisData = wiredZones.find { it.zoneId == newZoneId }!!
+                val newData = thisData.copy(
+                    title = newZoneName,
+                    zoneNooe = newZoneNooe,
+                    zoneType = newZoneType,
+                    zoneStatus = ZoneType.GheirFaal
+                )
                 wiredZones.remove(thisData)
+                delay(10)
                 wiredZones.add(
-                    thisData.copy(
-                        title = newZoneName,
-                        zoneNooe = newZoneNooe,
-                        zoneType = newZoneType,
-                        zoneStatus = ZoneType.GheirFaal
-                    )
+                    newData
                 )
 
                 // change the data to database ->
                 mainActivity.databaseService.editZone2(
-                    thisData.copy(
-                        title = newZoneName,
-                        zoneNooe = newZoneNooe,
-                        zoneType = newZoneType,
-                        zoneStatus = ZoneType.GheirFaal
-                    )
+                    newData
                 )
 
             }
@@ -278,7 +298,6 @@ fun WiredZoneScreen() {
         val formattedSms = SmsFormatter.saveWiredZones(password, wiredZones)
         smsService.sendSms(formattedSms, numberEngine)
     }
-
     fun addData() {
 
         coroutineScope.launch {

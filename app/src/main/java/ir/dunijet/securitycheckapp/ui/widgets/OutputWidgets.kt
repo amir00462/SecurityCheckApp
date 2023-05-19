@@ -52,6 +52,7 @@ fun OutputList(
     onDeleteClicked: (Output) -> Unit
 ) {
 
+    outputs.sortBy { it.outputId.toInt() }
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         items(outputs.size) {
 
@@ -63,8 +64,9 @@ fun OutputList(
                     onValueChanged = { itt ->
 
                         // change selected state
-                        val valueToAdd = outputs[it].copy(outputType = itt)
-                        outputs[it] = valueToAdd
+                        // todo gharare vaziatesh teghir nakone
+                        // val valueToAdd = outputs[it].copy(outputType = itt)
+                        // outputs[it] = valueToAdd
 
 //                            zones.remove(zones[it])
 //                            zones.add(valueToAdd)
@@ -195,7 +197,6 @@ fun OutputWidget(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-
             if (selectedPart == OutputType.VabasteDoodAtash) {
 
                 // vabaste be atash va dood
@@ -212,8 +213,9 @@ fun OutputWidget(
                             interactionSource = interactionSource,
                             indication = null
                         ) {
-                            selectedPart = OutputType.VabasteDoodAtash
-                            onValueChanged.invoke(selectedPart)
+                            // todo do not change it on value change
+                            // selectedPart = OutputType.VabasteDoodAtash
+                            // onValueChanged.invoke(selectedPart)
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -241,8 +243,9 @@ fun OutputWidget(
                             interactionSource = interactionSource,
                             indication = null
                         ) {
-                            selectedPart = OutputType.KhamooshRoshan
-                            onValueChanged.invoke(selectedPart)
+                            // todo do not change it on value change
+                            // selectedPart = OutputType.KhamooshRoshan
+                            // onValueChanged.invoke(selectedPart)
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -270,8 +273,9 @@ fun OutputWidget(
                             interactionSource = interactionSource,
                             indication = null
                         ) {
-                            selectedPart = OutputType.Lahzeii
-                            onValueChanged.invoke(selectedPart)
+                            // todo do not change it on value change
+                            // selectedPart = OutputType.Lahzeii
+                            // onValueChanged.invoke(selectedPart)
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -283,12 +287,8 @@ fun OutputWidget(
                         else MainActivity.appColors[6]
                     )
                 }
-
             }
-
         }
-
-
     }
 }
 

@@ -194,7 +194,6 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
-
         fun updateVaziatEngine(password: String, it: HomeVaziat): String {
 
             val status = when (it) {
@@ -210,24 +209,20 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
-
         fun getVaziatOutput(password: String, outputId: String): String {
             return """
-                        home_page:
-                        up_out_$outputId:
-                        $password:
+                       out_${outputId}_report:
+                       $password:
                    """
                 .trimIndent()
         }
-
         fun updateVaziatOutput(password: String, outputId: String, vaziat: Boolean): String {
-
-            val whatToSay = if (vaziat) "on" else "off"
+            val vaziatKonooni = if (vaziat) "on" else "off"
 
             return """
-                        home_page:
-                        out_$outputId:$whatToSay
+                        out_${outputId}_$vaziatKonooni:
                         $password:
+                        access_out_${outputId}:
                    """
                 .trimIndent()
         }
@@ -430,7 +425,7 @@ class SmsFormatter {
             }
 
         }
-        fun deleteOutput(password: String, idDeleting :String): String {
+        fun deleteOutput(password: String, idDeleting: String): String {
 
             return """
                         out_${idDeleting}_delete:
@@ -438,6 +433,7 @@ class SmsFormatter {
                     """.trimIndent()
 
         }
+
 
     }
 }

@@ -43,6 +43,8 @@ import saman.zamani.persiandate.PersianDate
 import saman.zamani.persiandate.PersianDateFormat
 import java.util.*
 
+// check kardan edit kardan dar outputs - disable enability of outputs in home Screen
+// wireless ha monde
 // todo check if the user is admin1 or admin2 or a normal user what to show to him/her
 
 @Composable
@@ -120,24 +122,53 @@ fun HomeScreen() {
 
                 }
 
+//                // get updateVaziatOutput - changeVaizatOutput
+//                it.contains("out_") -> {
+//
+//                    // vaziat
+//                    val outputId = (it.lines()[2].split(':'))[0].split('_')[1]
+//                    val isEnabled = (it.lines()[2].split(':'))[1] == "1"
+//                    val inMilliesUpdate = System.currentTimeMillis().toString()
+//
+//                    coroutineScope.launch {
+//                        mainActivity.databaseService.editOutputEnability(
+//                            outputId,
+//                            isEnabled,
+//                            inMilliesUpdate
+//                        )
+//
+//                        val foundOutput = outputs.find { itt -> itt.outputId == outputId }
+//                        outputs.remove(foundOutput)
+//                        outputs.add(foundOutput!!.copy(isEnabledInHome = isEnabled , lastUpdatedIsEnabledInHome = inMilliesUpdate))
+//                    }
+//
+//                }
+
                 // get updateVaziatOutput - changeVaizatOutput
                 it.contains("out_") -> {
 
                     // vaziat
-                    val outputId = (it.lines()[2].split(':'))[0].split('_')[1]
-                    val isEnabled = (it.lines()[2].split(':'))[1] == "1"
+                    val outputId = (it.lines()[2].split('_'))[1]
+                    val isEnabled = (it.lines()[2].split('_'))[2] == "on:"
                     val inMilliesUpdate = System.currentTimeMillis().toString()
 
                     coroutineScope.launch {
-                        mainActivity.databaseService.editOutputEnability(
-                            outputId,
-                            isEnabled,
-                            inMilliesUpdate
-                        )
 
                         val foundOutput = outputs.find { itt -> itt.outputId == outputId }
                         outputs.remove(foundOutput)
-                        outputs.add(foundOutput!!.copy(isEnabledInHome = isEnabled , lastUpdatedIsEnabledInHome = inMilliesUpdate))
+
+                        val newOutput = foundOutput!!.copy(id = foundOutput.id!! + 70 , isEnabledInHome = isEnabled , lastUpdatedIsEnabledInHome = inMilliesUpdate)
+
+                        mainActivity.databaseService.editOutput(
+                            newOutput
+                        )
+
+                        // update enable and disable
+                        delay(10)
+                        outputs.add( newOutput )
+                        numberOnOutputs = outputs.count { it.isEnabledInHome }
+                        numberOffOutputs = outputs.count { !it.isEnabledInHome }
+
                     }
 
                 }
@@ -218,6 +249,7 @@ fun HomeScreen() {
             ThemeData.LightTheme
         }
     }
+
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
@@ -379,7 +411,7 @@ fun HomeScreen() {
                     }
 
                     OutputVaziatList(
-                        list = outputs.toList(),
+                        list = outputs,
                         changeChecked = { id, isEnabled ->
                             changeVaziatOutput(id , isEnabled)
                     }, updateThis = { id ->

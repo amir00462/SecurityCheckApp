@@ -194,6 +194,7 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
+
         fun updateVaziatEngine(password: String, it: HomeVaziat): String {
 
             val status = when (it) {
@@ -209,6 +210,7 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
+
         fun getVaziatOutput(password: String, outputId: String): String {
             return """
                        out_${outputId}_report:
@@ -216,6 +218,7 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
+
         fun updateVaziatOutput(password: String, outputId: String, vaziat: Boolean): String {
             val vaziatKonooni = if (vaziat) "on" else "off"
 
@@ -233,7 +236,7 @@ class SmsFormatter {
         fun changeAlarm(password: String, a1: String, a2: String, a3: String, a4: String): String {
 
             return """
-                        alarm set:
+                        allarm_set:
                         $password:
                         at_the_time_of_theft:$a1
                         speaker_outside:$a2
@@ -246,6 +249,97 @@ class SmsFormatter {
 
         // wired Zones ->
         fun saveWiredZones(password: String, wiredZones: List<Zone>): String {
+
+            // 0 gheir faal
+            // 1 faal
+            // 2 nimeFaal
+            // 3 dingDong
+            // 4 faal shodan sensoor dood va atash
+            // 5 sensor dood va atash gheir faal shodan
+
+            val a1 = when (wiredZones.find { it.zoneId == "1" }!!.zoneStatus) {
+                ZoneType.Faal -> "active_room_1"
+                ZoneType.NimeFaal -> "half_on_room_1"
+                ZoneType.GheirFaal -> "disable_room_1"
+                ZoneType.DingDong -> "dingdong_room_1"
+                else -> {
+                    "disable_room_1"
+                }
+            }
+
+            val a2 = when (wiredZones.find { it.zoneId == "2" }!!.zoneStatus) {
+                ZoneType.Faal -> "active_room_2"
+                ZoneType.NimeFaal -> "half_on_room_2"
+                ZoneType.GheirFaal -> "disable_room_2"
+                ZoneType.DingDong -> "dingdong_room_2"
+                else -> {
+                    "disable_room_2"
+                }
+            }
+
+            val a3 = when (wiredZones.find { it.zoneId == "3" }!!.zoneStatus) {
+                ZoneType.Faal -> "active_room_3"
+                ZoneType.NimeFaal -> "half_on_room_3"
+                ZoneType.GheirFaal -> "disable_room_3"
+                ZoneType.DingDong -> "dingdong_room_3"
+                else -> {
+                    "disable_room_3"
+                }
+            }
+
+            val a4 = when (wiredZones.find { it.zoneId == "4" }!!.zoneStatus) {
+                ZoneType.Faal -> "active_room_4"
+                ZoneType.NimeFaal -> "24th_room_4"
+                ZoneType.GheirFaal -> "disable_room_4"
+                ZoneType.DingDong -> "dingdong_room_4"
+                else -> {
+                    "disable_room_4"
+                }
+            }
+
+            val zone5 = wiredZones.find { it.zoneId == "5" }!!
+            var a5 = "disable_room_5"
+            when {
+
+                zone5.zoneNooe == ZoneNooe.AtashDood && zone5.zoneStatus == ZoneType.Faal -> {
+                    a5 = "enable_fire"
+                }
+
+                zone5.zoneNooe == ZoneNooe.AtashDood && zone5.zoneStatus == ZoneType.GheirFaal -> {
+                    a5 = "disable_fire"
+                }
+
+                zone5.zoneNooe == ZoneNooe.Cheshmi && zone5.zoneStatus == ZoneType.Faal -> {
+                    a5 = "active_room_5"
+                }
+
+                zone5.zoneNooe == ZoneNooe.Cheshmi && zone5.zoneStatus == ZoneType.GheirFaal -> {
+                    a5 = "disable_room_5"
+                }
+
+                zone5.zoneNooe == ZoneNooe.Cheshmi && zone5.zoneStatus == ZoneType.NimeFaal -> {
+                    a5 = "half_on_room_5"
+                }
+
+                zone5.zoneNooe == ZoneNooe.Cheshmi && zone5.zoneStatus == ZoneType.DingDong -> {
+                    a5 = "dingdong_room_5"
+                }
+
+            }
+
+            return """
+                        config_room:
+                        $password:
+                        $a1:
+                        $a2:
+                        $a3:
+                        $a4:
+                        $a5:
+                   """
+                .trimIndent()
+        }
+
+        fun saveWiredZonesLast(password: String, wiredZones: List<Zone>): String {
 
             // 0 gheir faal
             // 1 faal
@@ -338,7 +432,6 @@ class SmsFormatter {
 
         // -    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
         // Output ->
-
         fun addNewOutput(password: String, newOutput: Output): String {
 
             when (newOutput.outputType) {
@@ -382,6 +475,7 @@ class SmsFormatter {
             }
 
         }
+
         fun editOutput(password: String, editingOutput: Output): String {
 
             when (editingOutput.outputType) {
@@ -425,6 +519,7 @@ class SmsFormatter {
             }
 
         }
+
         fun deleteOutput(password: String, idDeleting: String): String {
 
             return """
@@ -434,6 +529,88 @@ class SmsFormatter {
 
         }
 
+        // -    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+        // Wireless ->
+        fun deleteWirelessZone(password: String, allWireless: List<Zone> , deletingZone: Zone): String {
+
+            // 0 hazf
+            // 1 faal
+            // 2 nimeFaal
+            // 3 dingDong
+            // 4 gheirFaal
+
+            val sortedList = allWireless.sortedBy { it.zoneId }
+            val dataList = mutableListOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            sortedList.forEach {
+                dataList[ it.zoneId.toInt() - 1 ] = when (it.zoneStatus) {
+                    ZoneType.Faal -> 1
+                    ZoneType.NimeFaal -> 2
+                    ZoneType.GheirFaal -> 4
+                    ZoneType.DingDong -> 3
+                    else -> {
+                        0
+                    }
+                }
+            }
+
+            // check deleted item
+            dataList[ deletingZone.zoneId.toInt() - 1 ] = 0
+
+            return """
+                        wireless_room:
+                        $password:
+                        room_1:${dataList[0]}
+                        room_2:${dataList[1]}
+                        room_3:${dataList[2]}
+                        room_4:${dataList[3]}
+                        room_5:${dataList[4]}
+                        room_6:${dataList[5]}
+                        room_7:${dataList[6]}
+                        room_8:${dataList[7]}
+                        room_9:${dataList[8]}
+                        room_10:${dataList[9]}
+                    """.trimIndent()
+
+        }
+
+        fun saveAllWirelessZones(password: String, allWireless: List<Zone>): String {
+
+            // 0 hazf
+            // 1 faal
+            // 2 nimeFaal
+            // 3 dingDong
+            // 4 gheirFaal
+
+            val sortedList = allWireless.sortedBy { it.zoneId }
+            val dataList = mutableListOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            sortedList.forEach {
+                dataList[ it.zoneId.toInt() - 1 ] = when (it.zoneStatus) {
+                    ZoneType.Faal -> 1
+                    ZoneType.NimeFaal -> 2
+                    ZoneType.GheirFaal -> 4
+                    ZoneType.DingDong -> 3
+                    else -> {
+                        0
+                    }
+                }
+            }
+
+            return """
+                        wireless_room:
+                        $password:
+                        room_1:${dataList[0]}
+                        room_2:${dataList[1]}
+                        room_3:${dataList[2]}
+                        room_4:${dataList[3]}
+                        room_5:${dataList[4]}
+                        room_6:${dataList[5]}
+                        room_7:${dataList[6]}
+                        room_8:${dataList[7]}
+                        room_9:${dataList[8]}
+                        room_10:${dataList[9]}
+                    """.trimIndent()
+
+        }
 
     }
 }

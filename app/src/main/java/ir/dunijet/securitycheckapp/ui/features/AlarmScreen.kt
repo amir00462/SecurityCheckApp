@@ -71,11 +71,10 @@ fun AlarmScreen() {
                 it.contains("allarm_set:") -> {
 
                     // get data
-                    val newZamanSedaAzhir = it.lines()[3].split(':')[1]
-                    val newIsEnabledSpeakerOutside = it.lines()[4].split(':')[1]
-                    val newIsEnabledSpeakerInside = it.lines()[5].split(':')[1]
-                    val newVolumeSpeakerInside = it.lines()[6].split(':')[1]
-                    val newTimeSpeakerInside = it.lines()[7].split(':')[1]
+                    val newZamanSedaAzhir = it.lines()[3].split('=')[1]
+                    val newIsEnabledSpeakerOutside = it.lines()[4].split('=')[1]
+                    val newIsEnabledSpeakerInside = it.lines()[5].split('=')[1]
+                    val newVolumeSpeakerInside = it.lines()[6].split('=')[1]
 
                     // set to sharedPref
                     mainActivity.databaseService.writeToLocal(
@@ -94,21 +93,15 @@ fun AlarmScreen() {
                         KEY_ALARM_BOLANDI_DAKHELI,
                         newVolumeSpeakerInside
                     )
-                    mainActivity.databaseService.writeToLocal(
-                        KEY_ALARM_TIME_DAKHELI,
-                        newTimeSpeakerInside
-                    )
 
                     // show to user
-                    zamanSedayAzhirHa.value = newZamanSedaAzhir.toFloat()
+                    zamanSedayAzhirHa.value = newZamanSedaAzhir.toInt().toFloat()
                     azhirKharegi.value = newIsEnabledSpeakerOutside == "1"
                     azhirDakheli.value = newIsEnabledSpeakerInside == "1"
-                    bolandiSedayAzhirDakheli.value = newVolumeSpeakerInside.toFloat()
+                    bolandiSedayAzhirDakheli.value = newVolumeSpeakerInside.toInt().toFloat()
 
                 }
-
             }
-
         }
 
         smsSent = smsSentListener(

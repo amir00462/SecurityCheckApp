@@ -27,12 +27,17 @@ import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
 import ir.dunijet.securitycheckapp.ui.widgets.*
 import ir.dunijet.securitycheckapp.util.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+// wireless list not scrolling
 
 @Composable
 fun WirelessZoneScreen() {
 
+    val wirelessExistedInDatabase = remember { mutableStateListOf<Zone>() }
     val wirelessZones = remember { mutableStateListOf<Zone>() }
+
     val coroutineScope = rememberCoroutineScope()
     val buttonIsLoading = remember { mutableStateOf(false) }
     val buttonIsLoadingSaveAll = remember { mutableStateOf(false) }
@@ -53,175 +58,58 @@ fun WirelessZoneScreen() {
 
     fun myListeners() {
 
-//        // get them from sms
-//        smsReceived = smsReceivedListenerLong(SmsFormatter.ResponseMain) {
-//
-//            if (it.contains("admin1") && it.contains("admin2")) {
-//                val newMembersFromSms = mutableListOf<Member>()
-//
-//                for (i in 2..3) {
-//                    val adminNumber = it.lines()[i].split(':')[1]
-//                    if (adminNumber != "") {
-//                        newMembersFromSms.add(Member(null, true, (i - 1).toString(), adminNumber))
-//                    }
-//                }
-//
-//                for (i in 4..13) {
-//                    val memberNumber = it.lines()[i].split(':')[1]
-//                    if (memberNumber != "") {
-//                        newMembersFromSms.add(Member(null, false, (i - 3).toString(), memberNumber))
-//                    }
-//                }
-//
-//                coroutineScope.launch {
-//                    members.clear()
-//                    members.addAll(newMembersFromSms)
-//                    mainActivity.databaseServiceMain.writeMembers(members.toList())
-//                }
-//
-//            } else {
-//
-//                when (dialogTask.value) {
-//
-//                    // working number meghdar nadarad
-//
-//                    MemberTask.AddUser -> {
-//
-//                        // motmaen shodan
-//                        // do that task in database
-//                        // update states and database
-//                        // log
-//                        // dismiss dialog
-//
-//                        if (typeIsModir.value && it.contains(SmsFormatter.ResponseSetAdmin2)) {
-//
-//                            val numberAdmin2 = it.lines()[3].split(":")[1]
-//                            coroutineScope.launch {
-//                                mainActivity.databaseServiceMain.writeMember(
-//                                    Member(
-//                                        null,
-//                                        true,
-//                                        "2",
-//                                        numberAdmin2
-//                                    )
-//                                )
-//
-//                                members.add(
-//                                    Member(
-//                                        null,
-//                                        true,
-//                                        "2",
-//                                        numberAdmin2
-//                                    )
-//                                )
-//                                showDialog.value = false
-//                                mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "admin2Added"))
-//                            }
-//                        }
-//
-//                        if (!typeIsModir.value && it.contains(SmsFormatter.ResponseCreateUser)) {
-//
-//                            val userCreatedNumber = it.lines()[2].split(':')[1].substring(1)
-//                            val userId = (it.lines()[2].split('_')[3]).split(':')[0]
-//
-//                            coroutineScope.launch {
-//                                mainActivity.databaseServiceMain.writeMember(
-//                                    Member(
-//                                        null,
-//                                        false,
-//                                        userId,
-//                                        userCreatedNumber
-//                                    )
-//                                )
-//                                members.add(
-//                                    Member(
-//                                        null,
-//                                        false,
-//                                        userId,
-//                                        userCreatedNumber
-//                                    )
-//                                )
-//                                showDialog.value = false
-//                                mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "newUserAdded"))
-//                            }
-//                        }
-//                    }
-//
-//                    MemberTask.EditUser -> {
-//
-//                        // oldMember -> is number that on three dots clicking
-//                        // number from sms - edited number
-//                        // dialogMember.value
-//
-//                        // old number -> old member of user
-//                        // new number -> get the new member from sms
-//
-//                        var newNumber = ""
-//                        if(it.contains("admin")) {
-//                            newNumber = it.lines()[3].split(':')[1]
-//                        } else {
-//                            newNumber = it.lines()[2].split(':')[1].substring(1)
-//                        }
-//
-//                        coroutineScope.launch {
-//                            mainActivity.databaseServiceMain.editMember(
-//                                oldMember,
-//                                newNumber
-//                            )
-//
-//                            val foundMember = members.find { itt -> itt.memberNumber == oldMember }
-//                            members.remove(foundMember)
-//                            members.add(foundMember!!.copy(memberNumber = newNumber))
-//
-//                            showDialog.value = false
-//                            mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "someoneEdited"))
-//                        }
-//
-//                    }
-//
-//                    MemberTask.DeleteUser -> {
-//
-//                        // if (it.contains(workingNumber)) {
-//                        coroutineScope.launch {
-//                            mainActivity.databaseServiceMain.deleteMember(oldMember)
-//
-//                            val foundMember = members.find { itt -> itt.memberNumber == oldMember }
-//                            members.remove(foundMember)
-//
-//                            showDialog.value = false
-//                            mainActivity.logMain.add(Log(text = navigation.currentDestination?.route + "-" + "sms received" + "-" + "someoneRemoved"))
-//
-//                            if(it.contains(SmsFormatter.ResponseDeleteAdmin2)) {
-//                                modirCount = 1
-//                                createNewAdmin.value = true
-//                            }
-//
-//                            userCount = members.filter { !it.typeIsModir }.size
-//                            if(it.contains(SmsFormatter.ResponseDeleteUser) && userCount == 9) {
-//                                createNewUser.value = true
-//                            }
-//
-//                        }
-//                        // }
-//
-//                    }
-//                }
-//            }
-//        }
-//        smsSent = smsSentListener(
-//            context,
-//            navigation.currentDestination?.route!!,
-//            { buttonIsLoading.value = it },
-//            { mainActivity.logMain.add(it) })
-//        context.registerReceiver(smsReceived, IntentFilter(SMS_RECEIVED))
-//        context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
+    }
 
+    fun addNew(id: String, name: String) {
+
+        coroutineScope.launch {
+
+            val newWireless = FAKE_WIRELESS_ZONE.copy(
+                zoneId = id,
+                title = name
+            )
+
+            wirelessZones.add(newWireless)
+        }
+
+    }
+
+    fun editOne(newId: String, newName: String) {
+
+        coroutineScope.launch {
+
+            val thisData = wirelessZones.find { it.zoneId == newId }!!
+            val newData = thisData.copy(title = newName)
+
+            wirelessZones.remove(thisData)
+            delay(10)
+
+            wirelessZones.add(newData)
+            if (wirelessExistedInDatabase.find { it.zoneId == newData.zoneId } != null) {
+
+                mainActivity.databaseService.editZone2(
+                    newData
+                )
+
+            }
+
+        }
+
+    }
+
+    fun deleteOne() {
+        val formattedSms = SmsFormatter.deleteWirelessZone(password, wirelessZones , dialogZone.value)
+        smsService.sendSms(formattedSms, numberEngine)
+    }
+
+    fun addAllToIot() {
+        val formattedSms = SmsFormatter.saveAllWirelessZones(password, wirelessZones)
+        smsService.sendSms(formattedSms, numberEngine)
     }
 
     fun getNextZoneId(): Int {
 
-        val fullList =
-            mutableListOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+        val fullList = mutableListOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
         wirelessZones.forEach {
             fullList.remove(it.zoneId.toInt())
         }
@@ -233,36 +121,21 @@ fun WirelessZoneScreen() {
 
         coroutineScope.launch {
 
-            val dataFromDatabase = mainActivity.databaseService.readWiredZones()
-            if (dataFromDatabase.isNotEmpty()) {
-                wirelessZones.clear()
-                wirelessZones.addAll(getDefaultWiredZones())
-            } else {
+            val dataFromDatabase = mainActivity.databaseService.readWirelessZones()
 
-                if (MainActivity.recomposition < 1) {
+            wirelessZones.clear()
+            delay(10)
+            wirelessZones.addAll(dataFromDatabase)
+            wirelessExistedInDatabase.addAll(dataFromDatabase)
 
-                    // get from sms
-//                    val formattedSms = SmsFormatter.getAllRemotes(password)
-//                    smsService.sendSms(formattedSms, numberEngine)
-
-                    // mock data from sms
-                    wirelessZones.clear()
-                    wirelessZones.addAll(getDefaultWiredZones())
-                    // mainActivity.databaseServiceMain.writeRemotes(remotes.toList())
-
-//                    context.showToast("در حال دریافت اطلاعات از دستگاه")
-                    context.showToast("لطفا 30 ثانیه صبر کنید")
-                    MainActivity.recomposition += 1
-                }
-            }
         }
     }
 
-    addData()
     LaunchedEffect(Unit) {
         MainActivity.recomposition = 0
         MainActivity.checkPermissions(context)
         myListeners()
+        addData()
     }
     DisposableEffect(Unit) {
         onDispose {
@@ -287,7 +160,7 @@ fun WirelessZoneScreen() {
                 },
 
                 navigationIcon = {
-                    IconButton(onClick = { navigation.navigate(MyScreens.AlarmScreen.route) }) {
+                    IconButton(onClick = { navigation.popBackStack() }) {
                         Icon(
                             modifier = Modifier.scale(scaleX = -1f, scaleY = 1f),
                             imageVector = Icons.Default.ArrowBack,
@@ -323,12 +196,10 @@ fun WirelessZoneScreen() {
                         // on delete clicked
                         dialogZone.value = it
                         showDialog.value = "delete"
-
                     })
-
                 }
 
-                if (wirelessZones.size < 20) {
+                if (wirelessZones.size < 10) {
                     FloatingActionButton(
                         backgroundColor = appColors[0],
                         contentColor = appColors[1],
@@ -355,40 +226,35 @@ fun WirelessZoneScreen() {
                 when (showDialog.value) {
 
                     "add" -> {
+
                         DialogWirelessZoneAdd(
                             id = getNextZoneId(),
-                            buttonIsLoading = buttonIsLoading,
                             onDismiss = {
-                                if (!buttonIsLoading.value) {
-                                    showDialog.value = "hide"
-                                } else {
-                                    context.showToast("لطفا تا پایان عملیات صبر کنید")
-                                }
+                                showDialog.value = "hide"
                             },
                             onSubmit = { name, id ->
 
-                                // send add sms
-                                context.showToast("add clicked")
+                                // add in just list in this screen
+                                addNew(id.toString(), name)
+                                showDialog.value = "hide"
 
                             }
                         )
+
+
                     }
 
                     "edit" -> {
                         DialogWirelessZoneEdit(
                             zone = dialogZone.value,
-                            buttonIsLoading = buttonIsLoading,
                             onDismiss = {
-                                if (!buttonIsLoading.value) {
-                                    showDialog.value = "hide"
-                                } else {
-                                    context.showToast("لطفا تا پایان عملیات صبر کنید")
-                                }
+                                showDialog.value = "hide"
                             },
                             onSubmit = {
 
-                                // send edit sms
-                                context.showToast("edit clicked")
+                                // edit in list and database
+                                editOne(it.zoneId, it.title)
+                                showDialog.value = "hide"
 
                             }
                         )
@@ -407,7 +273,7 @@ fun WirelessZoneScreen() {
                             onSubmit = {
 
                                 // send delete sms
-                                context.showToast("delete clicked")
+                                deleteOne()
 
                             }
                         )
@@ -421,8 +287,8 @@ fun WirelessZoneScreen() {
                         buttonIsLoading = buttonIsLoadingSaveAll
                     ) {
 
-                        // save new zone array change list to database
                         // send new data in sms and look for its response
+                        addAllToIot()
 
                     }
 
@@ -433,4 +299,5 @@ fun WirelessZoneScreen() {
 
         }
     }
+
 }

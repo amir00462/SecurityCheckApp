@@ -9,6 +9,7 @@ import ir.dunijet.securitycheckapp.model.data.Zone
 val FAKE_MEMBER = Member(null, true, "", "")
 val FAKE_REMOTE = Remote(null, "", "", false, false)
 val FAKE_ZONE = Zone(null, false, "", R.drawable.ic_eye, "1", 2, ZoneType.CheshmiTwoTypes)
+val FAKE_WIRELESS_ZONE = Zone(null, false, "", R.drawable.ic_eye, "1", 2, zoneStatus = ZoneType.GheirFaal)
 val FAKE_OUTPUT = Output(null, "چراغ\u200Cهای حیاط", R.drawable.ic_lamp, "1", OutputType.KhamooshRoshan, 27f , false , "نیاز به بروزرسانی")
 
 val outputNameList = listOf(

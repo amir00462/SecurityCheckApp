@@ -1,5 +1,6 @@
 package ir.dunijet.securitycheckapp.ui.widgets
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -43,6 +44,7 @@ fun WirelessZoneList(
     onDeleteClicked: (Zone) -> Unit
 ) {
 
+    zones.sortBy { it.zoneId.toInt() }
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         items(zones.size) {
 
@@ -306,7 +308,6 @@ fun FourStepWirelessZone(
 @Composable
 fun DialogWirelessZoneAdd(
     id: Int,
-    buttonIsLoading: MutableState<Boolean>,
     onDismiss: () -> Unit,
     onSubmit: (String, Int) -> Unit
 ) {
@@ -388,11 +389,7 @@ fun DialogWirelessZoneAdd(
                     Box(modifier = Modifier
                         .background(MainActivity.appColors[4])
                         .clickable {
-                            if (!buttonIsLoading.value) {
-                                onDismiss.invoke()
-                            } else {
-                                context.showToast("لطفا تا پایان عملیات صبر کنید")
-                            }
+                            onDismiss.invoke()
                         }
                         .weight(1f)
                         .fillMaxHeight(), contentAlignment = Alignment.Center
@@ -409,19 +406,7 @@ fun DialogWirelessZoneAdd(
                         .clickable {
 
                             if (nameRemoteEdt.value.count() > 0) {
-
-                                if (!buttonIsLoading.value) {
-                                    onSubmit.invoke(nameRemoteEdt.value, id)
-
-                                    buttonIsLoading.value = true
-                                    Timer().schedule(object : TimerTask() {
-                                        override fun run() {
-                                            buttonIsLoading.value = false
-                                        }
-                                    }, WaitingToReceiveSms)
-
-                                }
-
+                                onSubmit.invoke(nameRemoteEdt.value, id)
                             } else {
                                 context.showToast("لطفا نام زون را وارد کنید")
                             }
@@ -430,19 +415,11 @@ fun DialogWirelessZoneAdd(
                         .weight(1f)
                         .fillMaxHeight(), contentAlignment = Alignment.Center
                     ) {
-                        if (buttonIsLoading.value) {
-                            CircularProgressIndicator(
-                                color = Color.White,
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(
-                                text = "ایجاد",
-                                style = MaterialTheme.typography.h2,
-                                color = MainActivity.appColors[1],
-                            )
-                        }
+                        Text(
+                            text = "ایجاد",
+                            style = MaterialTheme.typography.h2,
+                            color = MainActivity.appColors[1],
+                        )
                     }
                 }
             }
@@ -453,7 +430,6 @@ fun DialogWirelessZoneAdd(
 @Composable
 fun DialogWirelessZoneEdit(
     zone: Zone,
-    buttonIsLoading: MutableState<Boolean>,
     onDismiss: () -> Unit,
     onSubmit: (Zone) -> Unit
 ) {
@@ -536,11 +512,7 @@ fun DialogWirelessZoneEdit(
                     Box(modifier = Modifier
                         .background(MainActivity.appColors[4])
                         .clickable {
-                            if (!buttonIsLoading.value) {
-                                onDismiss.invoke()
-                            } else {
-                                context.showToast("لطفا تا پایان عملیات صبر کنید")
-                            }
+                            onDismiss.invoke()
                         }
                         .weight(1f)
                         .fillMaxHeight(), contentAlignment = Alignment.Center
@@ -555,42 +527,20 @@ fun DialogWirelessZoneEdit(
                     Box(modifier = Modifier
                         .background(MainActivity.appColors[0])
                         .clickable {
-
                             if (nameRemoteEdt.value.count() > 0) {
-
-                                if (!buttonIsLoading.value) {
-                                    onSubmit.invoke(zone.copy(title = nameRemoteEdt.value))
-
-                                    buttonIsLoading.value = true
-                                    Timer().schedule(object : TimerTask() {
-                                        override fun run() {
-                                            buttonIsLoading.value = false
-                                        }
-                                    }, WaitingToReceiveSms)
-
-                                }
-
+                                onSubmit.invoke(zone.copy(title = nameRemoteEdt.value))
                             } else {
                                 context.showToast("لطفا نام زون را وارد کنید")
                             }
-
                         }
                         .weight(1f)
                         .fillMaxHeight(), contentAlignment = Alignment.Center
                     ) {
-                        if (buttonIsLoading.value) {
-                            CircularProgressIndicator(
-                                color = Color.White,
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(
-                                text = "ویرایش",
-                                style = MaterialTheme.typography.h2,
-                                color = MainActivity.appColors[1],
-                            )
-                        }
+                        Text(
+                            text = "ویرایش",
+                            style = MaterialTheme.typography.h2,
+                            color = MainActivity.appColors[1],
+                        )
                     }
                 }
             }
@@ -741,5 +691,345 @@ fun DialogWirelessZoneDelete(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ZoneDialogWirelessTest(
+    buttonIsLoading: MutableState<Boolean>,
+    zone: Zone,
+    onDismiss: () -> Unit,
+    onSubmit: (String, ZoneNooe) -> Unit
+) {
+
+    val vaziatRemote = remember { mutableStateOf(zone.zoneNooe) }
+    val context = LocalContext.current
+    val nameRemoteEdt = remember { mutableStateOf(zone.title) }
+
+    Dialog(onDismissRequest = onDismiss) {
+
+        Card(
+            elevation = 8.dp,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+
+            Column {
+
+                ConstraintLayout(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(appColors[1])
+                ) {
+                    val (mainText) = createRefs()
+
+                    Text(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .constrainAs(mainText) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                            },
+                        text = "ویرایش زون",
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.W500,
+                        fontSize = 18.sp,
+                        lineHeight = 36.sp,
+                        color = appColors[8],
+                    )
+                }
+
+                Divider(color = appColors[4], thickness = 1.dp)
+
+                ConstraintLayout(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(280.dp)
+                        .background(appColors[2])
+                ) {
+
+                    val (memberId, textField, status) = createRefs()
+
+
+                    MemberId(modifier = Modifier
+                        .constrainAs(memberId) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                        }
+                        .padding(end = 16.dp, top = 41.dp), id = zone.zoneId)
+
+                    ZoneTextField(mainModifier = Modifier
+                        .constrainAs(textField) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
+                        .padding(top = 17.dp),
+                        txtSubject = "نام زون",
+                        edtValue = nameRemoteEdt.value,
+                        onValueChanges = { nameRemoteEdt.value = it })
+
+                    ZoneNoeTest(modifier = Modifier
+                        .constrainAs(status) {
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            top.linkTo(textField.bottom)
+                        }
+                        .padding(top = 24.dp), zone = zone) {
+                        vaziatRemote.value = it
+                    }
+
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                ) {
+
+                    Box(modifier = Modifier
+                        .background(appColors[4])
+                        .clickable {
+                            if (!buttonIsLoading.value) {
+                                onDismiss.invoke()
+                            } else {
+                                context.showToast("لطفا تا پایان عملیات صبر کنید")
+                            }
+                        }
+                        .weight(1f)
+                        .fillMaxHeight(), contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "لغو",
+                            style = MaterialTheme.typography.h2,
+                            color = appColors[8],
+                        )
+                    }
+
+                    Box(modifier = Modifier
+                        .background(appColors[0])
+                        .clickable {
+
+                            if (nameRemoteEdt.value.count() > 0) {
+                                onSubmit.invoke(nameRemoteEdt.value, vaziatRemote.value!!)
+                                onDismiss.invoke()
+                            } else {
+                                context.showToast("لطفا نام زون را وارد کنید")
+                            }
+
+                        }
+                        .weight(1f)
+                        .fillMaxHeight(), contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "ویرایش",
+                            style = MaterialTheme.typography.h2,
+                            color = appColors[1],
+                        )
+                    }
+
+                }
+
+
+            }
+
+
+        }
+    }
+}
+
+@Composable
+fun ZoneNoeTest(
+    modifier: Modifier,
+    zone: Zone,
+    onZoneValueChanged: (ZoneNooe) -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    var selectedPart by remember { mutableStateOf(zone.zoneNooe) }
+
+    Column(
+        modifier = modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+            .clip(Shapes.medium)
+            .background(appColors[4])
+    ) {
+
+        Text(
+            modifier = Modifier.padding(start = 10.dp, top = 8.dp),
+            fontWeight = FontWeight.Medium,
+            lineHeight = 24.sp,
+            color = appColors[6],
+            text = "نوع زون"
+        )
+
+        Divider(
+            modifier = Modifier.padding(top = 8.dp),
+            color = MaterialTheme.colors.onSecondary.copy(0.16f),
+            thickness = 1.dp
+        )
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .height(42.dp)
+                .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            // gheir faal
+            Box(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(MaterialTheme.shapes.small)
+                    .background(
+                        if (selectedPart == ZoneNooe.AtashDood)
+                            appColors[1]
+                        else
+                            Color.Transparent
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        selectedPart = ZoneNooe.AtashDood
+                        onZoneValueChanged.invoke(selectedPart!!)
+
+                        Log.i("tag", "dood va atash clicked")
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "غیر فعال",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color =
+                    if (selectedPart == ZoneNooe.AtashDood)
+                        appColors[8]
+                    else
+                        appColors[6]
+                )
+            }
+
+
+            // nime Faal
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(MaterialTheme.shapes.small)
+                    .background(
+                        if (selectedPart == ZoneNooe.AtashDood)
+                            Color.Transparent
+                        else
+                            appColors[1]
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        selectedPart = ZoneNooe.Cheshmi
+                        onZoneValueChanged.invoke(selectedPart!!)
+
+                        Log.i("tag", "cheshmi clicked")
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "نیمه فعال",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = if (selectedPart == ZoneNooe.AtashDood)
+                        appColors[6]
+                    else
+                        appColors[8]
+                )
+            }
+        }
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .height(42.dp)
+                .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            // faal
+            Box(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(MaterialTheme.shapes.small)
+                    .background(
+                        if (selectedPart == ZoneNooe.AtashDood)
+                            appColors[1]
+                        else
+                            Color.Transparent
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        selectedPart = ZoneNooe.AtashDood
+                        onZoneValueChanged.invoke(selectedPart!!)
+
+                        Log.i("tag", "dood va atash clicked")
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "فعال",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color =
+                    if (selectedPart == ZoneNooe.AtashDood)
+                        appColors[8]
+                    else
+                        appColors[6]
+                )
+            }
+
+
+            // ding dong
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(MaterialTheme.shapes.small)
+                    .background(
+                        if (selectedPart == ZoneNooe.AtashDood)
+                            Color.Transparent
+                        else
+                            appColors[1]
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        selectedPart = ZoneNooe.Cheshmi
+                        onZoneValueChanged.invoke(selectedPart!!)
+
+                        Log.i("tag", "cheshmi clicked")
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "دینگ دانگ",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = if (selectedPart == ZoneNooe.AtashDood)
+                        appColors[6]
+                    else
+                        appColors[8]
+                )
+            }
+        }
+
     }
 }

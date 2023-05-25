@@ -92,7 +92,6 @@ class LocalRepository(
         //zoneDao.editByIdNooeZone(id, isWired, newTitle, newZoneNooe)
         zoneDao.deleteById(newZone.zoneId , newZone.typeIsWire)
         zoneDao.insert(newZone)
-        zoneDao.insert(newZone)
     }
     suspend fun deleteZone(id: String, isWired: Boolean) {
         zoneDao.deleteById(id, isWired)

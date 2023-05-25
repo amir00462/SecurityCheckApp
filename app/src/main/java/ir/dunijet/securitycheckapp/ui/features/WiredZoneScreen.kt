@@ -62,7 +62,7 @@ fun WiredZoneScreen() {
             when {
 
                 // after changes in iot device ->
-                it.contains("room_") && it.lines().size == 7 -> {
+                it.contains("room_") -> {
 
                     coroutineScope.launch {
 
@@ -210,6 +210,9 @@ fun WiredZoneScreen() {
 
                         // now the config is ready to add ->
                         wiredZones.clear()
+
+                        delay(10)
+
                         wiredZones.add(zone1)
                         wiredZones.add(zone2)
                         wiredZones.add(zone3)
@@ -218,6 +221,7 @@ fun WiredZoneScreen() {
 
                         // write in database ->
                         mainActivity.databaseService.clearWiredZones()
+                        delay(10)
                         mainActivity.databaseService.writeZones(
                             listOf(
                                 zone1,
@@ -430,14 +434,11 @@ fun WiredZoneScreen() {
                                 editZoneName(dialogZone.value.zoneId, nameZone, zoneNoee, -1)
 
                             }
-
                         )
-
                     }
 
 
                 }
-
             }
         }
     }

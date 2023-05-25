@@ -34,5 +34,8 @@ interface ZoneDao {
     @Query("DELETE FROM zone_table WHERE typeIsWire = 1")
     suspend fun clearWiredZones()
 
+    @Query("DELETE FROM zone_table WHERE typeIsWire = 0")
+    suspend fun clearWirelessZones()
+
 
 }

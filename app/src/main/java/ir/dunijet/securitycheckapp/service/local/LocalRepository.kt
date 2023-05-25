@@ -99,6 +99,9 @@ class LocalRepository(
     suspend fun clearWiredZones() {
         zoneDao.clearWiredZones()
     }
+    suspend fun clearWirelessZones() {
+        zoneDao.clearWirelessZones()
+    }
 
     // output table
     suspend fun readOutputs(): List<Output> {

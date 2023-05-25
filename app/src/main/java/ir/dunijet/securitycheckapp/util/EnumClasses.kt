@@ -9,6 +9,7 @@ enum class ZoneType {
     Faal,
     DingDong,
     Hour24,
+    Deleted
 }
 
 enum class ZoneNooe {

@@ -1,6 +1,7 @@
 package ir.dunijet.securitycheckapp.ui.features
 
 import android.content.BroadcastReceiver
+import android.content.IntentFilter
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,8 +56,90 @@ fun WirelessZoneScreen() {
 
     val numberEngine = mainActivity.databaseService.readFromLocal(KEY_NUMBER_ENGINE)
     val password = mainActivity.databaseService.readFromLocal(KEY_USER_PASSWORD)
+    val serial = mainActivity.databaseService.readFromLocal(KEY_SERIAL_ENGINE)
 
     fun myListeners() {
+
+        smsReceived = smsReceivedListener(numberEngine, serial) {
+
+            when {
+
+                // saving wireless rooms , delete a room ->
+                it.contains("wroom_") -> {
+
+                    coroutineScope.launch {
+
+                        // find zone status ->
+                        val dataList = mutableListOf(0,0,0,0,0,0,0,0,0,0)
+                        it.lines().forEachIndexed { index, line ->
+                            if (index != 0 && index != 1 && index <= 11) {
+                                dataList.add(line.split(':')[1].toInt())
+                            }
+                        }
+
+                        // clear all ->
+                        val fakeList = wirelessZones.toMutableList()
+                        wirelessZones.clear()
+                        delay(10)
+
+                        // add data to fakeList
+                        dataList.forEachIndexed { index, status ->
+                            fakeList[index] = fakeList[index].copy(
+                                zoneStatus = when (status) {
+                                    1 -> ZoneType.Faal
+                                    2 -> ZoneType.NimeFaal
+                                    4 -> ZoneType.GheirFaal
+                                    3 -> ZoneType.DingDong
+                                    else -> {
+                                        ZoneType.Deleted
+                                    }
+                                }
+                            )
+                        }
+
+                        // remove deletedItems in database if existed ->
+                        val nowInDatabase = mainActivity.databaseService.readWirelessZones()
+                        fakeList.forEach { toDeleteZone ->
+                            if(toDeleteZone.zoneStatus == ZoneType.Deleted) {
+                                if(nowInDatabase.contains(toDeleteZone)) {
+                                    mainActivity.databaseService.deleteZone(toDeleteZone.zoneId , toDeleteZone.typeIsWire)
+                                }
+                            }
+                        }
+
+                        // remove deletedItems in fakeList too ->
+                        fakeList.removeAll { ifState ->
+                            ifState.zoneStatus == ZoneType.Deleted
+                        }
+                        fakeList.sortedBy { sortingId ->  sortingId.zoneId.toInt() }
+
+                        // add fakeList to inAppList
+                        wirelessZones.addAll(fakeList)
+
+                        delay(10)
+
+                        // write in database ->
+                        mainActivity.databaseService.clearWirelessZones()
+                        delay(10)
+                        mainActivity.databaseService.writeZones(
+                            fakeList
+                        )
+
+                    }
+
+                }
+
+            }
+
+        }
+        smsSent = smsSentListener(
+            context,
+            navigation.currentDestination?.route!!,
+            { buttonIsLoading.value = it },
+            { mainActivity.logMain.add(it) })
+
+        context.registerReceiver(smsReceived, IntentFilter(SMS_RECEIVED))
+        context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
 
     }
 
@@ -98,7 +181,8 @@ fun WirelessZoneScreen() {
     }
 
     fun deleteOne() {
-        val formattedSms = SmsFormatter.deleteWirelessZone(password, wirelessZones , dialogZone.value)
+        val formattedSms =
+            SmsFormatter.deleteWirelessZone(password, wirelessZones, dialogZone.value)
         smsService.sendSms(formattedSms, numberEngine)
     }
 

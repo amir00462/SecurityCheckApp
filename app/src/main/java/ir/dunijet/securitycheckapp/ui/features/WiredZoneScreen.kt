@@ -233,9 +233,7 @@ fun WiredZoneScreen() {
                         )
 
                     }
-
                 }
-
             }
 
         }
@@ -264,7 +262,7 @@ fun WiredZoneScreen() {
                 val thisData = wiredZones.find { it.zoneId == newZoneId }!!
                 val newData = thisData.copy(title = newZoneName, zoneNooe = newZoneNooe)
                 wiredZones.remove(thisData)
-                delay(10)
+                delay(5)
                 wiredZones.add( newData  )
                 // change the data to database ->
                 mainActivity.databaseService.editZone2(

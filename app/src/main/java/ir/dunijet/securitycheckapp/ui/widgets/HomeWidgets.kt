@@ -61,7 +61,7 @@ fun OutputVaziatList(
     list.sortBy { it.outputId.toInt() }
     LazyColumn(
         modifier = Modifier
-            .defaultMinSize(minHeight = 1000.dp )
+            .defaultMinSize(minHeight = 1000.dp)
             .fillMaxWidth()
             .padding(bottom = 16.dp)
     ) {
@@ -345,7 +345,6 @@ fun HomeDrawer(
                 fontFamily = VazirFontDigits,
                 color = appColors[8]
             )
-
         }
 
         Divider(color = appColors[4], thickness = 1.dp)
@@ -355,7 +354,7 @@ fun HomeDrawer(
         }
 
         DrawerItem(title = "ریموت\u200Cهای دستگاه", icon = R.drawable.ic_remote) {
-            context.showToast("ریموت")
+            navigation.navigate(MyScreens.RemoteScreen.route)
         }
 
         DrawerItem(title = "زون\u200Cهای سیم\u200Cدار", icon = R.drawable.ic_eye) {
@@ -381,22 +380,23 @@ fun HomeDrawer(
         }
 
     }
-
 }
 
 @Composable
 fun HomeVaziat(
-    homeVaziat: HomeVaziat,
+    homeVaziat: Int,
     lastUpdated: String,
-    onChangeVaziatClicked: (HomeVaziat) -> Unit,
+    valueUpdatedFromSms: Boolean ,
+    onChangeVaziatClicked: (Int) -> Unit,
     onUpdateClicked: () -> Unit
 ) {
     val context = LocalContext.current
     val state = remember { mutableStateOf(homeVaziat) }
+    val lastThisUpdated = remember { mutableStateOf( if (lastUpdated.contains("نیاز")) "نیاز به بروز رسانی" else context.correctDate(lastUpdated.toLong()) ) }
     val interactionSource = remember { MutableInteractionSource() }
+    var canRotate by remember { mutableStateOf(true) }
 
     // rotation
-    val lastThisUpdated = remember { mutableStateOf( if(lastUpdated == "نیاز به بروز رسانی") "نیاز به بروز رسانی" else context.correctDate(lastUpdated.toLong()) ) }
     var rotationAngle by remember { mutableStateOf(0f) }
     val animatedRotationAngle by animateFloatAsState(
         targetValue = rotationAngle,
@@ -405,6 +405,25 @@ fun HomeVaziat(
             repeatMode = RepeatMode.Restart
         )
     )
+
+    // time
+    if(valueUpdatedFromSms) {
+        canRotate = false
+        rotationAngle = 0f
+        lastThisUpdated.value = context.correctDate(lastUpdated.toLong())
+    }
+//    if(lastThisUpdated.value.contains("در حال بروز")) {
+//        if(!lastUpdated.contains("نیاز")){
+//            val nowTime = lastUpdated.toLong()
+//            val currentTime = System.currentTimeMillis()
+//            val distanceInSeconds = (currentTime - nowTime) / 1000
+//
+//            if(distanceInSeconds > 5 && distanceInSeconds < 40) {
+//                lastThisUpdated.value = nowTime.toString()
+//                rotationAngle = 0f
+//            }
+//        }
+//    }
 
     Card(
         elevation = 12.dp,
@@ -415,7 +434,7 @@ fun HomeVaziat(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(140.dp)
-                .background(if (state.value == HomeVaziat.Faal) ColorFaal else if (state.value == HomeVaziat.NimeFaal) colorNimeFaal else colorGheirFaal)
+                .background(if (state.value == 1) ColorFaal else if (state.value == 2) colorNimeFaal else colorGheirFaal)
         ) {
 
             Text(
@@ -458,7 +477,7 @@ fun HomeVaziat(
                             .fillMaxHeight()
                             .clip(MaterialTheme.shapes.medium)
                             .background(
-                                if (state.value != HomeVaziat.Faal) Color.Transparent
+                                if (state.value != 1) Color.Transparent
                                 else appColors[1]
                             )
                             .clickable(
@@ -468,10 +487,11 @@ fun HomeVaziat(
 
                                 if (lastThisUpdated.value != "در حال بروز رسانی ...") {
 
-                                    state.value = HomeVaziat.Faal
+                                    state.value = 1
                                     onChangeVaziatClicked.invoke(state.value)
 
                                     lastThisUpdated.value = "در حال بروز رسانی ..."
+                                    canRotate = true
                                     rotationAngle += 360f
 
                                 } else {
@@ -486,7 +506,7 @@ fun HomeVaziat(
                             fontSize = 16.sp,
                             lineHeight = 26.sp,
                             fontWeight = FontWeight.W500,
-                            color = if (state.value != HomeVaziat.Faal) appColors[1]
+                            color = if (state.value != 1) appColors[1]
                             else appColors[8]
                         )
                     }
@@ -498,7 +518,7 @@ fun HomeVaziat(
                             .fillMaxHeight()
                             .clip(MaterialTheme.shapes.small)
                             .background(
-                                if (state.value != HomeVaziat.NimeFaal) Color.Transparent
+                                if (state.value != 2) Color.Transparent
                                 else appColors[1]
                             )
                             .clickable(
@@ -507,11 +527,13 @@ fun HomeVaziat(
                             ) {
 
                                 if (lastThisUpdated.value != "در حال بروز رسانی ...") {
-                                    state.value = HomeVaziat.NimeFaal
+                                    state.value = 2
                                     onChangeVaziatClicked.invoke(state.value)
 
                                     lastThisUpdated.value = "در حال بروز رسانی ..."
+                                    canRotate = true
                                     rotationAngle += 360f
+
                                 } else {
                                     context.showToast("لطفا صبر کنید")
                                 }
@@ -525,7 +547,7 @@ fun HomeVaziat(
                             fontSize = 16.sp,
                             lineHeight = 26.sp,
                             fontWeight = FontWeight.W500,
-                            color = if (state.value != HomeVaziat.NimeFaal) appColors[1]
+                            color = if (state.value != 2) appColors[1]
                             else appColors[8]
                         )
                     }
@@ -537,7 +559,7 @@ fun HomeVaziat(
                             .fillMaxHeight()
                             .clip(MaterialTheme.shapes.small)
                             .background(
-                                if (state.value != HomeVaziat.GheirFaal) Color.Transparent
+                                if (state.value != 0) Color.Transparent
                                 else appColors[1]
                             )
                             .clickable(
@@ -546,11 +568,13 @@ fun HomeVaziat(
                             ) {
 
                                 if (lastThisUpdated.value != "در حال بروز رسانی ...") {
-                                    state.value = HomeVaziat.GheirFaal
+                                    state.value = 0
                                     onChangeVaziatClicked.invoke(state.value)
 
                                     lastThisUpdated.value = "در حال بروز رسانی ..."
+                                    canRotate = true
                                     rotationAngle += 360f
+
                                 } else {
                                     context.showToast("لطفا صبر کنید")
                                 }
@@ -563,7 +587,7 @@ fun HomeVaziat(
                             fontSize = 16.sp,
                             lineHeight = 26.sp,
                             fontWeight = FontWeight.W500,
-                            color = if (state.value != HomeVaziat.GheirFaal) appColors[1]
+                            color = if (state.value != 0) appColors[1]
                             else appColors[8]
                         )
                     }
@@ -584,10 +608,13 @@ fun HomeVaziat(
                         indication = null
                     ) {
 
-                        if (lastThisUpdated.value != "در حال بروز رسانی ...") {
+                        if (!lastThisUpdated.value.contains("بروز رسانی")) {
+
                             onUpdateClicked.invoke()
                             lastThisUpdated.value = "در حال بروز رسانی ..."
+                            canRotate = true
                             rotationAngle += 360f
+
                         } else {
                             context.showToast("لطفا صبر کنید")
                         }
@@ -597,10 +624,10 @@ fun HomeVaziat(
             ) {
 
                 Icon(
-                    modifier = Modifier.rotate(animatedRotationAngle),
+                    modifier = if(canRotate) Modifier.rotate(animatedRotationAngle) else Modifier,
                     painter = painterResource(id = R.drawable.ic_refresh),
                     contentDescription = null,
-                    tint = Color(0xFFFFFFFF)
+                    tint = appColors[1]
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
@@ -620,13 +647,9 @@ fun HomeVaziat(
                     color = appColors[1]
                 )
 
-
             }
-
         }
-
     }
-
 }
 
 @Composable

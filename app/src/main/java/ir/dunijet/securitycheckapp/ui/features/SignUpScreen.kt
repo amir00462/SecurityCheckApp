@@ -145,6 +145,29 @@ fun SignUpScreen() {
                     context.unregisterReceiver(smsSent)
 
                     mainActivity.databaseService.writeToLocal(AuthenticatedOrNot , "changePassword")
+
+                    // create latest sharedPref:
+                    databaseService.writeToLocal(
+                        KEY_ALARM_ZAMAN_SEDA_AZHIR,
+                        "null"
+                    )
+                    databaseService.writeToLocal(
+                        KEY_ALARM_IS_ENABLED_AZHIR_DAKHELI,
+                        "null"
+                    )
+                    databaseService.writeToLocal(
+                        KEY_ALARM_IS_ENABLED_AZHIR_KHAREGI,
+                        "null"
+                    )
+                    databaseService.writeToLocal(
+                        KEY_ENGINE_STATUS,
+                        "null"
+                    )
+                    databaseService.writeToLocal(
+                        KEY_ENGINE_STATUS_LAST_UPDATED,
+                        "null"
+                    )
+
                     navigation.navigate(MyScreens.ChangePasswordScreen.route) {
                         popUpTo(MyScreens.SignUpScreen.route) {
                             inclusive = true
@@ -212,6 +235,29 @@ fun SignUpScreen() {
                     context.unregisterReceiver(smsSent)
 
                     mainActivity.databaseService.writeToLocal(AuthenticatedOrNot , "home")
+
+                    // create latest sharedPref:
+                    databaseService.writeToLocal(
+                        KEY_ALARM_ZAMAN_SEDA_AZHIR,
+                        "null"
+                    )
+                    databaseService.writeToLocal(
+                        KEY_ALARM_IS_ENABLED_AZHIR_DAKHELI,
+                        "null"
+                    )
+                    databaseService.writeToLocal(
+                        KEY_ALARM_IS_ENABLED_AZHIR_KHAREGI,
+                        "null"
+                    )
+                    databaseService.writeToLocal(
+                        KEY_ENGINE_STATUS,
+                        "null"
+                    )
+                    databaseService.writeToLocal(
+                        KEY_ENGINE_STATUS_LAST_UPDATED,
+                        "null"
+                    )
+
                     navigation.navigate(MyScreens.HomeScreen.route) {
                         popUpTo(MyScreens.SignUpScreen.route) {
                             inclusive = true
@@ -261,6 +307,17 @@ fun SignUpScreen() {
                     context.unregisterReceiver(smsSent)
 
                     mainActivity.databaseService.writeToLocal(AuthenticatedOrNot , "home")
+
+                    // create latest sharedPref:
+                    databaseService.writeToLocal(
+                        KEY_ENGINE_STATUS,
+                        "null"
+                    )
+                    databaseService.writeToLocal(
+                        KEY_ENGINE_STATUS_LAST_UPDATED,
+                        "null"
+                    )
+
                     navigation.navigate(MyScreens.HomeScreen.route) {
                         popUpTo(MyScreens.SignUpScreen.route) {
                             inclusive = true

@@ -131,10 +131,9 @@ class SmsFormatter {
         fun getAllRemotes(password: String): String {
             return """
                 name_list_remote:
-                $password
+                $password:
             """.trimIndent()
         }
-
         fun createRemote(remoteId: String, remoteName: String, remoteStatus: Boolean): String {
             return if (remoteStatus) {
                 """
@@ -153,7 +152,6 @@ class SmsFormatter {
             }
 
         }
-
         fun editRemote(remoteId: String, remoteName: String, remoteStatus: Boolean): String {
             return if (remoteStatus) {
                 """
@@ -171,7 +169,6 @@ class SmsFormatter {
                     """.trimIndent()
             }
         }
-
         fun deleteRemote(remoteId: String): String {
             return """
                         config_remote:
@@ -189,8 +186,8 @@ class SmsFormatter {
         fun getVaziatEngine(password: String): String {
             return """
                         home_page:
-                        uph:
-                        $password:
+                        $password                        :
+                        report: 
                    """
                 .trimIndent()
         }
@@ -205,8 +202,9 @@ class SmsFormatter {
 
             return """
                         home_page:
-                        status:$status
                         $password:
+                        state:$status
+                        
                    """
                 .trimIndent()
         }

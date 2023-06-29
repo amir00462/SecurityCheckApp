@@ -136,7 +136,7 @@ fun RemoteDialog(
     task: MemberTask,
     remote: Remote,
     onDismiss: () -> Unit,
-    onSubmit: (String, Boolean) -> Unit
+    onSubmit: (String , String, Boolean) -> Unit
 ) {
 
     val vaziatRemote = remember { mutableStateOf(remote.remoteStatus) }
@@ -298,7 +298,7 @@ fun RemoteDialog(
                             if (nameRemoteEdt.value.count() > 0 || task == MemberTask.DeleteUser) {
 
                                 if (!buttonIsLoading.value) {
-                                    // onSubmit.invoke(nameRemoteEdt.value, remote.remoteId)
+                                    onSubmit.invoke(remote.remoteId , nameRemoteEdt.value, vaziatRemote.value)
 
                                     buttonIsLoading.value = true
                                     Timer().schedule(object : TimerTask() {

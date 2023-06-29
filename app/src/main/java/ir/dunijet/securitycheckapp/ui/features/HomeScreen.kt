@@ -5,9 +5,6 @@ import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Bundle
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -28,25 +25,20 @@ import dev.burnoo.cokoin.get
 import dev.burnoo.cokoin.navigation.getNavController
 import ir.dunijet.securitycheckapp.model.data.Output
 import ir.dunijet.securitycheckapp.service.sms.SmsRepository
-import ir.dunijet.securitycheckapp.ui.Connecting
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
-import ir.dunijet.securitycheckapp.ui.RecomposeActivity
 import ir.dunijet.securitycheckapp.ui.theme.VazirFontDigits
 import ir.dunijet.securitycheckapp.ui.widgets.HomeDrawer
 import ir.dunijet.securitycheckapp.ui.widgets.HomeVaziat
 import ir.dunijet.securitycheckapp.ui.widgets.OutputVaziatList
 import ir.dunijet.securitycheckapp.util.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import saman.zamani.persiandate.PersianDate
-import saman.zamani.persiandate.PersianDateFormat
-import java.util.*
+import kotlinx.coroutines.*
 
 // check kardan edit kardan dar outputs - disable enability of outputs in home Screen
 // wireless ha monde
 // todo check if the user is admin1 or admin2 or a normal user what to show to him/her
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun HomeScreen() {
 
@@ -58,6 +50,7 @@ fun HomeScreen() {
     lateinit var smsReceived: BroadcastReceiver
     val smsService = get<SmsRepository>()
 
+    val isFromSms = remember { mutableStateOf(false) }
     val buttonIsLoading = remember { mutableStateOf(false) }
     val activity = (LocalContext.current as? Activity)
     val context = LocalContext.current
@@ -68,8 +61,23 @@ fun HomeScreen() {
     val password = mainActivity.databaseService.readFromLocal(KEY_USER_PASSWORD)
     val serial = mainActivity.databaseService.readFromLocal(KEY_SERIAL_ENGINE)
 
-    val engineStatus = remember { mutableStateOf(0) }
-    val engineStatusLastUpdate = remember { mutableStateOf("نیاز به بروز رسانی") }
+    val engineStatus = remember {
+        mutableStateOf(
+            if (
+                mainActivity.databaseService.readFromLocal(KEY_ENGINE_STATUS) == "null"
+            ) 0 else mainActivity.databaseService.readFromLocal(KEY_ENGINE_STATUS).toInt()
+        )
+    }
+    val engineStatusLastUpdate = remember {
+        mutableStateOf(
+            if (
+                mainActivity.databaseService.readFromLocal(KEY_ENGINE_STATUS_LAST_UPDATED) == "null"
+            ) "نیاز به بروز رسانی" else mainActivity.databaseService.readFromLocal(
+                KEY_ENGINE_STATUS_LAST_UPDATED
+            )
+        )
+    }
+
     val outputs = remember { mutableStateListOf<Output>() }
     var numberOnOutputs by remember { mutableStateOf(0) }
     var numberOffOutputs by remember { mutableStateOf(0) }
@@ -79,26 +87,29 @@ fun HomeScreen() {
         val formattedSms = SmsFormatter.getVaziatEngine(password)
         smsService.sendSms(formattedSms, numberEngine)
     }
+
     fun changeVaziatEngine(it: HomeVaziat) {
         val formattedSms = SmsFormatter.updateVaziatEngine(password, it)
         smsService.sendSms(formattedSms, numberEngine)
     }
-    fun updateVaziatOutput(outputId :String) {
-        val formattedSms = SmsFormatter.getVaziatOutput(password , outputId)
-        smsService.sendSms(formattedSms, numberEngine)
-    }
-    fun changeVaziatOutput(outputId :String , vaziat :Boolean) {
-        val formattedSms = SmsFormatter.updateVaziatOutput(password, outputId ,  vaziat)
-        smsService.sendSms(formattedSms, numberEngine)
-    }
-    fun myListeners() {
 
+    fun updateVaziatOutput(outputId: String) {
+        val formattedSms = SmsFormatter.getVaziatOutput(password, outputId)
+        smsService.sendSms(formattedSms, numberEngine)
+    }
+
+    fun changeVaziatOutput(outputId: String, vaziat: Boolean) {
+        val formattedSms = SmsFormatter.updateVaziatOutput(password, outputId, vaziat)
+        smsService.sendSms(formattedSms, numberEngine)
+    }
+
+    fun myListeners() {
         smsReceived = smsReceivedListener(numberEngine, serial) {
 
             when {
 
                 // get updateVaziatEngine - result changeVaziatEngine
-                it.contains("home_page_status:") -> {
+                it.contains("home_page") -> {
 
                     // vaziat
                     val newStatus = (it.lines()[2].split(':')[1]).toInt()
@@ -119,6 +130,11 @@ fun HomeScreen() {
                     // recreate ->
                     engineStatusLastUpdate.value = lastTimeInMillies
                     engineStatus.value = newStatus
+                    isFromSms.value = true
+                    GlobalScope.launch {
+                        delay(2000)
+                        isFromSms.value = false
+                    }
 
                 }
 
@@ -157,7 +173,11 @@ fun HomeScreen() {
                         val foundOutput = outputs.find { itt -> itt.outputId == outputId }
                         outputs.remove(foundOutput)
 
-                        val newOutput = foundOutput!!.copy(id = foundOutput.id!! + 70 , isEnabledInHome = isEnabled , lastUpdatedIsEnabledInHome = inMilliesUpdate)
+                        val newOutput = foundOutput!!.copy(
+                            id = foundOutput.id!! + 70,
+                            isEnabledInHome = isEnabled,
+                            lastUpdatedIsEnabledInHome = inMilliesUpdate
+                        )
 
                         mainActivity.databaseService.editOutput(
                             newOutput
@@ -165,7 +185,7 @@ fun HomeScreen() {
 
                         // update enable and disable
                         delay(10)
-                        outputs.add( newOutput )
+                        outputs.add(newOutput)
                         numberOnOutputs = outputs.count { it.isEnabledInHome }
                         numberOffOutputs = outputs.count { !it.isEnabledInHome }
 
@@ -186,21 +206,23 @@ fun HomeScreen() {
         context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
 
     }
+
     fun logicHome() {
 
         //todo check if it is admin1 or admin2 or user and change Ui
 
         // retrieve engine status from sharedPref
         // retrieve engine status last update from sharedPref
-        val engStat = mainActivity.databaseService.readFromLocal(KEY_ENGINE_STATUS) // 1 faal , 2 nime faal , 0 gheir faal
+        val engStat =
+            mainActivity.databaseService.readFromLocal(KEY_ENGINE_STATUS) // 1 faal , 2 nime faal , 0 gheir faal
         val engStatLast = mainActivity.databaseService.readFromLocal(KEY_ENGINE_STATUS_LAST_UPDATED)
 
-        if(engStat == "null")
+        if (engStat == "null")
             engineStatus.value = 0
         else
             engineStatus.value = engStat.toInt()
 
-        if(engStatLast == "null")
+        if (engStatLast == "null")
             engineStatusLastUpdate.value = "نیاز به بروز رسانی"
         else
             engineStatusLastUpdate.value = engStatLast
@@ -228,7 +250,6 @@ fun HomeScreen() {
     LaunchedEffect(Unit) {
         MainActivity.recomposition = 0
         MainActivity.checkPermissions(context)
-        myListeners()
         logicHome()
     }
     DisposableEffect(Unit) {
@@ -238,12 +259,14 @@ fun HomeScreen() {
         }
     }
 
+    myListeners()
+
     // check switch data for theme ->
     val tmpTheme = mainActivity.databaseService.readFromLocal(key_APP_THEME)
-    themeData = if(tmpTheme == "null") {
-        if(isSystemInDarkTheme()) ThemeData.DarkTheme else ThemeData.LightTheme
+    themeData = if (tmpTheme == "null") {
+        if (isSystemInDarkTheme()) ThemeData.DarkTheme else ThemeData.LightTheme
     } else {
-        if(tmpTheme == "dark") {
+        if (tmpTheme == "dark") {
             ThemeData.DarkTheme
         } else {
             ThemeData.LightTheme
@@ -263,7 +286,7 @@ fun HomeScreen() {
                         lineHeight = 36.sp,
                         fontFamily = VazirFontDigits,
                         text = "فاطر الکترونیک",
-                        color = MainActivity.appColors[8]
+                        color = appColors[8]
                     )
                 },
                 navigationIcon = {
@@ -326,10 +349,17 @@ fun HomeScreen() {
 
                     Box(modifier = Modifier.padding(16.dp)) {
                         HomeVaziat(
-                            homeVaziat = if (engineStatus.value == 1) HomeVaziat.Faal else if (engineStatus.value == 2) HomeVaziat.NimeFaal else HomeVaziat.GheirFaal,
+                            homeVaziat = engineStatus.value,
                             lastUpdated = engineStatusLastUpdate.value,
+                            valueUpdatedFromSms = isFromSms.value,
                             onChangeVaziatClicked = {
-                                changeVaziatEngine(it)
+                                changeVaziatEngine(
+                                    when (it) {
+                                        1 -> HomeVaziat.Faal
+                                        2 -> HomeVaziat.NimeFaal
+                                        else -> HomeVaziat.GheirFaal
+                                    }
+                                )
                             },
                             onUpdateClicked = {
                                 updateVaziatEngine()
@@ -413,10 +443,10 @@ fun HomeScreen() {
                     OutputVaziatList(
                         list = outputs,
                         changeChecked = { id, isEnabled ->
-                            changeVaziatOutput(id , isEnabled)
-                    }, updateThis = { id ->
+                            changeVaziatOutput(id, isEnabled)
+                        }, updateThis = { id ->
                             updateVaziatOutput(id)
-                    })
+                        })
 
                 }
 
@@ -424,13 +454,15 @@ fun HomeScreen() {
         }
     }
 }
-fun recreateSmoothly(activity :Activity) {
+
+fun recreateSmoothly(activity: Activity) {
     val mCurrentActivity: Activity = activity
     val intent: Intent = activity.intent
     mCurrentActivity.finish()
 
     mCurrentActivity.overridePendingTransition(
-        R.anim.fade_out, R.anim.fade_in)
+        R.anim.fade_out, R.anim.fade_in
+    )
 
     mCurrentActivity.startActivity(intent)
 }

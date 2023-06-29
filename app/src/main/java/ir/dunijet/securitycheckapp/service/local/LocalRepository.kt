@@ -71,6 +71,9 @@ class LocalRepository(
     suspend fun deleteRemote(name: String) {
         remoteDao.deleteByName(name)
     }
+    suspend fun clearRemotes() {
+        remoteDao.clear()
+    }
 
     // zone table
     suspend fun readWiredZones(): List<Zone> {

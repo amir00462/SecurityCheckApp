@@ -1,5 +1,7 @@
 package ir.dunijet.securitycheckapp.di
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
@@ -13,15 +15,19 @@ import org.koin.dsl.module
 
 val myModules = module {
 
-    single {
-        EncryptedSharedPreferences.create(
-            FIRST_LOGIC_DATA,
-            MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
-            androidContext(),
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+    single<SharedPreferences> {
+        androidContext().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
     }
+
+//    single {
+//        EncryptedSharedPreferences.create(
+//            FIRST_LOGIC_DATA,
+//            MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
+//            androidContext(),
+//            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+//            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+//        )
+//    }
 
     single {
         Room.databaseBuilder(androidContext(), AppDatabase::class.java, SECOND_LOGIC_DATA).build()

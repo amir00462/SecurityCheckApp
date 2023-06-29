@@ -116,13 +116,23 @@ fun String.beautifyNumber(): String {
     return first + " " + second + " " + third
 }
 
+
+
+
 @Stable
 fun Modifier.mirror(): Modifier {
-    return if (Locale.getDefault().layoutDirection == LayoutDirection.RTL)
+
+    return if (Locale.getDefault().layoutDirection
+        == LayoutDirection.RTL)
+
         this.scale(scaleX = -1f, scaleY = 1f)
     else
         this
 }
+
+
+
+
 
 fun Context.showToast(str: String) {
     Toast.makeText(this, str, Toast.LENGTH_SHORT).show()

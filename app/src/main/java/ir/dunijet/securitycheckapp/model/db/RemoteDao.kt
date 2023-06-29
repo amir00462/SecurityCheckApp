@@ -24,4 +24,7 @@ interface RemoteDao {
     @Query("DELETE FROM remote_table WHERE remoteName = :name")
     suspend fun deleteByName(name: String)
 
+    @Query("DELETE FROM remote_table")
+    suspend fun clear()
+
 }

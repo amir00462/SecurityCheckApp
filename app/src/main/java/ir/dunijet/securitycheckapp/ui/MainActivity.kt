@@ -77,6 +77,7 @@ class MainActivity : BaseActivity() {
                 }).check()
         }
     }
+
     fun addLogsToDb() {
 
         lifecycleScope.launch {
@@ -100,7 +101,7 @@ class MainActivity : BaseActivity() {
 
                 // check theme from sharedPref
                 val themeInShared = databaseService.readFromLocal(key_APP_THEME)
-                appColors = if(themeInShared == "null") {
+                appColors = if (themeInShared == "null") {
                     if (isSystemInDarkTheme()) darkColors else lightColors
                 } else {
                     if (themeInShared == "dark") darkColors else lightColors
@@ -118,6 +119,7 @@ class MainActivity : BaseActivity() {
             }
         }
     }
+
     private fun isFirstRun(): Boolean {
 
         val readData = databaseService.readFromLocal(KEY_FIRST_RUN)
@@ -156,7 +158,7 @@ fun SecureHomeSystem() {
 
         composable(MyScreens.SignUpScreen.route) {
 
-            when(databaseServiceMain.readFromLocal(AuthenticatedOrNot)) {
+            when (databaseServiceMain.readFromLocal(AuthenticatedOrNot)) {
 
                 "null" -> {
                     SignUpScreen()
@@ -196,7 +198,7 @@ fun SecureHomeSystem() {
         }
 
         composable(MyScreens.RemoteScreen.route) {
-            // RemoteScreen()
+            RemoteScreen()
         }
 
         composable(MyScreens.WiredZoneScreen.route) {

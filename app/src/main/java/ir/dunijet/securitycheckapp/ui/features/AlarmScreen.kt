@@ -35,10 +35,11 @@ import kotlinx.coroutines.launch
 fun AlarmScreen() {
 
     // variables
-    val zamanSedayAzhirHa = remember { mutableStateOf(5f) }
-    val azhirKharegi = remember { mutableStateOf(false) }
-    val azhirDakheli = remember { mutableStateOf(true) }
-    val bolandiSedayAzhirDakheli = remember { mutableStateOf(73f) }
+    val mainActivityy = LocalContext.current as MainActivity
+    val zamanSedayAzhirHa = remember { mutableStateOf( mainActivityy.databaseService.readFromLocal(KEY_ALARM_ZAMAN_SEDA_AZHIR).toInt().toFloat() ) }
+    val azhirKharegi = remember { mutableStateOf(mainActivityy.databaseService.readFromLocal(KEY_ALARM_IS_ENABLED_AZHIR_KHAREGI) == "1") }
+    val azhirDakheli = remember { mutableStateOf(mainActivityy.databaseService.readFromLocal(KEY_ALARM_IS_ENABLED_AZHIR_DAKHELI) == "1") }
+    val bolandiSedayAzhirDakheli = remember { mutableStateOf(mainActivityy.databaseService.readFromLocal(KEY_ALARM_BOLANDI_DAKHELI).toInt().toFloat()) }
     val alphaDakheli = remember { mutableStateOf(if (azhirDakheli.value) 1f else 0.6f) }
 
     val coroutineScope = rememberCoroutineScope()

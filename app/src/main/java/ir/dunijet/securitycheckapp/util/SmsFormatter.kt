@@ -138,14 +138,14 @@ class SmsFormatter {
             return if (remoteStatus) {
                 """
                         Config_remote:
-                        get_name_remote_$remoteId
+                        get_name_remote_$remoteId:
                         $remoteName:
                         rem_${remoteId}_on:
                     """.trimIndent()
             } else {
                 """
                         Config_remote:
-                        get_name_remote_$remoteId
+                        get_name_remote_$remoteId:
                         $remoteName:
                         rem_${remoteId}_off:
                     """.trimIndent()
@@ -156,14 +156,14 @@ class SmsFormatter {
             return if (remoteStatus) {
                 """
                         Config_remote:
-                        edit_name_remote_$remoteId
+                        edit_name_remote_$remoteId:
                         $remoteName:
                         rem_${remoteId}_on:
                     """.trimIndent()
             } else {
                 """
                         Config_remote:
-                        edit_name_remote_$remoteId
+                        edit_name_remote_$remoteId:
                         $remoteName:
                         rem_${remoteId}_off:
                     """.trimIndent()

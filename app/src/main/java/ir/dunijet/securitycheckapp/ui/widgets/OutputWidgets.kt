@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
@@ -33,8 +34,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
+import dev.burnoo.cokoin.navigation.getNavController
 import ir.dunijet.securitycheckapp.R
 import ir.dunijet.securitycheckapp.model.data.Output
+import ir.dunijet.securitycheckapp.model.data.OutputName
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
 import ir.dunijet.securitycheckapp.ui.MemberId
@@ -88,7 +91,6 @@ fun OutputList(
             }
         }
     }
-
 }
 
 @Composable
@@ -295,15 +297,21 @@ fun OutputWidget(
 @Composable
 fun DialogOutputAddId1(
     idd: String,
+    value: Output,
     buttonIsLoading: MutableState<Boolean>,
     onDismiss: () -> Unit,
     onSubmit: (Output) -> Unit
 ) {
 
+    val navigation = getNavController()
+    val result = rememberUpdatedState<Pair<Int , String>>(newValue = Pair(R.drawable.ic_lamp , "چراغ های حیاط"))
     val context = LocalContext.current
-    val creatingOutput = remember { mutableStateOf(FAKE_OUTPUT) }
+    val creatingOutput = remember { mutableStateOf(value) }
     val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
     val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
+
+    creatingOutput.value.title = result.value.second
+    creatingOutput.value.icon = result.value.first
 
     Dialog(onDismissRequest = onDismiss) {
 
@@ -360,6 +368,10 @@ fun DialogOutputAddId1(
 
                         // open new screen to choose new icon and title
                         // todo check this
+
+                        onDismiss.invoke()
+                        MainActivity.outputName_dialogPending = 1
+                        navigation.navigate(MyScreens.SelectOutputName.route)
 
                     }
 
@@ -465,6 +477,7 @@ fun DialogOutputEditId1(
     onDismiss: () -> Unit,
     onSubmit: (Output) -> Unit
 ) {
+    val navigation = getNavController()
     val context = LocalContext.current
     val creatingOutput = remember { mutableStateOf(output) }
     val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
@@ -525,6 +538,10 @@ fun DialogOutputEditId1(
 
                         // open new screen to choose new icon and title
                         // todo check this
+
+                        onDismiss.invoke()
+                        MainActivity.outputName_dialogPending = 2
+                        navigation.navigate(MyScreens.SelectOutputName.route)
 
                     }
 
@@ -628,13 +645,15 @@ fun DialogOutputEditId1(
 @Composable
 fun DialogOutputAdd(
     idd: String,
+    value :Output,
     buttonIsLoading: MutableState<Boolean>,
     onDismiss: () -> Unit,
     onSubmit: (Output) -> Unit
 ) {
 
+    val navigation = getNavController()
     val context = LocalContext.current
-    val creatingOutput = remember { mutableStateOf(FAKE_OUTPUT) }
+    val creatingOutput = remember { mutableStateOf(value) }
     val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
     val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
 
@@ -693,6 +712,10 @@ fun DialogOutputAdd(
 
                         // open new screen to choose new icon and title
                         // todo check this
+
+                        onDismiss.invoke()
+                        MainActivity.outputName_dialogPending = 1
+                        navigation.navigate(MyScreens.SelectOutputName.route)
 
                     }
 
@@ -800,6 +823,7 @@ fun DialogOutputEdit(
     onDismiss: () -> Unit,
     onSubmit: (Output) -> Unit
 ) {
+    val navigation = getNavController()
     val context = LocalContext.current
     val creatingOutput = remember { mutableStateOf(output) }
     val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
@@ -860,6 +884,10 @@ fun DialogOutputEdit(
 
                         // open new screen to choose new icon and title
                         // todo check this
+
+                        onDismiss.invoke()
+                        MainActivity.outputName_dialogPending = 2
+                        navigation.navigate(MyScreens.SelectOutputName.route)
 
                     }
 
@@ -1228,7 +1256,13 @@ fun OutputName(
                     Modifier
                         .fillMaxWidth()
                         .height(42.dp)
-                        .padding(4.dp),
+                        .padding(4.dp)
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) {
+                            onChangeIconAndNameClicked.invoke()
+                        },
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -1244,13 +1278,6 @@ fun OutputName(
                                 // else
                                 MainActivity.appColors[1]
                             )
-                            .clickable(
-                                interactionSource = interactionSource,
-                                indication = null
-                            ) {
-
-                                onChangeIconAndNameClicked.invoke()
-                            }
                     ) {
                         val (title, iconn, buttonGoNextPage) = createRefs()
 
@@ -1743,16 +1770,16 @@ fun SearchTextField(
 }
 
 @Composable
-fun OutputNamesList(onItemSelected: (String, Int) -> Unit) {
+fun OutputNamesList(list: SnapshotStateList<OutputName> , onItemSelected: (OutputName) -> Unit) {
 
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(outputNameList.size) {
+        items(list.size) {
 
             OutputNameSearch(
-                name = outputNameList[it].first,
-                icon = outputNameList[it].second,
+                name = list[it].title,
+                icon = list[it].icon,
             ) {
-                onItemSelected.invoke(outputNameList[it].first, outputNameList[it].second)
+                onItemSelected.invoke(list[it])
             }
 
         }

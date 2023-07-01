@@ -14,4 +14,5 @@ sealed class MyScreens(val route: String) {
     object AlarmScreen : MyScreens("alarmScreen")
     object OutputScreen : MyScreens("outputScreen")
     object HomeScreen : MyScreens("homeScreen")
+    object SelectOutputName : MyScreens("SelectOutputName")
 }

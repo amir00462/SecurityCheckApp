@@ -13,7 +13,8 @@ class LocalRepository(
     private val memberDao: MemberDao,
     private val remoteDao: RemoteDao,
     private val zoneDao: ZoneDao,
-    private val outputDao: OutputDao
+    private val outputDao: OutputDao,
+    private val outputNameDao :OutputNameDao
 ) {
 
     // shared pref
@@ -122,6 +123,19 @@ class LocalRepository(
     }
     suspend fun deleteOutput(outputId :String) {
         outputDao.deleteById(outputId)
+    }
+
+    // outputName
+    suspend fun readOutputNames() :List<OutputName> {
+        return outputNameDao.getAll()
+    }
+
+    suspend fun writeOutputName(outputName :OutputName) {
+        outputNameDao.insert(outputName)
+    }
+
+    suspend fun writeOutputNames(list :List<OutputName>) {
+        outputNameDao.insert(list)
     }
 
 }

@@ -26,6 +26,7 @@ import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.widgets.RemoteDialog
 import ir.dunijet.securitycheckapp.ui.widgets.RemoteList
 import ir.dunijet.securitycheckapp.util.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // todo -> ok listerenrs , format of sms are ok
@@ -88,18 +89,20 @@ fun RemoteScreen() {
 
             // list of all remotes ->
             if (it.contains("name1")) {
-
                 coroutineScope.launch {
                     val listFromSms = resolveRemoteData(it)
 
                     mainActivity.databaseService.clearRemotes()
                     mainActivity.databaseService.writeRemotes(listFromSms)
 
+                    delay(10)
+
                     remotes.clear()
                     remotes.addAll(listFromSms)
                 }
-
             }
+
+
 
             // add , edit , remove
 
@@ -457,8 +460,8 @@ fun resolveRemoteData(response: String): List<Remote> {
 
     for (i in 2 until (response.lines().size)) {
         if (response.lines()[i].contains("name")) {
-            val remoteName = (response.lines()[i].split(':')[1]).split('$')[0]
-            val remoteStatus = (response.lines()[i].split(':')[1]).split('$')[1]
+            val remoteName = (response.lines()[i].split(':')[1]).split('@')[0]
+            val remoteStatus = (response.lines()[i].split(':')[1]).split('@')[1]
             val remoteId = (response.lines()[i].split(':')[0]).split('e')[1]
 
             if (remoteName.isNotEmpty() && remoteName.isNotBlank() && remoteName != "") {

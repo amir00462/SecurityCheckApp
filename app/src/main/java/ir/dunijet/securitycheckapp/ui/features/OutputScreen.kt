@@ -2,6 +2,7 @@ package ir.dunijet.securitycheckapp.ui.features
 
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -332,6 +333,42 @@ fun OutputScreen() {
         val formattedSms = SmsFormatter.deleteOutput(password, idDeleting)
         smsService.sendSms(formattedSms, numberEngine)
     }
+    fun checkDialogs() {
+
+        when(MainActivity.outputName_dialogPending) {
+
+            // add
+            1 -> {
+                Log.e("ccheck" , "check main activity in outputscrent -> " + MainActivity.outputName_dialogPendingOutputWorking)
+
+                dialogOutput.value = MainActivity.outputName_dialogPendingOutputWorking.copy(
+                    title =  MainActivity.outputName_newOutputName.title,
+                    icon = MainActivity.outputName_newOutputName.icon ,
+                )
+
+                Log.e("ccheck" , "check value in outputscrent -> " + dialogOutput.value)
+                showDialog.value = "add"
+            }
+
+            // edit
+            2 -> {
+
+                dialogOutput.value = MainActivity.outputName_dialogPendingOutputWorking.copy(
+                    title =  MainActivity.outputName_newOutputName.title,
+                    icon = MainActivity.outputName_newOutputName.icon ,
+                )
+
+                showDialog.value = "edit"
+            }
+
+            // non of them
+            else -> {
+                showDialog.value = "hide"
+            }
+
+        }
+
+    }
 
     addData()
     LaunchedEffect(Unit) {
@@ -345,7 +382,7 @@ fun OutputScreen() {
             mainActivity.addLogsToDb()
         }
     }
-
+    checkDialogs()
     Scaffold(
         topBar = {
 
@@ -433,6 +470,7 @@ fun OutputScreen() {
                         if (getNextOutputId() == 1) {
                             DialogOutputAddId1(
                                 idd = getNextOutputId().toString(),
+                                value = dialogOutput.value,
                                 buttonIsLoading = buttonIsLoading,
                                 onDismiss = {
                                     if (!buttonIsLoading.value) {
@@ -452,6 +490,7 @@ fun OutputScreen() {
                         } else {
                             DialogOutputAdd(
                                 idd = getNextOutputId().toString(),
+                                value = dialogOutput.value,
                                 buttonIsLoading = buttonIsLoading,
                                 onDismiss = {
                                     if (!buttonIsLoading.value) {

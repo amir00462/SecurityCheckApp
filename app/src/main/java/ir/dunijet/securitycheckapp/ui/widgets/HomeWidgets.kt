@@ -350,7 +350,7 @@ fun HomeDrawer(
         Divider(color = appColors[4], thickness = 1.dp)
 
         DrawerItem(title = "اعضای دستگاه", icon = R.drawable.ic_person) {
-            context.showToast("اعضای")
+            navigation.navigate(MyScreens.MembersScreen.route)
         }
 
         DrawerItem(title = "ریموت\u200Cهای دستگاه", icon = R.drawable.ic_remote) {

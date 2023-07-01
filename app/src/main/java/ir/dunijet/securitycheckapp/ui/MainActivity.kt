@@ -42,6 +42,14 @@ class MainActivity : BaseActivity() {
 
     companion object {
 
+        // in outputNameScreen ->
+        // 0 non , 1 add , 2 edit
+        var outputName_dialogPending = 0
+        var outputName_dialogPendingOutputWorking = FAKE_OUTPUT
+        var outputName_newOutputName = FAKE_OUTPUT_NAME
+
+        //  -   -   -   -   -   -   -    -   -   -   -   -   -   -   -   -   -
+
         // in output screen ->
         var dialogOutputTitle = "چراغ\u200Cهای حیاط"
         var dialogOutputIcon = R.drawable.ic_lamp
@@ -185,7 +193,11 @@ fun SecureHomeSystem() {
         }
 
         composable(MyScreens.MembersScreen.route) {
-            // MembersScreen()
+            MembersScreen()
+        }
+
+        composable(MyScreens.SelectOutputName.route) {
+            SelectOutputName()
         }
 
         composable(

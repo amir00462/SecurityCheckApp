@@ -148,18 +148,6 @@ fun SignUpScreen() {
 
                     // create latest sharedPref:
                     databaseService.writeToLocal(
-                        KEY_ALARM_ZAMAN_SEDA_AZHIR,
-                        "null"
-                    )
-                    databaseService.writeToLocal(
-                        KEY_ALARM_IS_ENABLED_AZHIR_DAKHELI,
-                        "null"
-                    )
-                    databaseService.writeToLocal(
-                        KEY_ALARM_IS_ENABLED_AZHIR_KHAREGI,
-                        "null"
-                    )
-                    databaseService.writeToLocal(
                         KEY_ENGINE_STATUS,
                         "null"
                     )
@@ -237,18 +225,7 @@ fun SignUpScreen() {
                     mainActivity.databaseService.writeToLocal(AuthenticatedOrNot , "home")
 
                     // create latest sharedPref:
-                    databaseService.writeToLocal(
-                        KEY_ALARM_ZAMAN_SEDA_AZHIR,
-                        "null"
-                    )
-                    databaseService.writeToLocal(
-                        KEY_ALARM_IS_ENABLED_AZHIR_DAKHELI,
-                        "null"
-                    )
-                    databaseService.writeToLocal(
-                        KEY_ALARM_IS_ENABLED_AZHIR_KHAREGI,
-                        "null"
-                    )
+
                     databaseService.writeToLocal(
                         KEY_ENGINE_STATUS,
                         "null"

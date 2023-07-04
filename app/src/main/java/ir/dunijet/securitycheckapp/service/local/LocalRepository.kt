@@ -117,6 +117,12 @@ class LocalRepository(
     suspend fun writeOutput(newOutput: Output) {
         outputDao.insert(newOutput)
     }
+    suspend fun writeOutputs(outputs: List<Output>) {
+        outputDao.insert(outputs)
+    }
+    suspend fun clearOutputs() {
+        outputDao.clear()
+    }
     suspend fun editOutput(newOutput: Output) {
         outputDao.deleteById(newOutput.outputId)
         outputDao.insert(newOutput)

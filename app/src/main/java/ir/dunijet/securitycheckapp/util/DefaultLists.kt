@@ -5,9 +5,9 @@ import ir.dunijet.securitycheckapp.model.data.*
 
 val FAKE_MEMBER = Member(null, true, "", "")
 val FAKE_REMOTE = Remote(null, "", "", false, false)
-val FAKE_ZONE = Zone(null, false, "", R.drawable.ic_eye, "1", 2, ZoneType.CheshmiTwoTypes)
+val FAKE_ZONE = Zone(null, false, "زون", R.drawable.ic_eye, "1", 2, ZoneType.CheshmiTwoTypes)
 val FAKE_WIRELESS_ZONE = Zone(null, false, "", R.drawable.ic_eye, "1", 2, zoneStatus = ZoneType.GheirFaal)
-val FAKE_OUTPUT = Output(null, "چراغ\u200Cهای حیاط", R.drawable.ic_lamp, "1", OutputType.KhamooshRoshan, 27f , false , "نیاز به بروزرسانی")
+val FAKE_OUTPUT = Output(null, "خروجی", R.drawable.ic_lamp, "1", OutputType.KhamooshRoshan, 27f , false , "نیاز به بروزرسانی")
 val FAKE_OUTPUT_NAME = OutputName(null ,"درب منزل", R.drawable.ic_home)
 
 val fakeOutputNameList = listOf(
@@ -35,8 +35,8 @@ val zoneType1 = listOf("غیرفعال", "نیمه فعال", "فعال", "دی�
 val zoneType2 = listOf("غیرفعال", "24 ساعته", "فعال", "دینگ دانگ")
 val zoneType3 = listOf("غیرفعال", "فعال")
 
-fun getDefaultWiredZones(): List<Zone> {
-    return listOf(
+fun getDefaultWiredZones(): MutableList<Zone> {
+    return mutableListOf(
         Zone(
             null,
             true,

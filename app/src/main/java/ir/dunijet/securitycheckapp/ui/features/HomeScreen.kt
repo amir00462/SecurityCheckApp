@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Intent
 import android.content.IntentFilter
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -15,8 +16,10 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,6 +27,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import dev.burnoo.cokoin.get
 import dev.burnoo.cokoin.navigation.getNavController
 import ir.dunijet.securitycheckapp.model.data.Output
+import ir.dunijet.securitycheckapp.model.data.Zone
 import ir.dunijet.securitycheckapp.service.sms.SmsRepository
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
@@ -83,21 +87,31 @@ fun HomeScreen() {
     var numberOffOutputs by remember { mutableStateOf(0) }
     var themeData by remember { mutableStateOf(ThemeData.LightTheme) }
 
+    // rotation updateKoli
+    var canRotate by remember { mutableStateOf(true) }
+    var isRotating by remember { mutableStateOf(false) }
+    var rotationAngle by remember { mutableStateOf(0f) }
+    val animatedRotationAngle by animateFloatAsState(
+        targetValue = rotationAngle,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+
     fun updateVaziatEngine() {
         val formattedSms = SmsFormatter.getVaziatEngine(password)
         smsService.sendSms(formattedSms, numberEngine)
     }
-
     fun changeVaziatEngine(it: HomeVaziat) {
         val formattedSms = SmsFormatter.updateVaziatEngine(password, it)
         smsService.sendSms(formattedSms, numberEngine)
     }
-
     fun updateVaziatOutput(outputId: String) {
         val formattedSms = SmsFormatter.getVaziatOutput(password, outputId)
         smsService.sendSms(formattedSms, numberEngine)
     }
-
     fun changeVaziatOutput(outputId: String, vaziat: Boolean) {
         val formattedSms = SmsFormatter.updateVaziatOutput(password, outputId, vaziat)
         smsService.sendSms(formattedSms, numberEngine)
@@ -134,6 +148,20 @@ fun HomeScreen() {
                     GlobalScope.launch {
                         delay(2000)
                         isFromSms.value = false
+                    }
+
+                }
+
+
+                it.contains("up:") -> {
+
+                    coroutineScope.launch {
+                        resolveUpdateKoli(mainActivity , it)
+                        canRotate = false
+                        isRotating = false
+                        rotationAngle = 0f
+
+                        context.showToast("اطلاعات دستگاه به روز شد")
                     }
 
                 }
@@ -190,7 +218,6 @@ fun HomeScreen() {
                         numberOffOutputs = outputs.count { !it.isEnabledInHome }
 
                     }
-
                 }
 
             }
@@ -246,6 +273,10 @@ fun HomeScreen() {
         }
 
     }
+    fun updateKoli() {
+        val formattedSms = SmsFormatter.updateKoli(password)
+        smsService.sendSms(formattedSms, numberEngine)
+    }
 
     LaunchedEffect(Unit) {
         MainActivity.recomposition = 0
@@ -272,7 +303,6 @@ fun HomeScreen() {
             ThemeData.LightTheme
         }
     }
-
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
@@ -302,6 +332,30 @@ fun HomeScreen() {
                             contentDescription = "Menu Button",
                             tint = MainActivity.appColors[6]
                         )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+
+                        if(!isRotating) {
+                            canRotate = true
+                            isRotating = true
+                            rotationAngle += 360f
+                            updateKoli()
+                        } else {
+                            context.showToast("لطفا منتظر بمانید")
+                        }
+
+
+                    }) {
+
+                        Icon(
+                            modifier = if(canRotate) Modifier.rotate(animatedRotationAngle).size(18.dp) else Modifier.size(18.dp),
+                            painter = painterResource(id = ir.dunijet.securitycheckapp.R.drawable.ic_refresh),
+                            contentDescription = null,
+                            tint = appColors[6]
+                        )
+
                     }
                 },
                 backgroundColor = appColors[1],
@@ -465,4 +519,221 @@ fun recreateSmoothly(activity: Activity) {
     )
 
     mCurrentActivity.startActivity(intent)
+}
+suspend fun resolveUpdateKoli(mainActivity:MainActivity , fromSms :String) {
+
+    // 0 -> aval payamak
+    // z1 -> zone sime dar
+    // f2 -> zone bi sim
+    // o3 -> roshan khamoosh boodan output ha
+    // t4 -> config output ha
+    // h5 -> vaziat konooni dastgah
+    val data = fromSms.split('#')
+
+    // zone haye sim dar ->
+    val zoneSimDar = getDefaultWiredZones()
+    data[1].split('_')[1].split(',').forEachIndexed { index, item ->
+
+        // dood va atash - item5
+        if(index == 4) {
+            val checkingNumber = item.split(':')[1].toInt()
+            var zoneStatus = ZoneType.GheirFaal
+
+            // zoneStatus gheirFaal -> number 5
+            if (checkingNumber == 4 || checkingNumber == 5) {
+
+               if(checkingNumber == 4) {
+                    zoneSimDar[index] = zoneSimDar[index].copy( zoneNooe = ZoneNooe.AtashDood, zoneStatus = ZoneType.Faal )
+                } else {
+                    zoneSimDar[index] = zoneSimDar[index].copy( zoneNooe = ZoneNooe.AtashDood, zoneStatus = ZoneType.GheirFaal )
+                }
+
+            } else {
+
+                // normal point
+                when (checkingNumber) {
+
+                    0 -> {
+                        zoneStatus = ZoneType.GheirFaal
+                    }
+
+                    1 -> {
+                        zoneStatus = ZoneType.Faal
+                    }
+
+                    2 -> {
+                        zoneStatus = ZoneType.NimeFaal
+                    }
+
+                    3 -> {
+                        zoneStatus = ZoneType.DingDong
+                    }
+
+                }
+
+                zoneSimDar[index] = zoneSimDar[index].copy( zoneStatus = zoneStatus)
+            }
+
+
+        } else {
+
+            // it -> 1:0 zone aval gheir faal
+            var zoneStatus = ZoneType.GheirFaal
+            when (item.split(':')[1].toInt()) {
+
+                0 -> {
+                    zoneStatus = ZoneType.GheirFaal
+                }
+
+                1 -> {
+                    zoneStatus = ZoneType.Faal
+                }
+
+                2 -> {
+                    zoneStatus = ZoneType.NimeFaal
+                }
+
+                3 -> {
+                    zoneStatus = ZoneType.DingDong
+                }
+
+            }
+            zoneSimDar[index] = zoneSimDar[index].copy( zoneStatus = zoneStatus)
+
+        }
+
+    }
+
+    // zone haye bi sim ->
+    val zoneHayeBiSim = mutableListOf<Zone>()
+    data[2].split('_')[1].split(',').forEach { item ->
+        // it -> 1:0 zone aval gheir faal
+
+        // 1:0 -> vabaste be dood atash
+        // 1:1 daem
+        // 1:2268 -> lahzeii - zaman khorooji lahzaii
+
+        var zoneStatus = ZoneType.GheirFaal
+        when (item.split(':')[1].toInt()) {
+
+            0 -> {
+                zoneStatus = ZoneType.GheirFaal
+            }
+
+            1 -> {
+                zoneStatus = ZoneType.Faal
+            }
+
+            2 -> {
+                zoneStatus = ZoneType.NimeFaal
+            }
+
+            3 -> {
+                zoneStatus = ZoneType.DingDong
+            }
+
+        }
+        zoneHayeBiSim.add(
+            FAKE_WIRELESS_ZONE.copy(
+                zoneId = item.split(':')[0],
+                zoneStatus = zoneStatus
+            )
+        )
+
+
+    }
+
+    // config output ha , va on off boodaneshon ->
+    val outputs = mutableListOf<Output>()
+    data[4].split('_')[1].split(',').forEach { item ->
+
+        when {
+
+            item.split(":")[1] == "0" -> {
+
+                // vabaste be dood va atash
+                val itemId = item.split(":")[0]
+
+                var isEnabled = false
+                data[3].split("_")[1].split(",").forEach {
+                    if(it.split(':')[0] == itemId) {
+                        isEnabled = it.split(':')[1] != "0"
+                    }
+                }
+
+                outputs.add(
+                    FAKE_OUTPUT.copy(
+                        outputId = itemId ,
+                        outputType = OutputType.VabasteDoodAtash,
+                        isEnabledInHome = isEnabled
+                    )
+                )
+            }
+
+            item.split(":")[1] == "1" -> {
+                // daem
+
+                val itemId = item.split(":")[0]
+                var isEnabled = false
+                data[3].split("_")[1].split(",").forEach {
+                    if(it.split(':')[0] == itemId) {
+                        isEnabled = it.split(':')[1] != "0"
+                    }
+                }
+
+                outputs.add(
+                    FAKE_OUTPUT.copy(
+                        outputId = itemId ,
+                        outputType = OutputType.KhamooshRoshan,
+                        isEnabledInHome = isEnabled
+                    )
+                )
+            }
+
+            item.split(":")[1].first() == '2' -> {
+
+
+                // lahzeii
+                val timeLahzeii = item.split(":")[1].substring(1 , item.split(":")[1].length).toInt().toFloat()
+
+                val itemId = item.split(":")[0]
+                var isEnabled = false
+                data[3].split("_")[1].split(",").forEach {
+                    if(it.split(':')[0] == itemId) {
+                        isEnabled = it.split(':')[1] != "0"
+                    }
+                }
+
+                outputs.add(
+                    FAKE_OUTPUT.copy(
+                        outputId = itemId ,
+                        outputType = OutputType.Lahzeii,
+                        outputLahzeiiZaman = timeLahzeii,
+                        isEnabledInHome = isEnabled
+                    )
+                )
+
+            }
+        }
+    }
+
+    // vaziat home ->
+    val vaziatDastgah = data[5].split("_")[1].split(":")[1]
+
+    // -    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+    // berizim to database ->
+    mainActivity.databaseService.clearWiredZones()
+    delay(10)
+    mainActivity.databaseService.clearWirelessZones()
+    delay(10)
+    mainActivity.databaseService.writeZones(zoneSimDar)
+    delay(10)
+    mainActivity.databaseService.writeZones(zoneHayeBiSim)
+    delay(10)
+    mainActivity.databaseService.clearOutputs()
+    delay(10)
+    mainActivity.databaseService.writeOutputs(outputs)
+    delay(10)
+    mainActivity.databaseService.writeToLocal(KEY_ENGINE_STATUS , vaziatDastgah)
+
 }

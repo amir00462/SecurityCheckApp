@@ -191,7 +191,6 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
-
         fun updateVaziatEngine(password: String, it: HomeVaziat): String {
 
             val status = when (it) {
@@ -208,7 +207,6 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
-
         fun getVaziatOutput(password: String, outputId: String): String {
             return """
                        out_${outputId}_report:
@@ -216,7 +214,6 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
-
         fun updateVaziatOutput(password: String, outputId: String, vaziat: Boolean): String {
             val vaziatKonooni = if (vaziat) "on" else "off"
 
@@ -336,7 +333,6 @@ class SmsFormatter {
                    """
                 .trimIndent()
         }
-
         fun saveWiredZonesLast(password: String, wiredZones: List<Zone>): String {
 
             // 0 gheir faal
@@ -473,7 +469,6 @@ class SmsFormatter {
             }
 
         }
-
         fun editOutput(password: String, editingOutput: Output): String {
 
             when (editingOutput.outputType) {
@@ -517,7 +512,6 @@ class SmsFormatter {
             }
 
         }
-
         fun deleteOutput(password: String, idDeleting: String): String {
 
             return """
@@ -570,7 +564,6 @@ class SmsFormatter {
                     """.trimIndent()
 
         }
-
         fun saveAllWirelessZones(password: String, allWireless: List<Zone>): String {
 
             // 0 hazf
@@ -608,6 +601,14 @@ class SmsFormatter {
                         room_10:${dataList[9]}
                     """.trimIndent()
 
+        }
+
+        // -    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+        fun updateKoli(password: String) :String {
+            return """
+                        update_all_system:
+                        $password:
+                    """.trimIndent()
         }
 
     }

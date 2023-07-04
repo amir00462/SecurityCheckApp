@@ -26,4 +26,7 @@ interface OutputDao {
     @Query("DELETE FROM output_table WHERE outputId = :id")
     suspend fun deleteById(id: String)
 
+    @Query("DELETE FROM output_table")
+    suspend fun clear()
+
 }

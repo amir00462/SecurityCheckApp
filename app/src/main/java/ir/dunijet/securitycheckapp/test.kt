@@ -32,7 +32,13 @@ fun main() {
     // h safe home update shodanesh
     //
 
-    val str = ""
+    val str = "227"
+    if( str.first() == '2' ) {
+
+        val want = str.substring(1 , str.length)
+        print(want)
+
+    }
 
 }
 

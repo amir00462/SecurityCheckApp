@@ -467,6 +467,7 @@ fun OutputScreen() {
 
                     "add" -> {
 
+                        Log.e("testLog" , dialogOutput.value.title)
                         if (getNextOutputId() == 1) {
                             DialogOutputAddId1(
                                 idd = getNextOutputId().toString(),

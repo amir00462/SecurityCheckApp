@@ -304,14 +304,10 @@ fun DialogOutputAddId1(
 ) {
 
     val navigation = getNavController()
-    val result = rememberUpdatedState<Pair<Int , String>>(newValue = Pair(R.drawable.ic_lamp , "چراغ های حیاط"))
     val context = LocalContext.current
     val creatingOutput = remember { mutableStateOf(value) }
     val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
     val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
-
-    creatingOutput.value.title = result.value.second
-    creatingOutput.value.icon = result.value.first
 
     Dialog(onDismissRequest = onDismiss) {
 

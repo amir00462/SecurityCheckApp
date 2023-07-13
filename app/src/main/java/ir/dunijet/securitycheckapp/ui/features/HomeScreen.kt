@@ -49,7 +49,6 @@ fun HomeScreen() {
     // variables
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
-
     lateinit var smsSent: BroadcastReceiver
     lateinit var smsReceived: BroadcastReceiver
     val smsService = get<SmsRepository>()
@@ -99,7 +98,6 @@ fun HomeScreen() {
         )
     )
 
-
     fun updateVaziatEngine() {
         val formattedSms = SmsFormatter.getVaziatEngine(password)
         smsService.sendSms(formattedSms, numberEngine)
@@ -116,7 +114,6 @@ fun HomeScreen() {
         val formattedSms = SmsFormatter.updateVaziatOutput(password, outputId, vaziat)
         smsService.sendSms(formattedSms, numberEngine)
     }
-
     fun myListeners() {
         smsReceived = smsReceivedListener(numberEngine, serial) {
 
@@ -233,7 +230,6 @@ fun HomeScreen() {
         context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
 
     }
-
     fun logicHome() {
 
         //todo check if it is admin1 or admin2 or user and change Ui
@@ -289,7 +285,6 @@ fun HomeScreen() {
             mainActivity.addLogsToDb()
         }
     }
-
     myListeners()
 
     // check switch data for theme ->
@@ -303,6 +298,7 @@ fun HomeScreen() {
             ThemeData.LightTheme
         }
     }
+    MainActivity.outputName_dialogPending = 0
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {

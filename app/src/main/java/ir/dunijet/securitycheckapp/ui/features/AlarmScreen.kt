@@ -36,10 +36,12 @@ fun AlarmScreen() {
 
     // variables
     val mainActivityy = LocalContext.current as MainActivity
-    val zamanSedayAzhirHa = remember { mutableStateOf( mainActivityy.databaseService.readFromLocal(KEY_ALARM_ZAMAN_SEDA_AZHIR).toInt().toFloat() ) }
+    val zamanTest = mainActivityy.databaseService.readFromLocal(KEY_ALARM_ZAMAN_SEDA_AZHIR)
+    val bolandiDakheli = mainActivityy.databaseService.readFromLocal(KEY_ALARM_BOLANDI_DAKHELI)
+    val zamanSedayAzhirHa = remember { mutableStateOf( if(zamanTest == "null") 0f else zamanTest.toInt().toFloat() ) }
     val azhirKharegi = remember { mutableStateOf(mainActivityy.databaseService.readFromLocal(KEY_ALARM_IS_ENABLED_AZHIR_KHAREGI) == "1") }
     val azhirDakheli = remember { mutableStateOf(mainActivityy.databaseService.readFromLocal(KEY_ALARM_IS_ENABLED_AZHIR_DAKHELI) == "1") }
-    val bolandiSedayAzhirDakheli = remember { mutableStateOf(mainActivityy.databaseService.readFromLocal(KEY_ALARM_BOLANDI_DAKHELI).toInt().toFloat()) }
+    val bolandiSedayAzhirDakheli = remember { mutableStateOf(  if(bolandiDakheli == "null") 0f else bolandiDakheli.toInt().toFloat()  ) }
     val alphaDakheli = remember { mutableStateOf(if (azhirDakheli.value) 1f else 0.6f) }
 
     val coroutineScope = rememberCoroutineScope()
@@ -101,6 +103,7 @@ fun AlarmScreen() {
                     azhirDakheli.value = newIsEnabledSpeakerInside == "1"
                     bolandiSedayAzhirDakheli.value = newVolumeSpeakerInside.toInt().toFloat()
 
+                    context.showToast("اطلاعات آژیرها به روز شد")
                 }
             }
         }

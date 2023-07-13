@@ -170,26 +170,28 @@ fun SelectOutputName() {
 
 }
 
+// selectedIcon -> index
+// onIconSelected -> (index , item address)
 @Composable
 fun IconGrid(
     modifier: Modifier,
     icons: List<Int>,
     selectedIcon: Int,
-    onIconSelected: (Int) -> Unit
+    onIconSelected: (Int , Int) -> Unit
 ) {
 
     LazyVerticalGrid(modifier = modifier.padding(start = 16.dp , end = 16.dp , bottom = 16.dp),
         columns = GridCells.Fixed(9)) {
         items(icons.size) { index ->
             val iconId = icons[index]
-            val isSelected = (selectedIcon == iconId)
+            val isSelected = (selectedIcon == index)
 
             Box(
                 modifier = Modifier
                     .clip(shapes.medium)
                     .aspectRatio(0.95f)
                     .background( if(isSelected) MainActivity.appColors[5] else  MainActivity.appColors[2])
-                    .clickable { onIconSelected(iconId) }
+                    .clickable { onIconSelected(index , iconId) }
             ) {
                 Icon(
                     painter = painterResource(iconId),
@@ -213,6 +215,7 @@ fun DialogAddOutputName(
     val context = LocalContext.current
     val nameRemoteEdt = remember { mutableStateOf("") }
     var selectedIcon by remember { mutableStateOf(-1) }
+    var selectedIconIndex by remember { mutableStateOf(-1) }
     val allIcons = listOf(
         R.drawable.ic_home,
         R.drawable.ic_clock,
@@ -325,10 +328,12 @@ fun DialogAddOutputName(
                         }
                         .padding(top = 6.dp),
                         icons = allIcons,
-                        selectedIcon = selectedIcon,
-                        onIconSelected = { iconId -> selectedIcon = iconId }
+                        selectedIcon = selectedIconIndex,
+                        onIconSelected = { index , iconId ->
+                            selectedIcon = iconId
+                            selectedIconIndex = index
+                        }
                     )
-
                 }
 
                 Row(

@@ -27,6 +27,7 @@ import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
 import ir.dunijet.securitycheckapp.ui.widgets.*
 import ir.dunijet.securitycheckapp.util.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // todo - deal lastUpdatedTime in OutputScreen - done
@@ -73,7 +74,10 @@ fun OutputScreen() {
 
                         showDialog.value = "hide"
                         coroutineScope.launch {
-                            mainActivity.databaseService.writeOutput(
+
+                            val existData = outputs.find {  it.outputId == idOutput  }
+                            outputs.remove(existData)
+                            outputs.add(
                                 dialogOutput.value.copy(
                                     outputId = idOutput,
                                     outputType = OutputType.KhamooshRoshan,
@@ -82,9 +86,9 @@ fun OutputScreen() {
                                 )
                             )
 
-                            val existData = outputs.find {  it.outputId == idOutput  }
-                            outputs.remove(existData)
-                            outputs.add(
+                            mainActivity.databaseService.deleteOutput(idOutput)
+                            delay(1)
+                            mainActivity.databaseService.writeOutput(
                                 dialogOutput.value.copy(
                                     outputId = idOutput,
                                     outputType = OutputType.KhamooshRoshan,
@@ -104,6 +108,7 @@ fun OutputScreen() {
                         coroutineScope.launch {
                             val timeLahzeii = it.lines()[3].split(':')[1].split('*')[1]
 
+                            mainActivity.databaseService.deleteOutput(idOutput)
                             mainActivity.databaseService.writeOutput(
                                 dialogOutput.value.copy(
                                     outputId = idOutput,
@@ -134,6 +139,8 @@ fun OutputScreen() {
 
                         showDialog.value = "hide"
                         coroutineScope.launch {
+
+                            mainActivity.databaseService.deleteOutput(idOutput)
                             mainActivity.databaseService.writeOutput(
                                 dialogOutput.value.copy(
                                     outputId = idOutput,
@@ -416,13 +423,10 @@ fun OutputScreen() {
     ) {
 
         Surface(color = appColors[1]) {
-
             Box(modifier = Modifier.fillMaxSize()) {
-
                 Column {
 
                     Divider(color = MainActivity.appColors[4], thickness = 1.dp)
-
                     OutputList(outputs, onVirayeshClicked = {
 
                         // on virayesh clicked
@@ -483,7 +487,6 @@ fun OutputScreen() {
                                 onSubmit = {
 
                                     // send add sms
-                                    context.showToast("add output clicked")
                                     addNewOutput(it)
 
                                 }
@@ -503,45 +506,39 @@ fun OutputScreen() {
                                 onSubmit = {
 
                                     // send add sms
-                                    context.showToast("add output clicked")
                                     addNewOutput(it)
 
                                 }
                             )
                         }
-
                     }
 
                     "edit" -> {
-
                         if (dialogOutput.value.outputId == "1") {
-
                             DialogOutputEditId1(
                                 output = dialogOutput.value,
                                 buttonIsLoading = buttonIsLoading,
                                 onDismiss = {
+                                    // so we have change in dialog output and this is what we have done :)
                                     if (!buttonIsLoading.value) {
+                                        Log.v("testOutput27" , dialogOutput.value.toString())
                                         showDialog.value = "hide"
                                     } else {
                                         context.showToast("لطفا تا پایان عملیات صبر کنید")
                                     }
                                 },
                                 onSubmit = {
-
                                     // send add sms
-                                    context.showToast("edit output clicked")
                                     editOutput(it)
-
                                 }
                             )
-
                         } else {
-
                             DialogOutputEdit(
                                 output = dialogOutput.value,
                                 buttonIsLoading = buttonIsLoading,
                                 onDismiss = {
                                     if (!buttonIsLoading.value) {
+                                        MainActivity.outputName_dialogPendingOutputWorking = dialogOutput.value
                                         showDialog.value = "hide"
                                     } else {
                                         context.showToast("لطفا تا پایان عملیات صبر کنید")
@@ -550,14 +547,12 @@ fun OutputScreen() {
                                 onSubmit = {
 
                                     // send add sms
-                                    context.showToast("edit output clicked")
+
                                     editOutput(it)
 
                                 }
                             )
-
                         }
-
 
                     }
 
@@ -574,7 +569,7 @@ fun OutputScreen() {
                             onSubmit = {
 
                                 // send delete sms
-                                context.showToast("delete clicked")
+
                                 deleteOutput(dialogOutput.value.outputId)
 
                             }

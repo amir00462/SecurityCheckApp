@@ -46,6 +46,7 @@ import ir.dunijet.securitycheckapp.ui.theme.Shapes
 import ir.dunijet.securitycheckapp.ui.theme.VazirFont
 import ir.dunijet.securitycheckapp.ui.theme.VazirFontDigits
 import ir.dunijet.securitycheckapp.util.*
+import kotlinx.coroutines.Dispatchers
 import java.util.*
 
 @Composable
@@ -305,7 +306,7 @@ fun DialogOutputAddId1(
 
     val navigation = getNavController()
     val context = LocalContext.current
-    val creatingOutput = remember { mutableStateOf(value) }
+    val creatingOutput = remember { mutableStateOf( value.copy() ) }
     val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
     val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
 
@@ -458,9 +459,7 @@ fun DialogOutputAddId1(
                             )
                         }
                     }
-
                 }
-
             }
         }
     }
@@ -475,11 +474,11 @@ fun DialogOutputEditId1(
 ) {
     val navigation = getNavController()
     val context = LocalContext.current
-    val creatingOutput = remember { mutableStateOf(output) }
+    val creatingOutput = remember { mutableStateOf(output.copy()) }
     val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
     val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(onDismissRequest = { onDismiss.invoke() } ) {
 
         Card(
             //modifier = Modifier.height(600.dp),
@@ -533,7 +532,6 @@ fun DialogOutputEditId1(
                     ) {
 
                         // open new screen to choose new icon and title
-                        // todo check this
 
                         onDismiss.invoke()
                         MainActivity.outputName_dialogPending = 2
@@ -560,7 +558,7 @@ fun DialogOutputEditId1(
                         OutputTimeLahzeii(
                             modifier = Modifier.padding(top = 24.dp, bottom = 40.dp),
                             isWorking = alphaLahzeii.value == 1f,
-                            value = if (creatingOutput.value.outputType == OutputType.Lahzeii) creatingOutput.value.outputLahzeiiZaman else 27f,
+                            value = creatingOutput.value.outputLahzeiiZaman,
                             onValueChanged = {
                                 creatingOutput.value.outputLahzeiiZaman = it
                             })
@@ -649,7 +647,7 @@ fun DialogOutputAdd(
 
     val navigation = getNavController()
     val context = LocalContext.current
-    val creatingOutput = remember { mutableStateOf(value) }
+    val creatingOutput = remember { mutableStateOf(value.copy()) }
     val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
     val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
 
@@ -821,7 +819,7 @@ fun DialogOutputEdit(
 ) {
     val navigation = getNavController()
     val context = LocalContext.current
-    val creatingOutput = remember { mutableStateOf(output) }
+    val creatingOutput = remember { mutableStateOf(output.copy()) }
     val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
     val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
 
@@ -906,7 +904,7 @@ fun DialogOutputEdit(
                         OutputTimeLahzeii(
                             modifier = Modifier.padding(top = 24.dp, bottom = 40.dp),
                             isWorking = alphaLahzeii.value == 1f,
-                            value = if (creatingOutput.value.outputType == OutputType.Lahzeii) creatingOutput.value.outputLahzeiiZaman else 27f,
+                            value = creatingOutput.value.outputLahzeiiZaman,
                             onValueChanged = {
                                 creatingOutput.value.outputLahzeiiZaman = it
                             })

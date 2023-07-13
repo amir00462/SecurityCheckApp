@@ -18,30 +18,6 @@ import ir.dunijet.securitycheckapp.model.data.Remote
 //   , و با سیم یه باگی دارند - باگ در صفحه زون های بی سیم
 // ریموت های دستگاه و کاربران مونده اضافه کردنشون
 
-fun resolveFullUpdate(str :String) {
-
-
-
-}
-
-fun main() {
-
-    // z zone haye sim dar
-    // f zone haye bi sim
-    // o config outputha
-    // h safe home update shodanesh
-    //
-
-    val str = "227"
-    if( str.first() == '2' ) {
-
-        val want = str.substring(1 , str.length)
-        print(want)
-
-    }
-
-}
-
 /*
 
 روشنایی داخل ساختمان
@@ -67,3 +43,8 @@ fun main() {
 کامپیوتر
 
  */
+
+// - > Mohem ->
+// outputScreen - tested
+// outputScreenName - tested
+//

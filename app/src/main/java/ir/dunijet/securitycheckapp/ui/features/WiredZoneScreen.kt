@@ -210,9 +210,7 @@ fun WiredZoneScreen() {
 
                         // now the config is ready to add ->
                         wiredZones.clear()
-
-                        delay(10)
-
+//                        delay(10)
                         wiredZones.add(zone1)
                         wiredZones.add(zone2)
                         wiredZones.add(zone3)
@@ -232,6 +230,7 @@ fun WiredZoneScreen() {
                             )
                         )
 
+                        context.showToast("زون های سیم دار به روز شد")
                     }
                 }
             }
@@ -262,7 +261,7 @@ fun WiredZoneScreen() {
                 val thisData = wiredZones.find { it.zoneId == newZoneId }!!
                 val newData = thisData.copy(title = newZoneName, zoneNooe = newZoneNooe)
                 wiredZones.remove(thisData)
-                delay(5)
+                delay(1)
                 wiredZones.add( newData  )
                 // change the data to database ->
                 mainActivity.databaseService.editZone2(
@@ -274,21 +273,24 @@ fun WiredZoneScreen() {
                 // dood va atash
                 // list in app ->
                 val thisData = wiredZones.find { it.zoneId == newZoneId }!!
-                val newData = thisData.copy(
+                val newDataInList = thisData.copy(
                     title = newZoneName,
                     zoneNooe = newZoneNooe,
                     zoneType = newZoneType,
                     zoneStatus = ZoneType.GheirFaal
                 )
+                val newListInDatabase = thisData.copy(
+                    title = newZoneName
+                )
                 wiredZones.remove(thisData)
-                delay(10)
+                delay(1)
                 wiredZones.add(
-                    newData
+                    newDataInList
                 )
 
                 // change the data to database ->
                 mainActivity.databaseService.editZone2(
-                    newData
+                    newListInDatabase
                 )
 
             }

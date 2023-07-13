@@ -246,7 +246,6 @@ fun WiredZoneScreen() {
         context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
 
     }
-
     fun editZoneName(
         newZoneId: String,
         newZoneName: String,
@@ -297,7 +296,6 @@ fun WiredZoneScreen() {
 
         }
     }
-
     fun editZoneInIotDevice() {
         val formattedSms = SmsFormatter.saveWiredZones(password, wiredZones)
         smsService.sendSms(formattedSms, numberEngine)
@@ -329,6 +327,8 @@ fun WiredZoneScreen() {
         onDispose {
             MainActivity.recomposition = 0
             mainActivity.addLogsToDb()
+            context.unregisterReceiver(smsReceived)
+            context.unregisterReceiver(smsSent)
         }
     }
 

@@ -50,7 +50,6 @@ fun ChangePasswordScreen() {
                 return true
         return false
     }
-
     fun changePasswordLogic() {
         buttonIsLoading.value = true
 
@@ -96,6 +95,12 @@ fun ChangePasswordScreen() {
             databaseService.readFromLocal(KEY_NUMBER_ENGINE)
         )
 
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            context.unregisterReceiver(smsReceived)
+            context.unregisterReceiver(smsSent)
+        }
     }
 
     MainActivity.checkPermissions(context)

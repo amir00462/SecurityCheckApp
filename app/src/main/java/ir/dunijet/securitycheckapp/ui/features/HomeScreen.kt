@@ -283,8 +283,11 @@ fun HomeScreen() {
         onDispose {
             MainActivity.recomposition = 0
             mainActivity.addLogsToDb()
+            context.unregisterReceiver(smsReceived)
+            context.unregisterReceiver(smsSent)
         }
     }
+
     myListeners()
 
     // check switch data for theme ->

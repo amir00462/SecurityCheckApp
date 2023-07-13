@@ -65,7 +65,6 @@ fun ChangePasswordInApp(typeIsModir: Boolean) {
 
         return false
     }
-
     fun tryToGo() {
 
         buttonIsLoading.value = true
@@ -114,6 +113,13 @@ fun ChangePasswordInApp(typeIsModir: Boolean) {
             databaseService.readFromLocal(KEY_NUMBER_ENGINE)
         )
 
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            context.unregisterReceiver(smsReceived)
+            context.unregisterReceiver(smsSent)
+        }
     }
 
     MainActivity.checkPermissions(context)

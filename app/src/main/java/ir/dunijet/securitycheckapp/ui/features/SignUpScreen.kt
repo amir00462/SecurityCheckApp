@@ -86,7 +86,6 @@ fun SignUpScreen() {
                     return true
         return false
     }
-
     fun appLogic() {
 
         smsReceived = smsReceivedListener(numberEngine.value, ResponseMain) {
@@ -321,6 +320,12 @@ fun SignUpScreen() {
     }
 
     // main ui - check permission
+    DisposableEffect(Unit) {
+        onDispose {
+            context.unregisterReceiver(smsReceived)
+            context.unregisterReceiver(smsSent)
+        }
+    }
     checkPermissions(context)
     Surface(color = appColors[11], modifier = Modifier.fillMaxSize()) {
 

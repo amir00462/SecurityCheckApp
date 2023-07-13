@@ -37,6 +37,8 @@ import kotlinx.coroutines.launch
 // todo - outputs should not change in config screen
 // todo - i change vaziat of output in config but it doesnt change in ui of list
 
+// todo yekari kardim -> ro hame dialog ha bad baste shodan mire halat paye fake output
+
 @Composable
 fun OutputScreen() {
 
@@ -54,6 +56,7 @@ fun OutputScreen() {
 
     val showDialog = remember { mutableStateOf("hide") }
     val dialogOutput = remember { mutableStateOf(FAKE_OUTPUT) }
+    val dialogOutputAdd = remember { mutableStateOf(FAKE_OUTPUT) }
 
     val numberEngine = mainActivity.databaseService.readFromLocal(KEY_NUMBER_ENGINE)
     val password = mainActivity.databaseService.readFromLocal(KEY_USER_PASSWORD)
@@ -97,8 +100,8 @@ fun OutputScreen() {
                                 )
                             )
 
+                            dialogOutput.value = FAKE_OUTPUT
                         }
-
                     }
 
                     // add lahzeii
@@ -131,6 +134,7 @@ fun OutputScreen() {
                                 )
                             )
 
+                            dialogOutput.value = FAKE_OUTPUT
                         }
                     }
 
@@ -160,6 +164,8 @@ fun OutputScreen() {
                                     lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
                                 )
                             )
+
+                            dialogOutput.value = FAKE_OUTPUT
                         }
 
                     }
@@ -175,10 +181,9 @@ fun OutputScreen() {
                             val foundData = outputs.find {  it.outputId == idOutput  }
                             outputs.remove(foundData)
 
+                            dialogOutput.value = FAKE_OUTPUT
                         }
-
                     }
-
                 }
 
             } else {
@@ -208,6 +213,7 @@ fun OutputScreen() {
                                 )
                             )
 
+                            dialogOutput.value = FAKE_OUTPUT
                         }
 
                     }
@@ -238,9 +244,8 @@ fun OutputScreen() {
                                 )
                             )
 
-
+                            dialogOutput.value = FAKE_OUTPUT
                         }
-
                     }
 
                     // add fireman
@@ -264,16 +269,13 @@ fun OutputScreen() {
                                     lastUpdatedIsEnabledInHome = System.currentTimeMillis().toString()
                                 )
                             )
+
+                            dialogOutput.value = FAKE_OUTPUT
                         }
-
                     }
-
                 }
-
             }
-
         }
-
         smsSent = smsSentListener(
             context,
             navigation.currentDestination?.route!!,
@@ -323,7 +325,27 @@ fun OutputScreen() {
 
     }
 
+
     // this functions use data in dialogOutput ->
+    fun editJustNameOutput(editedOutput :Output) {
+
+        showDialog.value = "hide"
+        coroutineScope.launch {
+
+            val existData = outputs.find {  it.outputId == editedOutput.outputId  }
+            outputs.remove(existData)
+            outputs.add( editedOutput )
+
+            mainActivity.databaseService.deleteOutput(existData!!.outputId)
+            delay(1)
+            mainActivity.databaseService.writeOutput(
+                editedOutput
+            )
+
+            dialogOutput.value = FAKE_OUTPUT
+        }
+
+    }
     fun addNewOutput(newOutput: Output) {
         //dialogOutput.value = newOutput.copy( outputId = getNextOutputId().toString() )
 
@@ -341,7 +363,6 @@ fun OutputScreen() {
         smsService.sendSms(formattedSms, numberEngine)
     }
     fun checkDialogs() {
-
         when(MainActivity.outputName_dialogPending) {
 
             // add
@@ -355,6 +376,8 @@ fun OutputScreen() {
 
                 Log.e("ccheck" , "check value in outputscrent -> " + dialogOutput.value)
                 showDialog.value = "add"
+
+                MainActivity.outputName_dialogPending = 0
             }
 
             // edit
@@ -366,15 +389,17 @@ fun OutputScreen() {
                 )
 
                 showDialog.value = "edit"
+
+                MainActivity.outputName_dialogPending = 0
             }
 
             // non of them
             else -> {
                 showDialog.value = "hide"
+                MainActivity.outputName_dialogPending = 0
             }
 
         }
-
     }
 
     addData()
@@ -387,9 +412,14 @@ fun OutputScreen() {
         onDispose {
             MainActivity.recomposition = 0
             mainActivity.addLogsToDb()
+            context.unregisterReceiver(smsReceived)
+            context.unregisterReceiver(smsSent)
         }
     }
-    checkDialogs()
+
+    if(MainActivity.outputName_dialogPending != 0) {
+        checkDialogs()
+    }
     Scaffold(
         topBar = {
 
@@ -480,6 +510,7 @@ fun OutputScreen() {
                                 onDismiss = {
                                     if (!buttonIsLoading.value) {
                                         showDialog.value = "hide"
+                                        dialogOutput.value = FAKE_OUTPUT
                                     } else {
                                         context.showToast("لطفا تا پایان عملیات صبر کنید")
                                     }
@@ -499,6 +530,7 @@ fun OutputScreen() {
                                 onDismiss = {
                                     if (!buttonIsLoading.value) {
                                         showDialog.value = "hide"
+                                        dialogOutput.value = FAKE_OUTPUT
                                     } else {
                                         context.showToast("لطفا تا پایان عملیات صبر کنید")
                                     }
@@ -523,13 +555,20 @@ fun OutputScreen() {
                                     if (!buttonIsLoading.value) {
                                         Log.v("testOutput27" , dialogOutput.value.toString())
                                         showDialog.value = "hide"
+                                        dialogOutput.value = FAKE_OUTPUT
                                     } else {
                                         context.showToast("لطفا تا پایان عملیات صبر کنید")
                                     }
                                 },
-                                onSubmit = {
-                                    // send add sms
-                                    editOutput(it)
+                                onSubmit = { it , index ->
+
+                                    if(index == 1) {
+                                        // send add sms
+                                        editOutput(it)
+                                    } else {
+                                        editJustNameOutput(it)
+                                    }
+
                                 }
                             )
                         } else {
@@ -540,15 +579,19 @@ fun OutputScreen() {
                                     if (!buttonIsLoading.value) {
                                         MainActivity.outputName_dialogPendingOutputWorking = dialogOutput.value
                                         showDialog.value = "hide"
+                                        dialogOutput.value = FAKE_OUTPUT
                                     } else {
                                         context.showToast("لطفا تا پایان عملیات صبر کنید")
                                     }
                                 },
-                                onSubmit = {
+                                onSubmit = { it , index ->
 
-                                    // send add sms
-
-                                    editOutput(it)
+                                    if(index == 1) {
+                                        // send add sms
+                                        editOutput(it)
+                                    } else {
+                                        editJustNameOutput(it)
+                                    }
 
                                 }
                             )
@@ -562,6 +605,7 @@ fun OutputScreen() {
                             onDismiss = {
                                 if (!buttonIsLoading.value) {
                                     showDialog.value = "hide"
+                                    dialogOutput.value = FAKE_OUTPUT
                                 } else {
                                     context.showToast("لطفا تا پایان عملیات صبر کنید")
                                 }

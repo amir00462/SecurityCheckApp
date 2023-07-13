@@ -142,7 +142,6 @@ fun WirelessZoneScreen() {
         context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
 
     }
-
     fun addNew(id: String, name: String) {
 
         coroutineScope.launch {
@@ -156,7 +155,6 @@ fun WirelessZoneScreen() {
         }
 
     }
-
     fun editOne(newId: String, newName: String) {
 
         coroutineScope.launch {
@@ -179,18 +177,15 @@ fun WirelessZoneScreen() {
         }
 
     }
-
     fun deleteOne() {
         val formattedSms =
             SmsFormatter.deleteWirelessZone(password, wirelessZones, dialogZone.value)
         smsService.sendSms(formattedSms, numberEngine)
     }
-
     fun addAllToIot() {
         val formattedSms = SmsFormatter.saveAllWirelessZones(password, wirelessZones)
         smsService.sendSms(formattedSms, numberEngine)
     }
-
     fun getNextZoneId(): Int {
 
         val fullList = mutableListOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
@@ -200,7 +195,6 @@ fun WirelessZoneScreen() {
 
         return fullList.first()
     }
-
     fun addData() {
 
         coroutineScope.launch {
@@ -225,6 +219,8 @@ fun WirelessZoneScreen() {
         onDispose {
             MainActivity.recomposition = 0
             mainActivity.addLogsToDb()
+            context.unregisterReceiver(smsReceived)
+            context.unregisterReceiver(smsSent)
         }
     }
 

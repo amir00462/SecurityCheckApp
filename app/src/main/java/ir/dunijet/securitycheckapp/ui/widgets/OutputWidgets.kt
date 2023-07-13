@@ -38,6 +38,7 @@ import dev.burnoo.cokoin.navigation.getNavController
 import ir.dunijet.securitycheckapp.R
 import ir.dunijet.securitycheckapp.model.data.Output
 import ir.dunijet.securitycheckapp.model.data.OutputName
+import ir.dunijet.securitycheckapp.model.data.justNameChanged
 import ir.dunijet.securitycheckapp.ui.MainActivity
 import ir.dunijet.securitycheckapp.ui.MainActivity.Companion.appColors
 import ir.dunijet.securitycheckapp.ui.MemberId
@@ -368,6 +369,7 @@ fun DialogOutputAddId1(
 
                         onDismiss.invoke()
                         MainActivity.outputName_dialogPending = 1
+                        MainActivity.outputName_dialogPendingOutputWorking = creatingOutput.value
                         navigation.navigate(MyScreens.SelectOutputName.route)
 
                     }
@@ -465,12 +467,13 @@ fun DialogOutputAddId1(
     }
 }
 
+// if the int be 1 normal point if 0 it is name chaning ...
 @Composable
 fun DialogOutputEditId1(
     output: Output,
     buttonIsLoading: MutableState<Boolean>,
     onDismiss: () -> Unit,
-    onSubmit: (Output) -> Unit
+    onSubmit: (Output , Int) -> Unit
 ) {
     val navigation = getNavController()
     val context = LocalContext.current
@@ -535,6 +538,7 @@ fun DialogOutputEditId1(
 
                         onDismiss.invoke()
                         MainActivity.outputName_dialogPending = 2
+                        MainActivity.outputName_dialogPendingOutputWorking = creatingOutput.value
                         navigation.navigate(MyScreens.SelectOutputName.route)
 
                     }
@@ -596,17 +600,21 @@ fun DialogOutputEditId1(
                         .clickable {
 
                             if (!buttonIsLoading.value) {
-                                onSubmit.invoke(creatingOutput.value)
 
-                                buttonIsLoading.value = true
-                                Timer().schedule(object : TimerTask() {
-                                    override fun run() {
-                                        buttonIsLoading.value = false
-                                    }
-                                }, WaitingToReceiveSms)
+                                if(creatingOutput.value.justNameChanged(output) ) {
+                                    onSubmit.invoke(creatingOutput.value , 0)
+                                } else {
+                                    onSubmit.invoke(creatingOutput.value , 1)
+
+                                    buttonIsLoading.value = true
+                                    Timer().schedule(object : TimerTask() {
+                                        override fun run() {
+                                            buttonIsLoading.value = false
+                                        }
+                                    }, WaitingToReceiveSms)
+                                }
 
                             }
-
                         }
                         .weight(1f)
                         .fillMaxHeight(), contentAlignment = Alignment.Center
@@ -645,6 +653,7 @@ fun DialogOutputAdd(
     onSubmit: (Output) -> Unit
 ) {
 
+    Log.v("testAdd" , value.toString())
     val navigation = getNavController()
     val context = LocalContext.current
     val creatingOutput = remember { mutableStateOf(value.copy()) }
@@ -709,6 +718,7 @@ fun DialogOutputAdd(
 
                         onDismiss.invoke()
                         MainActivity.outputName_dialogPending = 1
+                        MainActivity.outputName_dialogPendingOutputWorking = creatingOutput.value
                         navigation.navigate(MyScreens.SelectOutputName.route)
 
                     }
@@ -754,6 +764,8 @@ fun DialogOutputAdd(
                         .clickable {
                             if (!buttonIsLoading.value) {
                                 onDismiss.invoke()
+//                                MainActivity.outputName_dialogPendingOutputWorking = FAKE_OUTPUT
+//                                MainActivity.outputName_newOutputName = FAKE_OUTPUT_NAME
                             } else {
                                 context.showToast("لطفا تا پایان عملیات صبر کنید")
                             }
@@ -774,6 +786,8 @@ fun DialogOutputAdd(
 
                             if (!buttonIsLoading.value) {
                                 onSubmit.invoke(creatingOutput.value.copy(outputId = idd))
+//                                MainActivity.outputName_dialogPendingOutputWorking = FAKE_OUTPUT
+//                                MainActivity.outputName_newOutputName = FAKE_OUTPUT_NAME
 
                                 buttonIsLoading.value = true
                                 Timer().schedule(object : TimerTask() {
@@ -815,7 +829,7 @@ fun DialogOutputEdit(
     output: Output,
     buttonIsLoading: MutableState<Boolean>,
     onDismiss: () -> Unit,
-    onSubmit: (Output) -> Unit
+    onSubmit: (Output , Int) -> Unit
 ) {
     val navigation = getNavController()
     val context = LocalContext.current
@@ -881,6 +895,7 @@ fun DialogOutputEdit(
 
                         onDismiss.invoke()
                         MainActivity.outputName_dialogPending = 2
+                        MainActivity.outputName_dialogPendingOutputWorking = creatingOutput.value
                         navigation.navigate(MyScreens.SelectOutputName.route)
 
                     }
@@ -942,17 +957,21 @@ fun DialogOutputEdit(
                         .clickable {
 
                             if (!buttonIsLoading.value) {
-                                onSubmit.invoke(creatingOutput.value)
 
-                                buttonIsLoading.value = true
-                                Timer().schedule(object : TimerTask() {
-                                    override fun run() {
-                                        buttonIsLoading.value = false
-                                    }
-                                }, WaitingToReceiveSms)
+                                if(creatingOutput.value.justNameChanged(output) ) {
+                                    onSubmit.invoke(creatingOutput.value , 0)
+                                } else {
+                                    onSubmit.invoke(creatingOutput.value , 1)
+
+                                    buttonIsLoading.value = true
+                                    Timer().schedule(object : TimerTask() {
+                                        override fun run() {
+                                            buttonIsLoading.value = false
+                                        }
+                                    }, WaitingToReceiveSms)
+                                }
 
                             }
-
                         }
                         .weight(1f)
                         .fillMaxHeight(), contentAlignment = Alignment.Center

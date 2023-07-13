@@ -22,3 +22,12 @@ data class Output(
     var lastUpdatedIsEnabledInHome :String
 
     )
+
+
+fun Output.justNameChanged(parentOutput :Output) :Boolean {
+    return this.outputId == parentOutput.outputId &&
+            this.outputType == parentOutput.outputType &&
+            this.outputLahzeiiZaman == parentOutput.outputLahzeiiZaman &&
+            this.isEnabledInHome == parentOutput.isEnabledInHome &&
+            this.lastUpdatedIsEnabledInHome == parentOutput.lastUpdatedIsEnabledInHome
+}

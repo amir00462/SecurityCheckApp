@@ -301,8 +301,11 @@ fun MembersScreen() {
         onDispose {
             recomposition = 0
             mainActivity.addLogsToDb()
+            context.unregisterReceiver(smsReceived)
+            context.unregisterReceiver(smsSent)
         }
     }
+
     Scaffold(
         topBar = {
 

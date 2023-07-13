@@ -64,7 +64,6 @@ fun RemoteScreen() {
 
         return fullList.first()
     }
-
     fun getAll() {
         val formattedSms = SmsFormatter.getAllRemotes(password)
         smsService.sendSms(formattedSms, numberEngine)
@@ -268,7 +267,6 @@ fun RemoteScreen() {
         context.registerReceiver(smsSent, IntentFilter(SMS_SENT))
 
     }
-
     fun addData() {
 
         coroutineScope.launch {
@@ -308,8 +306,11 @@ fun RemoteScreen() {
         onDispose {
             MainActivity.recomposition = 0
             mainActivity.addLogsToDb()
+            context.unregisterReceiver(smsReceived)
+            context.unregisterReceiver(smsSent)
         }
     }
+
 
 
     Scaffold(
@@ -446,7 +447,6 @@ fun getRemoteFake(): List<Remote> {
     )
 
 }
-
 fun resolveRemoteData(response: String): List<Remote> {
 
     /*

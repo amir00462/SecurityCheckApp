@@ -307,9 +307,11 @@ fun DialogOutputAddId1(
 
     val navigation = getNavController()
     val context = LocalContext.current
-    val creatingOutput = remember { mutableStateOf( value.copy() ) }
-    val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
-    val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
+    val creatingOutput = remember { mutableStateOf(value.copy()) }
+    val alphaLahzeii =
+        remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
+    val isDoodAtash =
+        remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
 
     Dialog(onDismissRequest = onDismiss) {
 
@@ -383,8 +385,10 @@ fun DialogOutputAddId1(
                         Log.v("testHH", "$it")
 
                         creatingOutput.value.outputType = it
-                        alphaLahzeii.value = if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f
-                        isDoodAtash.value = creatingOutput.value.outputType == OutputType.VabasteDoodAtash
+                        alphaLahzeii.value =
+                            if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f
+                        isDoodAtash.value =
+                            creatingOutput.value.outputType == OutputType.VabasteDoodAtash
                     }
 
                     // zaman
@@ -473,15 +477,17 @@ fun DialogOutputEditId1(
     output: Output,
     buttonIsLoading: MutableState<Boolean>,
     onDismiss: () -> Unit,
-    onSubmit: (Output , Int) -> Unit
+    onSubmit: (Output, Int) -> Unit
 ) {
     val navigation = getNavController()
     val context = LocalContext.current
     val creatingOutput = remember { mutableStateOf(output.copy()) }
-    val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
-    val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
+    val alphaLahzeii =
+        remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
+    val isDoodAtash =
+        remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
 
-    Dialog(onDismissRequest = { onDismiss.invoke() } ) {
+    Dialog(onDismissRequest = { onDismiss.invoke() }) {
 
         Card(
             //modifier = Modifier.height(600.dp),
@@ -550,8 +556,10 @@ fun DialogOutputEditId1(
                     ) {
 
                         creatingOutput.value.outputType = it
-                        alphaLahzeii.value = if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f
-                        isDoodAtash.value = creatingOutput.value.outputType == OutputType.VabasteDoodAtash
+                        alphaLahzeii.value =
+                            if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f
+                        isDoodAtash.value =
+                            creatingOutput.value.outputType == OutputType.VabasteDoodAtash
 
                     }
 
@@ -601,10 +609,10 @@ fun DialogOutputEditId1(
 
                             if (!buttonIsLoading.value) {
 
-                                if(creatingOutput.value.justNameChanged(output) ) {
-                                    onSubmit.invoke(creatingOutput.value , 0)
+                                if (creatingOutput.value.justNameChanged(output)) {
+                                    onSubmit.invoke(creatingOutput.value, 0)
                                 } else {
-                                    onSubmit.invoke(creatingOutput.value , 1)
+                                    onSubmit.invoke(creatingOutput.value, 1)
 
                                     buttonIsLoading.value = true
                                     Timer().schedule(object : TimerTask() {
@@ -647,18 +655,20 @@ fun DialogOutputEditId1(
 @Composable
 fun DialogOutputAdd(
     idd: String,
-    value :Output,
+    value: Output,
     buttonIsLoading: MutableState<Boolean>,
     onDismiss: () -> Unit,
     onSubmit: (Output) -> Unit
 ) {
 
-    Log.v("testAdd" , value.toString())
+    Log.v("testAdd", value.toString())
     val navigation = getNavController()
     val context = LocalContext.current
     val creatingOutput = remember { mutableStateOf(value.copy()) }
-    val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
-    val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
+    val alphaLahzeii =
+        remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
+    val isDoodAtash =
+        remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
 
     Dialog(onDismissRequest = onDismiss) {
 
@@ -698,11 +708,13 @@ fun DialogOutputAdd(
 
                 Divider(color = MainActivity.appColors[4], thickness = 1.dp)
 
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MainActivity.appColors[2])
                 ) {
+
 
                     // name
                     OutputName(
@@ -718,7 +730,8 @@ fun DialogOutputAdd(
 
                         onDismiss.invoke()
                         MainActivity.outputName_dialogPending = 1
-                        MainActivity.outputName_dialogPendingOutputWorking = creatingOutput.value
+                        MainActivity.outputName_dialogPendingOutputWorking =
+                            creatingOutput.value
                         navigation.navigate(MyScreens.SelectOutputName.route)
 
                     }
@@ -753,32 +766,12 @@ fun DialogOutputAdd(
 
                 }
 
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(40.dp)
                 ) {
-
-                    Box(modifier = Modifier
-                        .background(MainActivity.appColors[4])
-                        .clickable {
-                            if (!buttonIsLoading.value) {
-                                onDismiss.invoke()
-//                                MainActivity.outputName_dialogPendingOutputWorking = FAKE_OUTPUT
-//                                MainActivity.outputName_newOutputName = FAKE_OUTPUT_NAME
-                            } else {
-                                context.showToast("لطفا تا پایان عملیات صبر کنید")
-                            }
-                        }
-                        .weight(1f)
-                        .fillMaxHeight(), contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "لغو",
-                            style = MaterialTheme.typography.h2,
-                            color = MainActivity.appColors[8],
-                        )
-                    }
 
                     Box(modifier = Modifier
                         .background(MainActivity.appColors[0])
@@ -817,7 +810,29 @@ fun DialogOutputAdd(
                         }
                     }
 
+                    Box(modifier = Modifier
+                        .background(MainActivity.appColors[4])
+                        .clickable {
+                            if (!buttonIsLoading.value) {
+                                onDismiss.invoke()
+//                                MainActivity.outputName_dialogPendingOutputWorking = FAKE_OUTPUT
+//                                MainActivity.outputName_newOutputName = FAKE_OUTPUT_NAME
+                            } else {
+                                context.showToast("لطفا تا پایان عملیات صبر کنید")
+                            }
+                        }
+                        .weight(1f)
+                        .fillMaxHeight(), contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "لغو",
+                            style = MaterialTheme.typography.h2,
+                            color = MainActivity.appColors[8],
+                        )
+                    }
+
                 }
+            }
 
             }
         }
@@ -829,13 +844,15 @@ fun DialogOutputEdit(
     output: Output,
     buttonIsLoading: MutableState<Boolean>,
     onDismiss: () -> Unit,
-    onSubmit: (Output , Int) -> Unit
+    onSubmit: (Output, Int) -> Unit
 ) {
     val navigation = getNavController()
     val context = LocalContext.current
     val creatingOutput = remember { mutableStateOf(output.copy()) }
-    val alphaLahzeii = remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
-    val isDoodAtash = remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
+    val alphaLahzeii =
+        remember { mutableStateOf(if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f) }
+    val isDoodAtash =
+        remember { mutableStateOf(creatingOutput.value.outputType == OutputType.VabasteDoodAtash) }
 
     Dialog(onDismissRequest = onDismiss) {
 
@@ -907,8 +924,10 @@ fun DialogOutputEdit(
                     ) {
 
                         creatingOutput.value.outputType = it
-                        alphaLahzeii.value = if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f
-                        isDoodAtash.value = creatingOutput.value.outputType == OutputType.VabasteDoodAtash
+                        alphaLahzeii.value =
+                            if (creatingOutput.value.outputType == OutputType.Lahzeii) 1f else 0.6f
+                        isDoodAtash.value =
+                            creatingOutput.value.outputType == OutputType.VabasteDoodAtash
 
                     }
 
@@ -958,10 +977,10 @@ fun DialogOutputEdit(
 
                             if (!buttonIsLoading.value) {
 
-                                if(creatingOutput.value.justNameChanged(output) ) {
-                                    onSubmit.invoke(creatingOutput.value , 0)
+                                if (creatingOutput.value.justNameChanged(output)) {
+                                    onSubmit.invoke(creatingOutput.value, 0)
                                 } else {
-                                    onSubmit.invoke(creatingOutput.value , 1)
+                                    onSubmit.invoke(creatingOutput.value, 1)
 
                                     buttonIsLoading.value = true
                                     Timer().schedule(object : TimerTask() {
@@ -1048,36 +1067,38 @@ fun DialogOutputDelete(
 
                 Divider(color = MainActivity.appColors[4], thickness = 1.dp)
 
-                ConstraintLayout(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(115.dp)
-                        .background(MainActivity.appColors[2])
-                ) {
-                    val (txtDel1, txtDel2) = createRefs()
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                    ConstraintLayout(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(115.dp)
+                            .background(MainActivity.appColors[2])
+                    ) {
+                        val (txtDel1, txtDel2) = createRefs()
 
-                    Text(
-                        modifier = Modifier
-                            .constrainAs(txtDel1) {
-                                top.linkTo(parent.top)
-                                end.linkTo(parent.end)
-                            }
-                            .padding(top = 25.dp, start = 16.dp),
-                        text = "آیا از حذف خروجی اطمینان دارید؟",
-                        style = MaterialTheme.typography.caption,
-                        color = MainActivity.appColors[8],
-                    )
-                    Text(
-                        modifier = Modifier
-                            .constrainAs(txtDel2) {
-                                top.linkTo(txtDel1.bottom)
-                                end.linkTo(parent.end)
-                            }
-                            .padding(top = 4.dp, start = 16.dp),
-                        text = "این عملیات قابل بازگشت نیست.",
-                        style = MaterialTheme.typography.body2,
-                        color = MainActivity.appColors[10],
-                    )
+                        Text(
+                            modifier = Modifier
+                                .constrainAs(txtDel1) {
+                                    top.linkTo(parent.top)
+                                    end.linkTo(parent.end)
+                                }
+                                .padding(top = 25.dp, end = 16.dp),
+                            text = "آیا از حذف خروجی اطمینان دارید؟",
+                            style = MaterialTheme.typography.caption,
+                            color = MainActivity.appColors[8],
+                        )
+                        Text(
+                            modifier = Modifier
+                                .constrainAs(txtDel2) {
+                                    top.linkTo(txtDel1.bottom)
+                                    end.linkTo(parent.end)
+                                }
+                                .padding(top = 4.dp, end = 16.dp),
+                            text = "این عملیات قابل بازگشت نیست.",
+                            style = MaterialTheme.typography.body2,
+                            color = MainActivity.appColors[10],
+                        )
+                    }
                 }
 
                 Row(
@@ -1166,38 +1187,42 @@ fun OutputName(
             .background(MainActivity.appColors[4])
     ) {
 
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(36.dp),
-        ) {
-            val (idd, title) = createRefs()
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
 
-            MemberId(
+            ConstraintLayout(
                 modifier = Modifier
-                    .constrainAs(idd) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                    }
-                    .padding(end = 8.dp, top = 8.dp),
-                id = id,
-                backColor = MainActivity.appColors[5]
-            )
+                    .fillMaxWidth()
+                    .height(36.dp),
+            ) {
+                val (idd, title) = createRefs()
 
-            Text(
-                modifier = Modifier
-                    .constrainAs(title) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        end.linkTo(parent.end)
-                    }
-                    .padding(start = 8.dp, top = 8.dp),
-                fontWeight = FontWeight.Medium,
-                lineHeight = 24.sp,
-                color = MainActivity.appColors[6],
-                text = "نام خروجی"
-            )
+                MemberId(
+                    modifier = Modifier
+                        .constrainAs(idd) {
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                            start.linkTo(parent.start)
+                        }
+                        .padding(start = 8.dp, top = 8.dp),
+                    id = id,
+                    backColor = MainActivity.appColors[5]
+                )
+
+                Text(
+                    modifier = Modifier
+                        .constrainAs(title) {
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                            end.linkTo(parent.end)
+                        }
+                        .padding(end = 8.dp, top = 8.dp),
+                    fontWeight = FontWeight.Medium,
+                    lineHeight = 24.sp,
+                    color = MainActivity.appColors[6],
+                    text = "نام خروجی"
+                )
+
+            }
 
         }
 
@@ -1357,27 +1382,29 @@ fun OutputTypeWidgetId1(
             .background(MainActivity.appColors[4])
     ) {
 
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(36.dp),
-        ) {
-            val (title) = createRefs()
-
-            Text(
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            ConstraintLayout(
                 modifier = Modifier
-                    .constrainAs(title) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        end.linkTo(parent.end)
-                    }
-                    .padding(start = 8.dp, top = 8.dp),
-                fontWeight = FontWeight.Medium,
-                lineHeight = 24.sp,
-                color = MainActivity.appColors[6],
-                text = "نوع خروجی"
-            )
+                    .fillMaxWidth()
+                    .height(36.dp),
+            ) {
+                val (title) = createRefs()
 
+                Text(
+                    modifier = Modifier
+                        .constrainAs(title) {
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                            end.linkTo(parent.end)
+                        }
+                        .padding(end = 8.dp, top = 8.dp),
+                    fontWeight = FontWeight.Medium,
+                    lineHeight = 24.sp,
+                    color = MainActivity.appColors[6],
+                    text = "نوع خروجی"
+                )
+
+            }
         }
 
         Divider(
@@ -1499,26 +1526,29 @@ fun OutputTypeWidget(
             .background(MainActivity.appColors[4])
     ) {
 
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(36.dp),
-        ) {
-            val (title) = createRefs()
-
-            Text(
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            ConstraintLayout(
                 modifier = Modifier
-                    .constrainAs(title) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        end.linkTo(parent.end)
-                    }
-                    .padding(start = 8.dp, top = 8.dp),
-                fontWeight = FontWeight.Medium,
-                lineHeight = 24.sp,
-                color = MainActivity.appColors[6],
-                text = "نوع خروجی"
-            )
+                    .fillMaxWidth()
+                    .height(36.dp),
+            ) {
+                val (title) = createRefs()
+
+                Text(
+                    modifier = Modifier
+                        .constrainAs(title) {
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                            end.linkTo(parent.end)
+                        }
+                        .padding(end = 8.dp, top = 8.dp),
+                    fontWeight = FontWeight.Medium,
+                    lineHeight = 24.sp,
+                    color = MainActivity.appColors[6],
+                    text = "نوع خروجی"
+                )
+
+            }
 
         }
 
@@ -1783,7 +1813,7 @@ fun SearchTextField(
 }
 
 @Composable
-fun OutputNamesList(list: SnapshotStateList<OutputName> , onItemSelected: (OutputName) -> Unit) {
+fun OutputNamesList(list: SnapshotStateList<OutputName>, onItemSelected: (OutputName) -> Unit) {
 
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         items(list.size) {

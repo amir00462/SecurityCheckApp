@@ -730,7 +730,7 @@ fun ZoneNoe(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var selectedPart by remember { mutableStateOf(zone.zoneNooe) }
-
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
     Column(
         modifier = modifier
             .padding(horizontal = 16.dp)
@@ -834,6 +834,7 @@ fun ZoneNoe(
         }
     }
 }
+}
 
 @Composable
 fun ZoneDialog(
@@ -884,6 +885,7 @@ fun ZoneDialog(
 
                 Divider(color = appColors[4], thickness = 1.dp)
 
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 ConstraintLayout(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -893,13 +895,12 @@ fun ZoneDialog(
 
                     val (memberId, textField, status) = createRefs()
 
-
                     MemberId(modifier = Modifier
                         .constrainAs(memberId) {
                             top.linkTo(parent.top)
                             start.linkTo(parent.start)
                         }
-                        .padding(end = 16.dp, top = 41.dp), id = zone.zoneId)
+                        .padding(start = 16.dp, top = 41.dp), id = zone.zoneId)
 
                     ZoneTextField(mainModifier = Modifier
                         .constrainAs(textField) {
@@ -912,7 +913,7 @@ fun ZoneDialog(
                         edtValue = nameRemoteEdt.value,
                         onValueChanges = { nameRemoteEdt.value = it })
 
-                }
+                }}
 
                 Row(
                     modifier = Modifier
@@ -1020,6 +1021,7 @@ fun ZoneDialogDoodAtash(
 
                 Divider(color = appColors[4], thickness = 1.dp)
 
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 ConstraintLayout(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1035,7 +1037,7 @@ fun ZoneDialogDoodAtash(
                             top.linkTo(parent.top)
                             start.linkTo(parent.start)
                         }
-                        .padding(end = 16.dp, top = 41.dp), id = zone.zoneId)
+                        .padding(start = 16.dp, top = 41.dp), id = zone.zoneId)
 
                     ZoneTextField(mainModifier = Modifier
                         .constrainAs(textField) {
@@ -1058,7 +1060,7 @@ fun ZoneDialogDoodAtash(
                         vaziatRemote.value = it
                     }
 
-                }
+                }}
 
                 Row(
                     modifier = Modifier
@@ -1124,43 +1126,52 @@ fun ZoneTextField(
     edtValue: String,
     onValueChanges: (String) -> Unit
 ) {
-    val context = LocalContext.current
 
-    Column(modifier = mainModifier ?: Modifier) {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        val context = LocalContext.current
 
-        Text(
-            modifier = Modifier.padding(start = 16.dp, top = 24.dp),
-            text = txtSubject,
-            style = MaterialTheme.typography.h3,
-            color = appColors[6],
-        )
+        Column(modifier = mainModifier ?: Modifier) {
 
-        TextField(
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next,
-            ),
-            value = edtValue,
-            singleLine = true,
-            onValueChange = {
-                onValueChanges.invoke(it)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp, start = 16.dp, end = 16.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = appColors[4],
-                disabledTextColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
 
-            ),
-            textStyle = TextStyle(fontFamily = VazirFontDigits, textDirection = TextDirection.Rtl),
-            shape = RoundedCornerShape(6.dp),
-        )
+            Text(
+                modifier = Modifier.padding(start = 16.dp, top = 24.dp),
+                text = txtSubject,
+                style = MaterialTheme.typography.h3,
+                color = appColors[6],
+            )
+
+            TextField(
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next,
+                ),
+                value = edtValue,
+                singleLine = true,
+                onValueChange = {
+                    onValueChanges.invoke(it)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp, start = 16.dp, end = 16.dp),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = appColors[4],
+                    disabledTextColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+
+                ),
+                textStyle = TextStyle(
+                    fontFamily = VazirFontDigits,
+                    textDirection = TextDirection.Rtl
+                ),
+                shape = RoundedCornerShape(6.dp),
+            )
+        }
     }
+
 }
+
 
 // - - - - - - - - - - - - - - - - - - - - - -
 

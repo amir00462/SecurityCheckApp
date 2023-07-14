@@ -11,6 +11,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -115,15 +117,16 @@ class MainActivity : BaseActivity() {
                     if (themeInShared == "dark") darkColors else lightColors
                 }
 
+
+
                 SecureHomeSystemTheme {
-
-                    val variantColor = appColors[1]
-                    val uiController = rememberSystemUiController()
-                    SideEffect { uiController.setStatusBarColor(variantColor) }
-
-                    SecureHomeSystem()
-
+                        val variantColor = appColors[1]
+                        val uiController = rememberSystemUiController()
+                        SideEffect { uiController.setStatusBarColor(variantColor) }
+                        SecureHomeSystem()
                 }
+
+
             }
         }
     }

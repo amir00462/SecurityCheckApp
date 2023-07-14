@@ -352,6 +352,7 @@ fun DialogWirelessZoneAdd(
 
                 Divider(color = MainActivity.appColors[4], thickness = 1.dp)
 
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 ConstraintLayout(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -361,12 +362,14 @@ fun DialogWirelessZoneAdd(
 
                     val (memberId, textField, status) = createRefs()
 
-                    MemberId(modifier = Modifier
-                        .constrainAs(memberId) {
-                            top.linkTo(parent.top)
-                            start.linkTo(parent.start)
-                        }
-                        .padding(end = 16.dp, top = 41.dp), id = id.toString())
+
+                        MemberId(modifier = Modifier
+                            .constrainAs(memberId) {
+                                top.linkTo(parent.top)
+                                start.linkTo(parent.start)
+                            }
+                            .padding(start = 16.dp, top = 41.dp), id = id.toString())
+
 
                     ZoneTextField(mainModifier = Modifier
                         .constrainAs(textField) {
@@ -378,7 +381,7 @@ fun DialogWirelessZoneAdd(
                         txtSubject = "نام زون",
                         edtValue = nameRemoteEdt.value,
                         onValueChanges = { nameRemoteEdt.value = it })
-                }
+                }}
 
                 Row(
                     modifier = Modifier
@@ -474,6 +477,7 @@ fun DialogWirelessZoneEdit(
 
                 Divider(color = MainActivity.appColors[4], thickness = 1.dp)
 
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 ConstraintLayout(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -489,7 +493,7 @@ fun DialogWirelessZoneEdit(
                             top.linkTo(parent.top)
                             start.linkTo(parent.start)
                         }
-                        .padding(end = 16.dp, top = 41.dp), id = zone.zoneId)
+                        .padding(start = 16.dp, top = 41.dp), id = zone.zoneId)
 
                     ZoneTextField(mainModifier = Modifier
                         .constrainAs(textField) {
@@ -501,7 +505,7 @@ fun DialogWirelessZoneEdit(
                         txtSubject = "نام زون",
                         edtValue = nameRemoteEdt.value,
                         onValueChanges = { nameRemoteEdt.value = it })
-                }
+                }}
 
                 Row(
                     modifier = Modifier
@@ -594,7 +598,7 @@ fun DialogWirelessZoneDelete(
                 }
 
                 Divider(color = appColors[4], thickness = 1.dp)
-
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 ConstraintLayout(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -609,7 +613,7 @@ fun DialogWirelessZoneDelete(
                                 top.linkTo(parent.top)
                                 end.linkTo(parent.end)
                             }
-                            .padding(top = 25.dp, start = 16.dp),
+                            .padding(top = 25.dp, end = 16.dp),
                         text = "آیا از حذف زون اطمینان دارید؟",
                         style = MaterialTheme.typography.caption,
                         color = appColors[8],
@@ -620,13 +624,13 @@ fun DialogWirelessZoneDelete(
                                 top.linkTo(txtDel1.bottom)
                                 end.linkTo(parent.end)
                             }
-                            .padding(top = 4.dp, start = 16.dp),
+                            .padding(top = 4.dp, end = 16.dp),
                         text = "این عملیات قابل بازگشت نیست.",
                         style = MaterialTheme.typography.body2,
                         color = appColors[10],
                     )
                 }
-
+            }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

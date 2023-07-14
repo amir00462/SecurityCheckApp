@@ -367,8 +367,6 @@ fun OutputScreen() {
 
             // add
             1 -> {
-                Log.e("ccheck" , "check main activity in outputscrent -> " + MainActivity.outputName_dialogPendingOutputWorking)
-
                 dialogOutput.value = MainActivity.outputName_dialogPendingOutputWorking.copy(
                     title =  MainActivity.outputName_newOutputName.title,
                     icon = MainActivity.outputName_newOutputName.icon ,
@@ -407,7 +405,12 @@ fun OutputScreen() {
         MainActivity.recomposition = 0
         MainActivity.checkPermissions(context)
         myListeners()
+
+        if(MainActivity.outputName_dialogPending != 0) {
+            checkDialogs()
+        }
     }
+
     DisposableEffect(Unit) {
         onDispose {
             MainActivity.recomposition = 0
@@ -417,9 +420,6 @@ fun OutputScreen() {
         }
     }
 
-    if(MainActivity.outputName_dialogPending != 0) {
-        checkDialogs()
-    }
     Scaffold(
         topBar = {
 
